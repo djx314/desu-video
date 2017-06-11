@@ -13,18 +13,18 @@ import scala.concurrent.Future
 
 object Helpers {
 
-  implicit class implicitProjectToPlay(project: Project) {
+  /*implicit class implicitProjectToPlay(project: Project) {
 
     def toPlay(filePath: String): Project = {
 
       (project in file(filePath))
-        .enablePlugins(play.sbt.PlayScala, PlayNettyServer)
-        .disablePlugins(PlayAkkaHttpServer)
+        .enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
+        .disablePlugins(PlayNettyServer)
         .settings(CustomSettings.customSettings: _*)
 
     }
 
-  }
+  }*/
 
   sealed trait Message {
     val mess: String
