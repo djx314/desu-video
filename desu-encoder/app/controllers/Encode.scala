@@ -14,6 +14,7 @@ import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
 import play.api.libs.circe.Circe
+import utils.VideoConfig
 
 import scala.concurrent.Future
 
@@ -21,15 +22,13 @@ import scala.concurrent.Future
 class Encode @Inject() (assets: CustomAssets,
                         components: ControllerComponents,
                         configure: Configuration,
-                        videoEncode: VideoEncode
+                        videoEncode: VideoEncode,
+                        videoConfig: VideoConfig
                        ) extends AbstractController(components) with Circe {
 
   implicit val ec = defaultExecutionContext
 
-  val ffmpegRoot = {
-    configure.get[String]("djx314.path.base.ffmpeg")
-  }
-  val ffRootFile = new File(ffmpegRoot)
+  val ffRootFile = new File(videoConfig.ffmpegRoot)
   val ffPostSource = new File(ffRootFile, "postSource")
   val ffSource = new File(ffRootFile, "ffsource")
 

@@ -65,6 +65,7 @@ class Encode @Inject() (assets: CustomAssets,
     val targetMonthRoot = new File(targetFileRoot, dateInfo.toYearMonth)
     targetMonthRoot.mkdirs()
     val targetFile = new File(targetMonthRoot, dateInfo.toYearMonthDay + ".mp4")
+    println(request.body.file("video"))
     request.body.file("video").map(s => s.ref.moveTo(targetFile, true))
     Future.successful(Ok(RequestInfo(true, targetFile.getCanonicalPath).asJson))
   }
@@ -75,7 +76,7 @@ class Encode @Inject() (assets: CustomAssets,
     val calendar = Calendar.getInstance()
     calendar.setTime(date)
     val dateInfo = DateInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
-
+    println(dateInfo)
     uploadVideo.uploadVideo(dateInfo)
     Future.successful(Ok("命令发送成功"))
   }

@@ -17,26 +17,21 @@ import io.circe.syntax._
 import io.circe.generic.auto._
 import play.api.libs.circe.Circe
 import play.api.mvc.MultipartFormData.{DataPart, FilePart}
+import utils.VideoConfig
 
 import scala.concurrent.Future
 
 @Singleton
-class VideoEncode @Inject() (assets: CustomAssets,
+class FormatFactoryVideoEncode @Inject() (assets: CustomAssets,
                         components: ControllerComponents,
                         configure: Configuration,
-                        ws: WSClient
+                        ws: WSClient,
+                                          videoConfig: VideoConfig
                        ) extends AbstractController(components) with Circe {
 
   implicit val ec = defaultExecutionContext
 
-  val ffmpegRoot = {
-    configure.get[String]("djx314.path.base.ffmpeg")
-  }
-  val assetsPrefix = {
-    configure.get[String]("djx314.url.server.asset")
-  }
-
-  val ffRootFile = new File(ffmpegRoot)
+  val ffRootFile = new File(videoConfig.ffmpegRoot)
   val ffTarget = new File(ffRootFile, "fftarget")
   val ffSource = new File(ffRootFile, "ffsource")
 
@@ -49,7 +44,7 @@ class VideoEncode @Inject() (assets: CustomAssets,
     val targetFile = new File(targetMonthFile, dateInfo.toYearMonthDay + ".mp4")
     java.nio.file.Files.copy(sourceFile.toPath, targetFile.toPath, StandardCopyOption.REPLACE_EXISTING)
 
-    ws.url(s"${assetsPrefix}uploadTargetVideo").post(Source(FilePart("video", targetFile.getName, Option("text/plain"), FileIO.fromPath(targetFile.toPath)) :: DataPart("dateInfo", dateInfo.asJson.noSpaces) :: List()))
+    ws.url(s"${videoConfig.assetsPrefix}uploadTargetVideo").post(Source(FilePart("video", targetFile.getName, Option("text/plain"), FileIO.fromPath(targetFile.toPath)) :: DataPart("dateInfo", dateInfo.asJson.noSpaces) :: List()))
       .map { wsResult =>
         val resultModel = if (wsResult.status == 200) {
           RequestInfo(true, io.circe.parser.parse(wsResult.body).right.flatMap(_.as[RequestInfo]).right.get.message)
