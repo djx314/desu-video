@@ -3,6 +3,8 @@ package org.xarcher.sbt
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.util.Date
 
+import play.sbt.{PlayAkkaHttpServer, PlayNettyServer}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import sbt._
 import sbt.Keys._
@@ -16,7 +18,8 @@ object Helpers {
     def toPlay(filePath: String): Project = {
 
       (project in file(filePath))
-        .enablePlugins(play.sbt.PlayScala)
+        .enablePlugins(play.sbt.PlayScala, PlayNettyServer)
+        .disablePlugins(PlayAkkaHttpServer)
         .settings(CustomSettings.customSettings: _*)
 
     }

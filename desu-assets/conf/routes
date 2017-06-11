@@ -2,3 +2,4 @@
 GET        /target/*file        assist.controllers.Assets.target(file)
 GET        /t        assist.controllers.Encode.encodeRequest
 GET        /source/*file        assist.controllers.Assets.source(file)
+POST      /uploadTargetVideo assist.controllers.Encode.uploadTargetVideo
