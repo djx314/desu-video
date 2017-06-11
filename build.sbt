@@ -24,7 +24,7 @@ transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
 lazy val encoder = (project.toPlay("./desu-encoder"))
   .settings(CustomSettings.customSettings: _*)
   .settings(
-    libraryDependencies ++= Dependencies.logback
+    libraryDependencies += guice
   )
   .settings(
     addCommandAlias("erun", "encoder/run 2333")
@@ -36,7 +36,8 @@ lazy val assets: Project = (project.toPlay("./desu-assets"))
   .settings(
     name := "desu-assets",
     version := "0.0.1",
-    libraryDependencies ++= Dependencies.slick
+    libraryDependencies ++= Dependencies.slick,
+    libraryDependencies += guice
   )
   .settings(CustomSettings.customSettings: _*)
   .dependsOn(playCirce)

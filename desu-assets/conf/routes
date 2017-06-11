@@ -1,0 +1,4 @@
+# Map static resources from the /public folder to the /assets URL path
+GET        /target/*file        assist.controllers.Assets.target(file)
+GET        /t        assist.controllers.Encode.encodeRequest
+GET        /source/*file        assist.controllers.Assets.source(file)
