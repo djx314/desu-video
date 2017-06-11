@@ -22,7 +22,7 @@ import scala.concurrent.Future
 class Encode @Inject() (assets: CustomAssets,
                         components: ControllerComponents,
                         configure: Configuration,
-                        videoEncode: VideoEncode,
+                        formatFactoryVideoEncode: FormatFactoryVideoEncode,
                         videoConfig: VideoConfig
                        ) extends AbstractController(components) with Circe {
 
@@ -39,7 +39,7 @@ class Encode @Inject() (assets: CustomAssets,
     sourceMonthFile.mkdirs()
     val sourceFile = new File(sourceMonthFile, dateInfo.toYearMonthDay + ".mp4")
     request.body.file("video").map(s => s.ref.moveTo(sourceFile, true))
-    videoEncode.encodeVideo(dateInfo)
+    formatFactoryVideoEncode.encodeVideo(dateInfo)
     Future.successful(Ok(RequestInfo(true, sourceFile.getCanonicalPath).asJson))
   }
 

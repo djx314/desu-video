@@ -1,0 +1,74 @@
+package assist.controllers
+
+import java.io.{BufferedReader, File, InputStream, InputStreamReader}
+import java.util.{Timer, TimerTask}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
+
+object EncodeHelper {
+
+  def processGen(process: java.lang.Process): Future[List[String]] = {
+    Future.sequence(List(
+      listen(process.getInputStream(), s => s),
+      listen(process.getErrorStream(), s => s)
+    )).map { s =>
+      s.flatten
+    }
+  }
+
+  def listen[T](s: InputStream, result: String => T): Future[List[T]] = Future {
+    val inputReader = new InputStreamReader(s)
+    val inputBuReader = new BufferedReader(inputReader)
+    try {
+      (Iterator continually inputBuReader.readLine takeWhile (_ != null) map { t =>
+        val returnInfo = result(t)
+        println(returnInfo)
+        returnInfo
+      }).toList
+    } catch {
+      case e: Exception =>
+        e.printStackTrace
+        throw e
+    } finally {
+      inputBuReader.close()
+      inputReader.close()
+      s.close()
+    }
+  }
+
+  def execCommand(command: String): Future[List[String]] = {
+    val runtime = Runtime.getRuntime
+    processGen(runtime.exec(command))
+  }
+
+  def waitTargetFileFinishedEncode(targetFile: File): Future[Boolean] = {
+    val isSuccess = if (targetFile.exists())
+      try {
+        targetFile.renameTo(new File(targetFile.getParentFile, targetFile.getName))
+        true
+      } catch {
+        case e: Exception =>
+          println("未完成转码")
+          false
+      }
+    else
+      false
+
+    if (isSuccess) {
+      Future successful isSuccess
+    } else {
+      val isSuccessF = Promise[Future[Boolean]]()
+      val resultF = isSuccessF.future
+      val timer = new Timer()
+      timer.schedule(new TimerTask() {
+        override def run(): Unit = {
+          isSuccessF.success(waitTargetFileFinishedEncode(targetFile))
+        }
+      }, 2000) // 指定延迟2000毫秒后执行
+      resultF.flatMap(identity)
+    }
+
+  }
+
+}

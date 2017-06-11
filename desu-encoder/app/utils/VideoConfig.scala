@@ -23,11 +23,14 @@ class VideoConfig @Inject() (
                         configure: Configuration
                        ) {
 
-  val ffmpegRoot = {
+  val ffmpegRoot: String = {
     configure.get[String]("djx314.path.base.ffmpeg")
   }
-  val assetsPrefix = {
+  val assetsPrefix: String = {
     configure.get[String]("djx314.url.server.asset")
+  }
+  val ffmpegSoftPath: String = {
+    configure.get[String]("djx314.soft.ffmpeg")
   }
 
 }
