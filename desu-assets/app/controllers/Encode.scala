@@ -2,6 +2,8 @@ package assist.controllers
 
 import java.io.File
 import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{FileIO, Source}
@@ -15,6 +17,7 @@ import io.circe.syntax._
 import io.circe.generic.auto._
 import play.api.libs.circe.Circe
 import play.api.mvc.MultipartFormData.{DataPart, FilePart}
+import utils.{UploadVideo, VideoConfig}
 
 import scala.concurrent.Future
 
@@ -22,51 +25,59 @@ import scala.concurrent.Future
 class Encode @Inject() (assets: CustomAssets,
                         components: ControllerComponents,
                         configure: Configuration,
-                        ws: WSClient
+                        ws: WSClient,
+                        videoConfig: VideoConfig,
+                        uploadVideo: UploadVideo
                        ) extends AbstractController(components) with Circe {
 
   implicit val ec = defaultExecutionContext
 
-  val encoderPrefix = {
-    configure.get[String]("djx314.url.server.encoder")
-  }
-  val assetsPrefix = {
-    configure.get[String]("djx314.url.server.asset")
-  }
-
-  val targetRoot = {
-    configure.get[String]("djx314.path.base.target")
-  }
-  val sourceRoot = {
-    configure.get[String]("djx314.path.base.source")
+  def uploadVideoAction = Action.async(parse.multipartFormData(10000000000L)) { implicit request =>
+    val dateInfoStr = request.body.dataParts("dateInfo").head
+    val myFmt = new SimpleDateFormat("yyyy-MM-dd")
+    val date = myFmt.parse(dateInfoStr)
+    val calendar = Calendar.getInstance()
+    calendar.setTime(date)
+    val dateInfo = DateInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+    val sourceFileRoot = new File(videoConfig.sourceRoot)
+    val sourceMonthRoot = new File(sourceFileRoot, dateInfo.toYearMonth)
+    sourceMonthRoot.mkdirs()
+    val sourceFile = new File(sourceMonthRoot, dateInfo.toYearMonthDay + ".mp4")
+    request.body.file("video").map(s => s.ref.moveTo(sourceFile, true))
+    uploadVideo.uploadVideo(dateInfo)
+    Future.successful(Ok("上传成功"))
   }
 
   def encodeRequest = Action.async { implicit request =>
-    val encoderRequest = DateInfo(2017, 6, 8)
-    val sourceFileRoot = new File(sourceRoot)
-    val sourceMonthRoot = new File(sourceFileRoot, encoderRequest.toYearMonth)
-    val mp4File = new File(sourceMonthRoot, encoderRequest.toYearMonthDay + ".mp4")
-    ws.url(s"${encoderPrefix}encodeHSSW").post(Source(FilePart("video", mp4File.getName, Option("text/plain"), FileIO.fromPath(mp4File.toPath)) :: DataPart("dateInfo", encoderRequest.asJson.noSpaces) :: List()))
-      .map { wsResult =>
-      val resultModel = if (wsResult.status == 200) {
-        RequestInfo(true, io.circe.parser.parse(wsResult.body).right.flatMap(_.as[RequestInfo]).right.get.message)
-      } else {
-        RequestInfo(false, s"请求失败，错误码${wsResult.body}")
-      }
-      Ok(resultModel.asJson)
-    }
+    Future.successful(Ok(views.html.UploadVideo()))
   }
 
+  def Index = Action.async { implicit request =>
+    Future.successful(Ok(views.html.Index()))
+  }
+
+  //转码服务器请求该连接上传转码后的鹤山新闻
   def uploadTargetVideo = Action.async(parse.multipartFormData(10000000000L)) { implicit request =>
     val dateInfoStr = request.body.dataParts("dateInfo").head
     val dateInfo = io.circe.parser.parse(dateInfoStr).right.get.as[DateInfo].right.get
 
-    val targetFileRoot = new File(targetRoot)
+    val targetFileRoot = new File(videoConfig.targetRoot)
     val targetMonthRoot = new File(targetFileRoot, dateInfo.toYearMonth)
     targetMonthRoot.mkdirs()
     val targetFile = new File(targetMonthRoot, dateInfo.toYearMonthDay + ".mp4")
     request.body.file("video").map(s => s.ref.moveTo(targetFile, true))
     Future.successful(Ok(RequestInfo(true, targetFile.getCanonicalPath).asJson))
+  }
+
+  def hardEnode(dateStr: String) = Action.async { implicit request =>
+    val myFmt = new SimpleDateFormat("yyyy-MM-dd")
+    val date = myFmt.parse(dateStr)
+    val calendar = Calendar.getInstance()
+    calendar.setTime(date)
+    val dateInfo = DateInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+
+    uploadVideo.uploadVideo(dateInfo)
+    Future.successful(Ok("命令发送成功"))
   }
 
 }

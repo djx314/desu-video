@@ -1,0 +1,30 @@
+@()
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="UTF-8">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>搜索</title>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("jquery/jquery-1.12.4.min.js")"></script>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("layui/layui/layui.js")"></script>
+        <script type="text/javascript">
+                layui.use(["laydate", "form"], function() {
+                    var laydate = layui.laydate;
+                    var form = layui.form();
+                });
+        </script>
+    </head>
+    <body>
+        <div>
+            信息搜索
+            <form  class="layui-form" enctype="multipart/form-data" method="post" action="@assist.controllers.routes.Encode.uploadVideoAction">
+                <div>
+                    新闻日期：<input lay-verify="required|date" class="layui-input" name="dateInfo" placeholder="新闻日期" onclick="layui.laydate({elem: this, istoday: true, istime: false, format: 'YYYY-MM-DD'})">
+                </div>
+                <div>
+                    新闻文件：<input  lay-verify="required" name="video" type="file" />
+                </div>
+                <input lay-submit type="submit" value="提交" />
+            </form>
+        </div>
+    </body>
+</html>

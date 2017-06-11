@@ -1,5 +1,16 @@
 # Map static resources from the /public folder to the /assets URL path
 GET        /target/*file        assist.controllers.Assets.target(file)
-GET        /t        assist.controllers.Encode.encodeRequest
 GET        /source/*file        assist.controllers.Assets.source(file)
+GET        /assets/*file        assist.controllers.Assets.at(file)
+
 POST      /uploadTargetVideo assist.controllers.Encode.uploadTargetVideo
+
+POST        /uploadVideo        assist.controllers.Encode.uploadVideoAction
+GET        /t        assist.controllers.Encode.encodeRequest
+
+GET        /videoStatusSearch        assist.controllers.VideoStatus.searchPage
+GET        /videoStatus        assist.controllers.VideoStatus.status(date: String)
+
+GET /   assist.controllers.Encode.Index
+
+GET    /hardEnode   assist.controllers.Encode.hardEnode(date: String)

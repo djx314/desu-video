@@ -12,6 +12,7 @@ import scala.concurrent.Future
 
 @Singleton
 class Assets @Inject() (assets: CustomAssets,
+                        commonAssets: controllers.Assets,
                         components: ControllerComponents,
                         configure: Configuration) extends AbstractController(components) {
 
@@ -26,5 +27,7 @@ class Assets @Inject() (assets: CustomAssets,
 
   def target(file1: String) = assets.at(targetRoot, file1)
   def source(file1: String) = assets.at(sourceRoot, file1)
+
+  def at(file1: String) = commonAssets.at("/public", file1)
 
 }

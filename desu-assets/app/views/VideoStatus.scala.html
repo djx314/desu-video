@@ -1,0 +1,61 @@
+@()
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="UTF-8">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>查看视频信息</title>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("jquery/jquery-1.12.4.min.js")"></script>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("layui/layui/layui.js")"></script>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("knockout/knockout-3.4.2.js")"></script>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("knockout/knockout.mapping-2.4.1.js")"></script>
+        <script type="text/javascript">
+                layui.use(["laydate", "form"], function() {
+                    var laydate = layui.laydate;
+                    var form = layui.form();
+
+                    var ViewModel = function() {
+                        var self = this;
+
+                        //self.searchDate = ko.observable(null);
+                        self.videoStatus = ko.observable(null);
+                        self.searchVideo = function() {
+                            var dateStr = $("input[name=dateInfo]").val();
+                            if (typeof dateStr === "string") {
+                                $.getJSON("/videoStatus?date=" + dateStr, function(response) {
+                                    self.videoStatus(response);
+                                });
+                            }
+                        };
+                        self.hardEncode = function() {
+                            var dateStr = $("input[name=dateInfo]").val();
+                            if (typeof dateStr === "string") {
+                                $.get("/hardEnode?date=" + dateStr, function(response) {
+                                    alert(response);
+                                });
+                            }
+                        };
+                    };
+                    var viewModel = new ViewModel();
+                    ko.applyBindings(viewModel);
+                });
+        </script>
+    </head>
+    <body>
+        <div>
+            信息搜索
+            <div class="layui-form">
+                <div>
+                    新闻日期：<input lay-verify="required|date" class="layui-input" name="dateInfo" placeholder="新闻日期" onclick="layui.laydate({elem: this, istoday: true, istime: false, format: 'YYYY-MM-DD'})">
+                </div>
+                <input lay-submit type="submit" value="查询" data-bind="click: function() { searchVideo(); }" />
+            </div>
+            <div data-bind="if: videoStatus()">
+                是否已上传：<span data-bind="text: videoStatus().isUploaded"></span>，<br />
+                是否已转码：<span data-bind="text: videoStatus().isEncoded"></span>
+                <!-- ko if: videoStatus().isUploaded === true && videoStatus().isEncoded === false -->
+                        <button data-bind="click: function() { hardEncode(); }">手动转码</button>
+                <!-- /ko -->
+            </div>
+        </div>
+    </body>
+</html>

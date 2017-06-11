@@ -1,0 +1,22 @@
+@()
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="UTF-8">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>搜索</title>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("jquery/jquery-1.12.4.min.js")"></script>
+        <script type="text/javascript" src="@assist.controllers.routes.Assets.at("layui/layui/layui.js")"></script>
+        <script type="text/javascript">
+                layui.use(["laydate", "form"], function() {
+                    var laydate = layui.laydate;
+                    var form = layui.form();
+                });
+        </script>
+    </head>
+    <body>
+        <div>
+            <a href="@assist.controllers.routes.Encode.encodeRequest" target="_blank">上传新闻</a><br />
+            <a href="@assist.controllers.routes.VideoStatus.searchPage" target="_blank">查询新闻状态</a>
+        </div>
+    </body>
+</html>
