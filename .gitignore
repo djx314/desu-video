@@ -1,0 +1,8 @@
+/.idea
+/logs
+/conf/evolutions
+/bin/
+/sbt
+/sbt.bat
+/conf/generated.keystore
+*target*
