@@ -112,15 +112,15 @@ class Encode @Inject() (assets: CustomAssets,
     Future.successful(Ok(RequestInfo(true, targetFile.getCanonicalPath).asJson))*/
   }
 
-  /*def hardEnode(dateStr: String) = Action.async { implicit request =>
+  def hardEnode(dateStr: String) = Action.async { implicit request =>
     val myFmt = new SimpleDateFormat("yyyy-MM-dd")
     val date = myFmt.parse(dateStr)
-    val calendar = Calendar.getInstance()
+    /*val calendar = Calendar.getInstance()
     calendar.setTime(date)
     val dateInfo = DateInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
-    println(dateInfo)
-    uploadVideo.uploadVideo(dateInfo)
+    println(dateInfo)*/
+    uploadVideo.uploadVideo(date)
     Future.successful(Ok("命令发送成功"))
-  }*/
+  }
 
 }

@@ -33,21 +33,24 @@ class FormatFactoryVideoEncode @Inject() (
   //val ffTarget = new File(ffRootFile, "fftarget")
 
   val ffmpegSoftBasePath = new File(videoConfig.ffmpegSoftPath)
-  val ffmpegExePath = new File(ffmpegSoftBasePath, "FormatFactory")
+  val ffmpegExePath = new File(ffmpegSoftBasePath, "FormatFactory.exe")
+
+  val faststartPath = {
+    val path1 = new File(ffmpegSoftBasePath, "FFModules")
+    val path2 = new File(path1, "Encoder")
+    new File(path2, "qt-faststart.exe")
+  }
 
   def encodeVideo(videoInfo: VideoInfo, sourceFile: File, targetFile: File): Future[RequestInfo] = Future {
-    //val sourceMonthFile = new File(ffSource, dateInfo.toYearMonth)
-    //val targetMonthFile = new File(ffTarget, dateInfo.toYearMonth)
-    //sourceMonthFile.mkdirs()
-    //targetMonthFile.mkdirs()
-    //val sourceFile = new File(sourceMonthFile, dateInfo.toYearMonthDay + ".mp4")
-    //val targetFile = new File(targetMonthFile, dateInfo.toYearMonthDay + ".mp4")
-    //targetFile.deleteOnExit()
+    //ffmpeg 缓存文件要放在目标文件隔壁
+    val targetTempFile = new File(targetFile.getParentFile, UUID.randomUUID().toString + ".mp4")
+    val command = s""" "${ffmpegExePath.getCanonicalPath}" "Custom" "customMp4" "${sourceFile.getCanonicalPath}" "${targetTempFile.getCanonicalPath}" """
+    val faststartCommand = s""" "${faststartPath.getCanonicalPath}" "${targetTempFile.getCanonicalPath}" "${targetFile.getCanonicalPath}" """
 
-    //FormatFactory "Custom" "customMp4" "Source_File_Name" ["Dest_Folder_or_File_Name"] [/hide]
-    val command = s""" "${ffmpegExePath.getCanonicalPath}" "Custom" "customMp4" "${sourceFile.getCanonicalPath}" "${targetFile.getCanonicalPath}" """
     val execFuture = EncodeHelper.execCommand(command).flatMap { _ =>
-      EncodeHelper.waitTargetFileFinishedEncode(targetFile)
+      EncodeHelper.waitTargetFileFinishedEncode(targetTempFile)
+    }.flatMap { _ =>
+      EncodeHelper.execCommand(faststartCommand)
     }
 
     execFuture.flatMap { _ =>
