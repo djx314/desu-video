@@ -24,3 +24,16 @@ enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
   disablePlugins(PlayNettyServer)
 
 addCommandAlias("erun", "encoder/run 2333")
+
+def copyFiles(root: File, prefix: String): List[(File, String)] = {
+  println(root.getCanonicalPath)
+  root.listFiles().toList.flatMap { file =>
+    if (file.isDirectory) {
+      copyFiles(file, prefix + "/" + file.getName)
+    } else {
+      List(file -> (prefix + "/" + file.getName))
+    }
+  }
+}
+
+mappings in Universal ++= copyFiles(file("./FormatFactory-4.1.0"), "FormatFactory-4.1.0")
