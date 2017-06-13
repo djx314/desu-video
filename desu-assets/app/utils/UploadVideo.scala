@@ -2,6 +2,7 @@ package utils
 
 import java.io.File
 import java.net.URI
+import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{FileIO, Source}
@@ -28,15 +29,28 @@ class UploadVideo @Inject() (assets: CustomAssets,
 
   implicit val ec = defaultExecutionContext
 
-  def uploadVideo(dateInfo: DateInfo): Future[RequestInfo] = Future {
+  def uploadVideo(dateInfo: java.util.Date): Future[RequestInfo] = Future {
     //val encoderRequest = DateInfo(2017, 6, 8)
     val sourceFileRoot = new File(videoConfig.sourceRoot)
-    val sourceMonthRoot = new File(sourceFileRoot, dateInfo.toYearMonth)
-    val mp4File = new File(sourceMonthRoot, dateInfo.toYearMonthDay + ".mp4")
-    ws.url(s"${videoConfig.encoderPrefix}encodeHSSW").post(Source(FilePart("video", mp4File.getName, Option("text/plain"), FileIO.fromPath(mp4File.toPath)) :: DataPart("dateInfo", dateInfo.asJson.noSpaces) :: List()))
+
+    val yearMonthFormat = new SimpleDateFormat("yyyyMM")
+    val yearMonthStr = yearMonthFormat.format(dateInfo)
+    val sourceMonthRoot = new File(sourceFileRoot, yearMonthStr)
+
+    val yearMontDayFormat = new SimpleDateFormat("yyyyMMdd")
+    val yearMontDayStr = yearMontDayFormat.format(dateInfo)
+    //val sourceFile = new File(sourceMonthRoot, yearMontDayStr + ".mp4")
+    //val sourceMonthRoot = new File(sourceFileRoot, dateInfo.toYearMonth)
+    val mp4File = new File(sourceMonthRoot, yearMontDayStr + ".mp4")
+
+    val key = s"鹤山新闻${yearMontDayStr}"
+
+    println(s"发送新闻文件:${mp4File.getCanonicalPath},文件是否存在:${mp4File.exists()}")
+
+    ws.url(s"${videoConfig.encoderPrefix}encodeHSSW").post(Source(FilePart("video", mp4File.getName, Option("text/plain"), FileIO.fromPath(mp4File.toPath)) :: DataPart("videoKey", key) :: DataPart("videoInfo", yearMontDayStr) :: DataPart("returnPath", videoConfig.assetsPrefix + "uploadTargetVideo") :: Nil))
       .map { wsResult =>
         val resultModel = if (wsResult.status == 200) {
-          RequestInfo(true, io.circe.parser.parse(wsResult.body).right.flatMap(_.as[RequestInfo]).right.get.message)
+          RequestInfo(true, wsResult.body)
         } else {
           RequestInfo(false, s"请求失败，错误码${wsResult.body}")
         }

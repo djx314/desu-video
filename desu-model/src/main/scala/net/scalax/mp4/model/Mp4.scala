@@ -36,3 +36,5 @@ case class DateInfo(year: Int, month: Int, day: Int) {
 /*case class EncodeRequest(sourcePath: String, targetDate: DateInfo)*/
 
 case class RequestInfo(isSuccessed: Boolean, message: String)
+
+case class VideoInfo(videoKey: String, videoInfo: String, returnPath: String)

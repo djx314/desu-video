@@ -13,4 +13,4 @@ GET        /videoStatus        assist.controllers.VideoStatus.status(date: Strin
 
 GET /   assist.controllers.Encode.Index
 
-GET    /hardEnode   assist.controllers.Encode.hardEnode(date: String)
+#GET    /hardEnode   assist.controllers.Encode.hardEnode(date: String)

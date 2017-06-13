@@ -26,9 +26,9 @@ class VideoConfig @Inject() (
   val encoderPrefix = {
     configure.get[String]("djx314.url.server.encoder")
   }
-  /*val assetsPrefix = {
-    configure.get[String]("djx314.url.server.asset")
-  }*/
+  val assetsPrefix = {
+    configure.get[String]("djx314.url.server.assets")
+  }
   val targetRoot = {
     configure.get[String]("djx314.path.base.target")
   }

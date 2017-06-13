@@ -7,7 +7,7 @@ import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{FileIO, Source}
-import net.scalax.mp4.model.{DateInfo, RequestInfo}
+import net.scalax.mp4.model.{DateInfo, RequestInfo, VideoInfo}
 import net.scalax.mp4.play.CustomAssets
 import play.api.Configuration
 import play.api.libs.ws.WSClient
@@ -32,22 +32,35 @@ class VideoEncode @Inject() (assets: CustomAssets,
   implicit val ec = defaultExecutionContext
 
   val ffRootFile = new File(videoConfig.ffmpegRoot)
-  val ffTarget = new File(ffRootFile, "fftarget")
-  val ffSource = new File(ffRootFile, "ffsource")
+  //val ffTarget = new File(ffRootFile, "fftarget")
+  //val ffSource = new File(ffRootFile, "ffsource")
 
-  def encodeVideo(dateInfo: DateInfo): Future[RequestInfo] = Future {
-    val sourceMonthFile = new File(ffSource, dateInfo.toYearMonth)
-    val targetMonthFile = new File(ffTarget, dateInfo.toYearMonth)
-    sourceMonthFile.mkdirs()
-    targetMonthFile.mkdirs()
-    val sourceFile = new File(sourceMonthFile, dateInfo.toYearMonthDay + ".mp4")
-    val targetFile = new File(targetMonthFile, dateInfo.toYearMonthDay + ".mp4")
+  def encodeVideo(videoInfo: VideoInfo, sourceFile: File, targetFile: File): Future[RequestInfo] = Future {
+    //val sourceMonthFile = new File(ffSource, dateInfo.toYearMonth)
+    //val targetMonthFile = new File(ffTarget, dateInfo.toYearMonth)
+    //sourceMonthFile.mkdirs()
+    //targetMonthFile.mkdirs()
+    //val sourceFile = new File(sourceMonthFile, dateInfo.toYearMonthDay + ".mp4")
+    //val targetFile = new File(targetMonthFile, dateInfo.toYearMonthDay + ".mp4")
     java.nio.file.Files.copy(sourceFile.toPath, targetFile.toPath, StandardCopyOption.REPLACE_EXISTING)
 
-    ws.url(s"${videoConfig.assetsPrefix}uploadTargetVideo").post(Source(FilePart("video", targetFile.getName, Option("text/plain"), FileIO.fromPath(targetFile.toPath)) :: DataPart("dateInfo", dateInfo.asJson.noSpaces) :: List()))
+    /*ws.url(s"${videoConfig.encoderPrefix}encodeHSSW").post(Source(FilePart("video", mp4File.getName, Option("text/plain"), FileIO.fromPath(mp4File.toPath)) :: DataPart("videoKey", key) :: DataPart("videoInfo", yearMontDayStr) :: DataPart("returnPath", videoConfig.assetsPrefix + "uploadTargetVideo") :: Nil))
       .map { wsResult =>
         val resultModel = if (wsResult.status == 200) {
-          RequestInfo(true, io.circe.parser.parse(wsResult.body).right.flatMap(_.as[RequestInfo]).right.get.message)
+          RequestInfo(true, wsResult.body)
+        } else {
+          RequestInfo(false, s"请求失败，错误码${wsResult.body}")
+        }
+        println(resultModel)
+        resultModel
+      }
+  }.flatMap(identity)*/
+
+    println(videoInfo.returnPath)
+    ws.url(videoInfo.returnPath).post(Source(FilePart("video", targetFile.getName, Option("text/plain"), FileIO.fromPath(targetFile.toPath)) :: DataPart("videoKey", videoInfo.videoKey) :: DataPart("videoInfo", videoInfo.videoInfo) :: DataPart("returnPath", videoInfo.returnPath) :: Nil))
+      .map { wsResult =>
+        val resultModel = if (wsResult.status == 200) {
+          RequestInfo(true, wsResult.body)
         } else {
           RequestInfo(false, s"请求失败，错误码${wsResult.body}")
         }
