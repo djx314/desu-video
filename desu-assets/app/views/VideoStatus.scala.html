@@ -50,10 +50,13 @@
                 <input lay-submit type="submit" value="查询" data-bind="click: function() { searchVideo(); }" />
             </div>
             <div data-bind="if: videoStatus()">
-                是否已上传：<span data-bind="text: videoStatus().isUploaded"></span>，<br />
+                是否已上传：<span data-bind="text: videoStatus().isUploaded"></span>，<a data-bind="attr: { href: videoStatus().sourceUrl }" target="_blank">查看</a><br />
                 是否已转码：<span data-bind="text: videoStatus().isEncoded"></span>
                 <!-- ko if: videoStatus().isUploaded === true && videoStatus().isEncoded === false -->
                         <button data-bind="click: function() { hardEncode(); }">手动转码</button>
+                <!-- /ko -->
+                <!-- ko if: videoStatus().isUploaded === true && videoStatus().isEncoded === true -->
+                    <a data-bind="attr: { href: videoStatus().targetUrl }" target="_blank">查看</a>
                 <!-- /ko -->
             </div>
         </div>

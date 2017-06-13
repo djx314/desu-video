@@ -31,7 +31,7 @@ class VideoStatus @Inject() (assets: CustomAssets,
 
   implicit val ec = defaultExecutionContext
 
-  case class VideoInfo(isUploaded: Boolean, isEncoded: Boolean)
+  case class VideoInfo(isUploaded: Boolean, isEncoded: Boolean, sourceUrl: String, targetUrl: String)
 
   def searchPage = Action.async { implicit request =>
     Future.successful(Ok(views.html.VideoStatus()))
@@ -52,7 +52,13 @@ class VideoStatus @Inject() (assets: CustomAssets,
     val targetMonthRoot = new File(targetFileRoot, dateInfo.toYearMonth)
     val targetFile = new File(targetMonthRoot, dateInfo.toYearMonthDay + ".mp4")
 
-    Future successful Ok(VideoInfo(sourceFile.exists(), targetFile.exists()).asJson)
+    val targetMonthFormat = new SimpleDateFormat("yyyyMM")
+    val targetDayFormat = new SimpleDateFormat("yyyyMMdd")
+
+    val targetUrl = assist.controllers.routes.Assets.target(targetMonthFormat.format(date) + "/" + targetDayFormat.format(date) + ".mp4").toString
+    val sourceUrl = assist.controllers.routes.Assets.source(targetMonthFormat.format(date) + "/" + targetDayFormat.format(date) + ".mp4").toString
+
+    Future successful Ok(VideoInfo(sourceFile.exists(), targetFile.exists(), sourceUrl, targetUrl).asJson)
   }
 
 }
