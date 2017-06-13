@@ -77,7 +77,7 @@ class Encode @Inject() (assets: CustomAssets,
       //calendar.setTime(date)
       //val dateInfo = DateInfo(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
       val targetFileRoot = new File(videoConfig.targetRoot)
-      val yearMonthFormat = new SimpleDateFormat("MMdd")
+      val yearMonthFormat = new SimpleDateFormat("yyyyMM")
       val yearMonthStr = yearMonthFormat.format(date)
       val targetMonthRoot = new File(targetFileRoot, yearMonthStr)
       targetMonthRoot.mkdirs()
