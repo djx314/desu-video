@@ -1,35 +1,20 @@
 package assist.controllers
 
 import java.io.File
-import java.net.URI
 import java.nio.file.StandardCopyOption
-import java.util.UUID
 import javax.inject.{Inject, Singleton}
 
-import akka.stream.scaladsl.{FileIO, Source}
-import net.scalax.mp4.model.{DateInfo, RequestInfo, VideoInfo}
-import net.scalax.mp4.play.CustomAssets
-import play.api.Configuration
-import play.api.libs.ws.WSClient
-import play.api.mvc.{AbstractController, ControllerComponents}
-import io.circe._
-import io.circe.syntax._
-import io.circe.generic.auto._
-import play.api.libs.circe.Circe
-import play.api.mvc.MultipartFormData.{DataPart, FilePart}
+import net.scalax.mp4.model.{RequestInfo, VideoInfo}
 import utils.VideoConfig
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class VideoEncode @Inject() (assets: CustomAssets,
-                        components: ControllerComponents,
-                        configure: Configuration,
-                        ws: WSClient,
-                             videoConfig: VideoConfig
-                       ) extends AbstractController(components) with Circe {
-
-  implicit val ec = defaultExecutionContext
+class VideoEncode @Inject() (
+                             videoConfig: VideoConfig,
+                             fileReply: FileReplyImpl
+                       ) {
 
   val ffRootFile = new File(videoConfig.ffmpegRoot)
   //val ffTarget = new File(ffRootFile, "fftarget")
@@ -57,16 +42,7 @@ class VideoEncode @Inject() (assets: CustomAssets,
   }.flatMap(identity)*/
 
     println(videoInfo.returnPath)
-    ws.url(videoInfo.returnPath).post(Source(FilePart("video", targetFile.getName, Option("text/plain"), FileIO.fromPath(targetFile.toPath)) :: DataPart("videoKey", videoInfo.videoKey) :: DataPart("videoInfo", videoInfo.videoInfo) :: DataPart("returnPath", videoInfo.returnPath) :: Nil))
-      .map { wsResult =>
-        val resultModel = if (wsResult.status == 200) {
-          RequestInfo(true, wsResult.body)
-        } else {
-          RequestInfo(false, s"请求失败，错误码${wsResult.body}")
-        }
-        println(resultModel)
-        resultModel
-      }
+    fileReply.replyVideo(videoInfo, targetFile)
   }.flatMap(identity).recover {
     case e: Exception =>
       e.printStackTrace()
