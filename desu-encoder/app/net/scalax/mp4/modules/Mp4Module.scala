@@ -1,6 +1,6 @@
 package net.scalax.mp4.modules
 
-import assist.controllers.{VideoEncoders, VideoEncodersImpl}
+import assist.controllers.{VideoEncoders, VideoEncodersImpl, VideoPathConfig}
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import net.scalax.mp4.encoder.{FFConfig, FormatFactoryEncoder, FormatFactoryEncoderImpl}
@@ -16,6 +16,9 @@ class Mp4Module extends AbstractModule {
       .to(classOf[FormatFactoryEncoderImpl])
 
     bind(classOf[FFConfig])
+      .to(classOf[VideoConfig])
+
+    bind(classOf[VideoPathConfig])
       .to(classOf[VideoConfig])
   }
 

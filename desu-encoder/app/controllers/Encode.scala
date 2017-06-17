@@ -24,12 +24,12 @@ class Encode @Inject() (//assets: CustomAssets,
                         //configure: Configuration,
                         videoEncoders: VideoEncoders,
                         //videoEncode: VideoEncode,
-                        videoConfig: VideoConfig
+                        videoPathConfig: VideoPathConfig
                        ) extends AbstractController(components) with Circe {
 
   implicit val ec = defaultExecutionContext
 
-  val ffRootFile = new File(videoConfig.uploadRoot)
+  val ffRootFile = new File(videoPathConfig.uploadRoot)
   //val ffPostSource = new File(ffRootFile, "postSource")
   //val ffSource = new File(ffRootFile, "ffsource")
 
