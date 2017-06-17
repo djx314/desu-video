@@ -1,0 +1,2 @@
+# Map static resources from the /public folder to the /assets URL path
+POST        /encodeHSSW assist.controllers.Encode.encodeRequest
