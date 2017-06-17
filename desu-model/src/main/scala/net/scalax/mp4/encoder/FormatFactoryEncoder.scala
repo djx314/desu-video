@@ -1,11 +1,11 @@
 package net.scalax.mp4.encoder
 
 import java.io.File
+import java.util.UUID
 import javax.inject.Singleton
 import javax.inject.Inject
 
 import scala.concurrent.Future
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait FormatFactoryEncoder extends EncoderAbs {
@@ -23,6 +23,7 @@ trait FormatFactoryEncoder extends EncoderAbs {
   }
 
   def formatFactoryEncode(sourceFile: File, targetRoot: File): Future[List[File]] = {
+    //val tempFile = new File(targetRoot, "tempEncoded.mp4")
     val targetFile = new File(targetRoot, "encoded.mp4")
     val command = s""" "${ffmpegExePath}" "Custom" "customMp4" "${sourceFile.getCanonicalPath}" "${targetFile.getCanonicalPath}" """
     val mp4BoxCommand = s""" "${mp4BoxExePath}" -inter 0 "${targetFile.getCanonicalPath}" """

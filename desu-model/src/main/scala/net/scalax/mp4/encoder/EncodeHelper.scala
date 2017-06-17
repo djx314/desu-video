@@ -10,8 +10,14 @@ object EncodeHelper {
 
   def processGen(process: java.lang.Process): Future[List[String]] = {
     Future.sequence(List(
-      listen(process.getInputStream(), s => s),
-      listen(process.getErrorStream(), s => s)
+      listen(process.getInputStream(), { s =>
+        println(s)
+        s
+      }),
+      listen(process.getErrorStream(), { s =>
+        println(s)
+        s
+      })
     )).map { s =>
       s.flatten
     }
@@ -23,7 +29,6 @@ object EncodeHelper {
     try {
       (Iterator continually inputBuReader.readLine takeWhile (_ != null) map { t =>
         val returnInfo = result(t)
-        println(returnInfo)
         returnInfo
       }).toList
     } catch {
@@ -39,6 +44,7 @@ object EncodeHelper {
 
   def execCommand(command: String): Future[List[String]] = {
     val runtime = Runtime.getRuntime
+    println(s"exec: $command")
     processGen(runtime.exec(command))
   }
 

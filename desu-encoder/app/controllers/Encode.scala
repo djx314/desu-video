@@ -14,6 +14,7 @@ import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
 import play.api.libs.circe.Circe
+import play.utils.UriEncoding
 import utils.VideoConfig
 
 import scala.concurrent.Future
@@ -24,45 +25,31 @@ class Encode @Inject() (//assets: CustomAssets,
                         //configure: Configuration,
                         videoEncoders: VideoEncoders,
                         //videoEncode: VideoEncode,
-                        videoPathConfig: VideoPathConfig
+                        videoPathConfig: VideoPathConfig,
+                        reply: FilesReply
                        ) extends AbstractController(components) with Circe {
 
   implicit val ec = defaultExecutionContext
 
   val ffRootFile = new File(videoPathConfig.uploadRoot)
-  //val ffPostSource = new File(ffRootFile, "postSource")
-  //val ffSource = new File(ffRootFile, "ffsource")
-
-  import play.api.data._
-  import play.api.data.Forms._
-
-  /*val videoForm = Form(
-    mapping(
-      "videoKey" -> nonEmptyText,
-      "videoInfo" -> nonEmptyText,
-      "returnPath" -> nonEmptyText
-    )(VideoInfo.apply)(VideoInfo.unapply)
-  )*/
 
   def encodeRequest = Action.async(parse.multipartFormData(10000000000L)) { implicit request =>
-    //val dateInfoStr = request.body.dataParts("dateInfo").head
-    //val dateInfo = io.circe.parser.parse(dateInfoStr).right.get.as[DateInfo].right.get
 
     def encodeVideoFuture(videoInfo: VideoInfo) = {
-      val currentRoot = new File(ffRootFile, videoInfo.videoKey)
+      val currentRoot = new File(ffRootFile, UriEncoding.encodePathSegment(videoInfo.videoKey, "utf-8"))
       val sourceDirectory = new File(currentRoot, "source")
       val targetDirectory = new File(currentRoot, "target")
       sourceDirectory.mkdirs()
       targetDirectory.mkdirs()
-      //val sourceFile = new File(sourceDirectory, "tobeEncode.mp4")
-      //val targetFile = new File(targetDirectory, "encoded.mp4")
-      val sourceFiles = (1 to videoInfo.videoLength).map { index =>
+      val sourceFiles = (0 to videoInfo.videoLength - 1).map { index =>
         val sourceFile = new File(sourceDirectory, "video_" + index)
         request.body.file("video_" + index).map(s => s.ref.moveTo(sourceFile, true))
         sourceFile
       }
       //request.body.file("video").map(s => s.ref.moveTo(sourceFile, true))
-      videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(sourceDirectory, sourceFiles.toList, targetDirectory/*, List(targetFile)*/)
+      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(sourceDirectory, sourceFiles.toList, targetDirectory/*, List(targetFile)*/).flatMap { files =>
+        reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
+      }
       Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
     }
 
