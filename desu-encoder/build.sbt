@@ -19,6 +19,7 @@ name := "desu-encoder"
 version := "0.0.1"
 
 libraryDependencies += guice
+libraryDependencies += "commons-io" % "commons-io" % "2.5"
 
 enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
   disablePlugins(PlayNettyServer)

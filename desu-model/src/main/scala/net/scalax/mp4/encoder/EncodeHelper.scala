@@ -3,10 +3,11 @@ package net.scalax.mp4.encoder
 import java.io.{BufferedReader, File, InputStream, InputStreamReader}
 import java.util.{Timer, TimerTask}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
 
 object EncodeHelper {
+
+  implicit val ec = Execution.multiThread
 
   def processGen(process: java.lang.Process): Future[List[String]] = {
     Future.sequence(List(
