@@ -3,7 +3,7 @@ package net.scalax.mp4.modules
 import assist.controllers._
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import net.scalax.mp4.encoder.{FFConfig, FormatFactoryEncoder, FormatFactoryEncoderImpl}
+import net.scalax.mp4.encoder._
 import utils.VideoConfig
 
 class Mp4Module extends AbstractModule {
@@ -23,6 +23,9 @@ class Mp4Module extends AbstractModule {
 
     bind(classOf[FilesReply])
       .to(classOf[FilesReplyImpl])
+
+    bind(classOf[FFmpegEncoder])
+      .to(classOf[FFmpegEncoderImpl])
   }
 
 }

@@ -1,21 +1,13 @@
 package assist.controllers
 
-import java.io.File
 import javax.inject.{Inject, Singleton}
 
-import akka.stream.scaladsl.{FileIO, Source}
-import net.scalax.mp4.encoder.{EncoderAbs, FormatFactoryEncoder}
-import net.scalax.mp4.model.{RequestInfo, VideoInfo}
-import play.api.libs.ws.WSClient
-import play.api.mvc.MultipartFormData.{DataPart, FilePart}
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import net.scalax.mp4.encoder.{EncoderAbs, FFmpegEncoder, FormatFactoryEncoder}
 
 @Singleton
-class VideoEncodersImpl @Inject() (formatFactoryEncoder: FormatFactoryEncoder) extends VideoEncoders {
+class VideoEncodersImpl @Inject() (formatFactoryEncoder: FormatFactoryEncoder, fFmpegEncoder: FFmpegEncoder) extends VideoEncoders {
 
-  override val encoders = formatFactoryEncoder :: Nil
+  override val encoders = formatFactoryEncoder :: fFmpegEncoder :: Nil
 
 }
 
