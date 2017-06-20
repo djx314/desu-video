@@ -49,6 +49,12 @@ object EncodeHelper {
     processGen(runtime.exec(command))
   }
 
+  def execWithDir(command: String, dir: File): Future[List[String]] = {
+    val runtime = Runtime.getRuntime
+    println(s"exec: $command")
+    processGen(runtime.exec(command, Array.empty[String], dir))
+  }
+
   def windowsWaitTargetFileFinishedEncode(targetFile: File): Future[Boolean] = {
     val isSuccess = if (targetFile.exists())
       try {
@@ -65,12 +71,13 @@ object EncodeHelper {
     if (isSuccess) {
       Future successful isSuccess
     } else {
-      val isSuccessF = Promise[Future[Boolean]]()
+      val isSuccessF = Promise[Future[Boolean]]
       val resultF = isSuccessF.future
       val timer = new Timer()
       timer.schedule(new TimerTask() {
         override def run(): Unit = {
           isSuccessF.success(windowsWaitTargetFileFinishedEncode(targetFile))
+          timer.cancel()
         }
       }, 2000) // 指定延迟2000毫秒后执行
       resultF.flatMap(identity)
