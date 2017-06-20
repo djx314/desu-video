@@ -12,11 +12,11 @@ object EncodeHelper {
   def processGen(process: java.lang.Process): Future[List[String]] = {
     Future.sequence(List(
       listen(process.getInputStream(), { s =>
-        println(s)
+        println(s"命令行输出(正确):$s")
         s
       }),
       listen(process.getErrorStream(), { s =>
-        println(s)
+        println(s"命令行输出(错误):$s")
         s
       })
     )).map { s =>

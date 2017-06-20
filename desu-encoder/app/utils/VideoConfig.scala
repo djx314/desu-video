@@ -3,13 +3,13 @@ package utils
 import javax.inject.{Inject, Singleton}
 
 import assist.controllers.VideoPathConfig
-import net.scalax.mp4.encoder.FFConfig
+import net.scalax.mp4.encoder.{CurrentEncode, FFConfig}
 import play.api.Configuration
 
 @Singleton
 class VideoConfig @Inject() (
                         configure: Configuration
-                       ) extends FFConfig with VideoPathConfig {
+                       ) extends FFConfig with VideoPathConfig with CurrentEncode {
 
   override val uploadRoot: String = {
     configure.get[String]("djx314.path.base.upload.root")

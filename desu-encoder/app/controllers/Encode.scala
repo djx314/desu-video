@@ -1,30 +1,25 @@
 package assist.controllers
 
 import java.io.File
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 import javax.inject.{Inject, Singleton}
 
 import net.scalax.mp4.model.{RequestInfo, VideoInfo}
-import net.scalax.mp4.play.CustomAssets
-import play.api.Configuration
-import play.api.libs.ws.WSClient
 import play.api.mvc.{AbstractController, ControllerComponents}
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
+import net.scalax.mp4.encoder.CurrentEncode
 import org.apache.commons.io.FileUtils
 import play.api.libs.circe.Circe
-import play.utils.UriEncoding
-import utils.VideoConfig
 
 import scala.concurrent.Future
 
 @Singleton
 class Encode @Inject() (//assets: CustomAssets,
                         components: ControllerComponents,
-                        //configure: Configuration,
+                        currentEncode: CurrentEncode,
                         videoEncoders: VideoEncoders,
                         //videoEncode: VideoEncode,
                         videoPathConfig: VideoPathConfig,
@@ -38,13 +33,14 @@ class Encode @Inject() (//assets: CustomAssets,
   def encodeRequest = Action.async(parse.multipartFormData(10000000000L)) { implicit request =>
 
     def encodeVideoFuture(videoInfo: VideoInfo) = {
-      val currentRoot = new File(ffRootFile, UUID.randomUUID().toString)
+      val encodeKey = UUID.randomUUID().toString
+      val currentRoot = new File(ffRootFile, encodeKey)
       currentRoot.mkdirs()
 
       val infoFile = new File(currentRoot, videoInfo.videoKey + ".txt")
       val date = new Date()
       val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-      val writeStr = s"标题:${videoInfo.videoKey}\r\n时间:${dateFormat.format(date)}"
+      val writeStr = s"${encodeKey}\r\n标题:${videoInfo.videoKey}\r\n时间:${dateFormat.format(date)}"
       FileUtils.writeStringToFile(infoFile, writeStr, "utf-8")
 
       val sourceDirectory = new File(currentRoot, "source")
@@ -56,11 +52,17 @@ class Encode @Inject() (//assets: CustomAssets,
         request.body.file("video_" + index).map(s => s.ref.moveTo(sourceFile, true))
         sourceFile
       }
-      //request.body.file("video").map(s => s.ref.moveTo(sourceFile, true))
-      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(sourceDirectory, sourceFiles.toList, targetDirectory/*, List(targetFile)*/).flatMap { files =>
+      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(sourceDirectory, sourceFiles.toList, targetDirectory).flatMap { files =>
+        //转码完毕返回用户前去除当前 key
+        currentEncode.removeVideoKey(encodeKey)
         reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
       }
-      Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
+
+      //push 正在编码额视频 key 供查询
+      currentEncode.addVideoKey(encodeKey)
+      //Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
+      sourceFiles.map(_.getCanonicalPath).foreach(println)
+      Future.successful(Ok(encodeKey))
     }
 
     VideoInfo.videoForm.bindFromRequest.fold(
@@ -73,6 +75,10 @@ class Encode @Inject() (//assets: CustomAssets,
         encodeVideoFuture(videoInfo)
       }
     )
+  }
+
+  def isEncoding(uuid: String) = Action.async { implicit request =>
+    Future successful Ok(currentEncode.keyExists(uuid).toString)
   }
 
 }
