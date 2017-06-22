@@ -5,8 +5,8 @@ import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 import javax.inject.{Inject, Singleton}
 
-import net.scalax.mp4.model.{RequestInfo, VideoInfo}
-import play.api.mvc.{AbstractController, ControllerComponents}
+import net.scalax.mp4.model.VideoInfo
+import play.api.mvc.InjectedController
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
@@ -17,16 +17,14 @@ import play.api.libs.circe.Circe
 import scala.concurrent.Future
 
 @Singleton
-class Encode @Inject() (//assets: CustomAssets,
-                        components: ControllerComponents,
+class Encode @Inject() (
                         currentEncode: CurrentEncode,
                         videoEncoders: VideoEncoders,
-                        //videoEncode: VideoEncode,
                         videoPathConfig: VideoPathConfig,
                         reply: FilesReply
-                       ) extends AbstractController(components) with Circe {
+                       ) extends InjectedController with Circe {
 
-  implicit val ec = defaultExecutionContext
+  implicit def ec = defaultExecutionContext
 
   val ffRootFile = new File(videoPathConfig.uploadRoot)
 

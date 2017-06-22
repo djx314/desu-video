@@ -49,10 +49,11 @@ object EncodeHelper {
     processGen(runtime.exec(command))
   }
 
-  def execWithDir(command: String, dir: File): Future[List[String]] = {
-    val runtime = Runtime.getRuntime
-    println(s"exec: $command")
-    processGen(runtime.exec(command, Array.empty[String], dir))
+  def execWithDir(commands: List[String], dir: File): Future[List[String]] = {
+    val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
+    pros.directory(dir)
+    println(s"exec: ${pros.command().toArray.mkString(" ")}")
+    processGen(pros.start())
   }
 
   def windowsWaitTargetFileFinishedEncode(targetFile: File): Future[Boolean] = {

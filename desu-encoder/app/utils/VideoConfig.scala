@@ -27,4 +27,8 @@ class VideoConfig @Inject() (
     configure.get[String]("djx314.soft.mp4box")
   }
 
+  override val useCanonicalPath = {
+    configure.get[Boolean]("djx314.soft.useCanonicalPath")
+  }
+
 }

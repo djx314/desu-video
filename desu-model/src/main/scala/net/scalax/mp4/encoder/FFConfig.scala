@@ -4,5 +4,6 @@ trait FFConfig {
 
   val ffmpegExePath: String
   val mp4ExePath: String
+  val useCanonicalPath: Boolean
 
 }

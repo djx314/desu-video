@@ -2,7 +2,8 @@ package net.scalax.mp4.encoder
 
 import java.io.File
 import java.nio.file.Files
-import java.util.{Timer, TimerTask, UUID}
+import java.text.SimpleDateFormat
+import java.util.{Date, Timer, TimerTask, UUID}
 import javax.inject.Singleton
 import javax.inject.Inject
 
@@ -13,16 +14,29 @@ import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.TwoPassFFmpegJob
 import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
+import org.slf4j.LoggerFactory
 
 trait FFmpegEncoder extends EncoderAbs {
+
+  val logger = LoggerFactory.getLogger(classOf[FFmpegEncoder])
 
   override val encodeType = "ffmpegEncoder"
 
   val fFConfig: FFConfig
 
-  lazy val ffmpegExePath = new File(fFConfig.ffmpegExePath).getCanonicalPath
+  lazy val ffmpegExePath = if (fFConfig.useCanonicalPath) {
+    val path = new File(fFConfig.ffmpegExePath).getCanonicalPath
+    path
+  }
+  else
+    fFConfig.ffmpegExePath
 
-  lazy val mp4BoxExePath = new File(fFConfig.mp4ExePath).getCanonicalPath
+  lazy val mp4BoxExePath = if(fFConfig.useCanonicalPath) {
+    val path = new File(fFConfig.mp4ExePath).getCanonicalPath
+    path
+  }
+  else
+    fFConfig.mp4ExePath
 
   override def encode(sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]] = {
     formatFactoryEncode(sourceFiles(0), targetRoot)
@@ -34,7 +48,7 @@ trait FFmpegEncoder extends EncoderAbs {
     //val templateFile = new File(targetRoot, "temEncode.mp4")
     val targetFile = new File(targetRoot, "encoded.mp4")
     Future {
-      val ffmpeg = new FFmpeg("ffmpeg")
+      val ffmpeg = new FFmpeg(s"""$ffmpegExePath""")
       //val ffprobe = new FFprobe("ffprobe")
 
       val builder = new FFmpegBuilder().setInput(sourceFile.getCanonicalPath).overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
@@ -65,18 +79,23 @@ trait FFmpegEncoder extends EncoderAbs {
       }).run()*/
 
       // Or run a two-pass encode (which is slower at the cost of better quality)
-      new TwoPassFFmpegJob(ffmpeg, builder, new ProgressListener() {
+      val twoPass = new TwoPassFFmpegJob(ffmpeg, builder, new ProgressListener() {
         override def progress(progress: Progress): Unit = {
           println(progress)
         }
-      }).run()
+      })
+
+      val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
+      logger.info(s"于${format.format(new Date())}运行命令:${ffmpeg.path(builder.build())}")
+
+      twoPass.run()
     }.recover {
       case e: Exception =>
         e.printStackTrace
         throw e
     }.flatMap { (s: Unit) =>
-      val mp4BoxCommand = s"""MP4Box -inter 0 ${targetFile.getName}"""
-      EncodeHelper.execWithDir(mp4BoxCommand, targetRoot)
+      //val mp4BoxCommand = s"""${mp4BoxExePath} -inter 0 ${targetFile.getName}"""
+      EncodeHelper.execWithDir(List(mp4BoxExePath, "-inter", "0", targetFile.getName), targetRoot)
     }.map { (_: List[String]) =>
       List(targetFile)
     }
