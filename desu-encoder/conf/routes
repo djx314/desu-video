@@ -1,2 +1,7 @@
 # Map static resources from the /public folder to the /assets URL path
+<<<<<<< HEAD
 POST        /encodeHSSW assist.controllers.Encode.encodeRequest
+=======
+POST        /encode        assist.controllers.Encode.encodeRequest
+GET         /isEncoding    assist.controllers.Encode.isEncoding(uuid: String)
+>>>>>>> branch 'master' of https://djx314:xingxing314@git.coding.net/djx314/desu-encoder.git

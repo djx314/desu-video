@@ -5,6 +5,7 @@ import sbt.Keys._
 
 object Dependencies {
 
+<<<<<<< HEAD
   //repl
   val ammoniteRepl = Seq(
     //"com.lihaoyi" % "ammonite" % "0.8.2" % "test" cross CrossVersion.full
@@ -107,4 +108,19 @@ object Dependencies {
     "com.github.automately" % "j2v8_all_x86_64" % "4.7.0"
   )
   //val parboiled = Seq("org.parboiled" %% "parboiled" % "2.1.4")
+=======
+  val scalaAsync = Seq(
+    "org.scala-lang.modules" %% "scala-async" % "0.9.6-RC2"
+  )
+
+  val commonsNet = Seq(
+    "commons-net" % "commons-net" % "3.5"
+  )
+
+  val quartz = Seq(
+    "org.quartz-scheduler" % "quartz",
+    "org.quartz-scheduler" % "quartz-jobs"
+  ).map(_ % "2.2.3")
+
+>>>>>>> branch 'master' of https://djx314:xingxing314@git.coding.net/djx314/desu-encoder.git
 }
