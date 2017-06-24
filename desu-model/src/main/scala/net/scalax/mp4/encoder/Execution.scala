@@ -1,13 +1,27 @@
 package net.scalax.mp4.encoder
 
 import java.util.concurrent.Executors
+import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
+import play.api.inject.ApplicationLifecycle
 
-object Execution {
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 
-  val multiThread: ExecutionContextExecutor = {
+@Singleton
+class Mp4Execution @Inject() (
+  applicationLifecycle: ApplicationLifecycle
+) {
+
+  val multiThread: ExecutionContextExecutorService = {
     ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(100))
+  }
+
+  applicationLifecycle.addStopHook { () =>
+    import scala.concurrent.ExecutionContext.Implicits.global
+    Future {
+      multiThread.shutdownNow()
+      println("mp4 转码线程池已关闭")
+    }
   }
 
 }

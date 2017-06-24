@@ -50,10 +50,12 @@ class Encode @Inject() (
         request.body.file("video_" + index).map(s => s.ref.moveTo(sourceFile, true))
         sourceFile
       }
-      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(sourceDirectory, sourceFiles.toList, targetDirectory).flatMap { files =>
+      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(videoInfo.videoInfo, sourceDirectory, sourceFiles.toList, targetDirectory).flatMap { files =>
         //转码完毕返回用户前去除当前 key
-        currentEncode.removeVideoKey(encodeKey)
         reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
+      }.andThen {
+        case _ =>
+          currentEncode.removeVideoKey(encodeKey)
       }
 
       //push 正在编码额视频 key 供查询

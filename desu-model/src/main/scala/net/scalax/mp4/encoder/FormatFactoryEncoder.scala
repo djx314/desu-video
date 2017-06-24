@@ -1,11 +1,10 @@
 package net.scalax.mp4.encoder
 
 import java.io.File
-import java.util.UUID
 import javax.inject.Singleton
 import javax.inject.Inject
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait FormatFactoryEncoder extends EncoderAbs {
 
@@ -13,16 +12,17 @@ trait FormatFactoryEncoder extends EncoderAbs {
 
   val fFConfig: FFConfig
 
+  implicit val execContext: ExecutionContext
+
   lazy val ffmpegExePath = new File(fFConfig.ffmpegExePath).getCanonicalPath
 
   lazy val mp4BoxExePath = new File(fFConfig.mp4ExePath).getCanonicalPath
 
-  override def encode(sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]] = {
-    formatFactoryEncode(sourceFiles(0), targetRoot)
+  override def encode(videoInfo: String, sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]] = {
+    formatFactoryEncode(videoInfo, sourceFiles(0), targetRoot)
   }
 
-  def formatFactoryEncode(sourceFile: File, targetRoot: File): Future[List[File]] = {
-    implicit val ec = Execution.multiThread
+  def formatFactoryEncode(ideoInfo: String, sourceFile: File, targetRoot: File): Future[List[File]] = {
 
     val targetFile = new File(targetRoot, "encoded.mp4")
     val command = s""" "${ffmpegExePath}" "Custom" "customMp4" "${sourceFile.getCanonicalPath}" "${targetFile.getCanonicalPath}" """
@@ -44,6 +44,7 @@ trait FormatFactoryEncoder extends EncoderAbs {
 }
 
 @Singleton
-class FormatFactoryEncoderImpl @Inject() (ffmpegConfig: FFConfig) extends FormatFactoryEncoder {
+class FormatFactoryEncoderImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FormatFactoryEncoder {
   override val fFConfig = ffmpegConfig
+  override val execContext = mp4Execution.multiThread
 }

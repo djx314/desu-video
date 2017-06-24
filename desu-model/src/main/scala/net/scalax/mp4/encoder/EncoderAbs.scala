@@ -8,6 +8,6 @@ trait EncoderAbs {
 
   val encodeType: String
 
-  def encode(sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]]
+  def encode(videoInfo: String, sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]]
 
 }

@@ -3,13 +3,16 @@ package net.scalax.mp4.encoder
 import java.io.{BufferedReader, File, InputStream, InputStreamReader}
 import java.util.{Timer, TimerTask}
 
-import scala.concurrent.{Future, Promise}
+import org.slf4j.LoggerFactory
+
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 object EncodeHelper {
 
-  implicit val ec = Execution.multiThread
+  val logger = LoggerFactory.getLogger("Exec Factory")
 
-  def processGen(process: java.lang.Process): Future[List[String]] = {
+  def processGen(process: java.lang.Process)(implicit ec: ExecutionContext): Future[List[String]] = {
+    val waitForF = Future { process.waitFor }
     Future.sequence(List(
       listen(process.getInputStream(), { s =>
         println(s"命令行输出(正确):$s")
@@ -24,7 +27,7 @@ object EncodeHelper {
     }
   }
 
-  def listen[T](s: InputStream, result: String => T): Future[List[T]] = Future {
+  def listen[T](s: InputStream, result: String => T)(implicit ec: ExecutionContext): Future[List[T]] = Future {
     val inputReader = new InputStreamReader(s)
     val inputBuReader = new BufferedReader(inputReader)
     try {
@@ -43,20 +46,44 @@ object EncodeHelper {
     }
   }
 
-  def execCommand(command: String): Future[List[String]] = {
+  def execCommand(command: String)(implicit ec: ExecutionContext): Future[List[String]] = {
     val runtime = Runtime.getRuntime
     println(s"exec: $command")
     processGen(runtime.exec(command))
   }
 
-  def execWithDir(commands: List[String], dir: File): Future[List[String]] = {
+  @deprecated
+  def execWithDir(commands: List[String], dir: File)(implicit ec: ExecutionContext): Future[List[String]] = {
     val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
     pros.directory(dir)
     println(s"exec: ${pros.command().toArray.mkString(" ")}")
     processGen(pros.start())
   }
 
-  def windowsWaitTargetFileFinishedEncode(targetFile: File): Future[Boolean] = {
+  def execWithPath(commands: List[String], dir: File, successGen: String => Unit = { _ => () }, failGen: String => Unit = { _ => () })(implicit ec: ExecutionContext): Future[Unit] = {
+    val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
+    pros.directory(dir)
+    logger.info(s"exec: ${pros.command().toArray.mkString(" ")}\ndir: ${dir.getCanonicalPath}")
+
+    val proccess = pros.start()
+    val resultF = Future.sequence(List(
+      listen(proccess.getInputStream(), { s =>
+        val result = successGen(s)
+        result
+      }),
+      listen(proccess.getErrorStream(), { s =>
+        val result = failGen(s)
+        result
+      })
+    )).map { s =>
+      s.flatten
+    }
+    val waitForF = Future { proccess.waitFor }
+    println("等待命令行输出")
+    resultF.map { (_: List[Unit]) => () }
+  }
+
+  def windowsWaitTargetFileFinishedEncode(targetFile: File)(implicit ec: ExecutionContext): Future[Boolean] = {
     val isSuccess = if (targetFile.exists())
       try {
         targetFile.renameTo(new File(targetFile.getParentFile, targetFile.getName))
