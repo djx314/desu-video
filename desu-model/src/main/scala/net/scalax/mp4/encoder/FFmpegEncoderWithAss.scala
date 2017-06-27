@@ -67,7 +67,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 
       val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true)//Filename, or a FFmpegProbeResult
         .addOutput("encoded.mp4")
-        .addExtraArgs("-vf", s"subtitles=source_ass:force_style='fontname=微软雅黑,fontsize=62'")
+        .addExtraArgs("-vf", s"subtitles=source_ass:force_style='fontname=微软雅黑,fontsize=24'")
         .setFormat("mp4")
         //.setTargetSize(250000)
         //.disableSubtitle()
