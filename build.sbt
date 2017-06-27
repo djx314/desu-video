@@ -25,8 +25,8 @@ dependsOn(encoder)
 
 lazy val encoder = (project in file("./desu-encoder"))
   .settings(CustomSettings.customSettings: _*)
-  .dependsOn(playCirce, model)
-.aggregate(playCirce, model)
+  .dependsOn(model)
+  .aggregate(model)
 
 /*lazy val assets: Project = (project in file("./desu-assets"))
   .settings(CustomSettings.customSettings: _*)
@@ -36,6 +36,3 @@ lazy val encoder = (project in file("./desu-encoder"))
 
 lazy val model = (project in file("./desu-model"))
   .settings(CustomSettings.commonProjectSettings: _*)
-
-lazy val playCirce = (project in file("./play-circe"))
-.settings(CustomSettings.commonProjectSettings: _*)
