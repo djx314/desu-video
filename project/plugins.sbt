@@ -7,7 +7,7 @@ resolvers ++= Seq(
 
 externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
 
-val playVersion = "2.6.0-RC2"
+val playVersion = "2.6.0"
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % playVersion)
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
