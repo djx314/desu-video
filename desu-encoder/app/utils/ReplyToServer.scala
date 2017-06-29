@@ -5,6 +5,7 @@ import javax.inject.{Inject, Singleton}
 
 import akka.stream.scaladsl.{FileIO, Source}
 import net.scalax.mp4.model.{RequestInfo, VideoInfo}
+import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSClient
 import play.api.mvc.MultipartFormData.{DataPart, FilePart}
 
@@ -12,6 +13,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait FilesReply {
+
+  val logger = LoggerFactory.getLogger(classOf[FilesReply])
 
   val ws: WSClient
 
@@ -34,7 +37,7 @@ trait FilesReply {
         } else {
           RequestInfo(false, s"请求失败，错误码${wsResult.body}")
         }
-        println(resultModel)
+        logger.info(resultModel.toString)
         resultModel
       }
   }.flatMap(identity).recover {
