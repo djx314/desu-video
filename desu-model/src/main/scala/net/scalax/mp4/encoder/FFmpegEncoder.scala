@@ -26,19 +26,19 @@ trait FFmpegEncoder extends EncoderAbs {
 
   val fFConfig: FFConfig
 
-  lazy val ffmpegExePath = if (fFConfig.useCanonicalPath) {
+  lazy val ffmpegExePath = fFConfig.ffmpegExePath/*if (fFConfig.useCanonicalPath) {
     val path = new File(fFConfig.ffmpegExePath).getCanonicalPath
     path
   }
   else
-    fFConfig.ffmpegExePath
+    fFConfig.ffmpegExePath*/
 
-  lazy val mp4BoxExePath = if(fFConfig.useCanonicalPath) {
+  lazy val mp4BoxExePath = fFConfig.mp4ExePath/*if(fFConfig.useCanonicalPath) {
     val path = new File(fFConfig.mp4ExePath).getCanonicalPath
     path
   }
   else
-    fFConfig.mp4ExePath
+    fFConfig.mp4ExePath*/
 
   override def encode(videoInfo: String, sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]] = {
     formatFactoryEncode(videoInfo, sourceFiles(0), targetRoot)
