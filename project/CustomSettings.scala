@@ -10,7 +10,7 @@ object CustomSettings {
   
   def scalaSettings =
     Seq(
-      scalaVersion := "2.11.11",
+      scalaVersion := "2.12.2",
       scalacOptions ++= Seq("-feature", "-deprecation"),
       //libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.4" % "provided",
       //autoCompilerPlugins := true,
@@ -22,7 +22,6 @@ object CustomSettings {
 
   val playSettings = {
 
-    import com.typesafe.sbt.less.Import._
     import com.typesafe.sbt.web.Import._
 
     import play.sbt.routes.RoutesKeys._
@@ -34,10 +33,8 @@ object CustomSettings {
     Seq(
       routesImport ++= Seq("scala.language.reflectiveCalls"),
       routesGenerator := InjectedRoutesGenerator,
-      com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys.engineType := com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys.EngineType.Trireme,
+      com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys.engineType := com.typesafe.sbt.jse.JsEngineImport.JsEngineKeys.EngineType.Trireme
       //TwirlKeys.templateImports ++= Seq("acyclic.file"/*, "scalaz._", "Scalaz._"*/),
-      includeFilter in (Assets, LessKeys.less) := "*.less",
-      excludeFilter in (Assets, LessKeys.less) := "_*.less"
       /*com.arpnetworking.sbt.typescript.Import.TypescriptKeys.configFile := {
         "../extras/typescript-ext/tsconfig.json"
       }*/

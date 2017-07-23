@@ -27,8 +27,8 @@ object TwoPassFFJob {
     //val cwd = Paths.get("")
     val stream = Files.newDirectoryStream(path, passlogPrefix + "*.log*")
     try {
-      import scala.collection.JavaConversions._
-      for (p <- stream) {
+      import scala.collection.JavaConverters._
+      for (p <- stream.asScala.toList) {
         Files.deleteIfExists(p)
       }
     } finally if (stream != null) stream.close()

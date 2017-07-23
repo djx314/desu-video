@@ -28,7 +28,7 @@ class Encode @Inject() (
 
   val ffRootFile = new File(videoPathConfig.uploadRoot)
 
-  def encodeRequest = Action.async(parse.multipartFormData(10000000000L)) { implicit request =>
+  def encodeRequest = Action.async(parse.multipartFormData(Long.MaxValue)) { implicit request =>
 
     def encodeVideoFuture(videoInfo: VideoInfo) = {
       val encodeKey = UUID.randomUUID().toString
