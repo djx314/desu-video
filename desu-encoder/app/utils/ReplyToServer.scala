@@ -33,9 +33,9 @@ trait FilesReply {
         Nil))
       .map { wsResult =>
         val resultModel = if (wsResult.status == 200) {
-          RequestInfo(true, wsResult.body)
+          RequestInfo(true, wsResult.bodyAsBytes.decodeString("utf-8"))
         } else {
-          RequestInfo(false, s"请求失败，错误码${wsResult.body}")
+          RequestInfo(false, s"请求失败，错误码${wsResult.bodyAsBytes.decodeString("utf-8")}")
         }
         logger.info(resultModel.toString)
         resultModel
