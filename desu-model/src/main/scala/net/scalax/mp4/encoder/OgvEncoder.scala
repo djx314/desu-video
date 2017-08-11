@@ -55,7 +55,7 @@ trait OgvEncoder extends EncoderAbs {
         .setFormat("ogg")
         //.setTargetSize(250000)
         //.disableSubtitle()
-        .setVideoBitRate(25L * 1000L * 1000L)
+        .setVideoBitRate(40L * 1000L * 1000L)
         //.setAudioChannels(1)
         .setAudioCodec("vorbis")
         //.setAudioSampleRate(48000)
@@ -64,8 +64,8 @@ trait OgvEncoder extends EncoderAbs {
         //.setVideoFrameRate(24, 1)
         //.setVideoResolution(640, 480)
         .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
-        .addExtraArgs("-threads", "8")
-          .addExtraArgs("-crf", "16")
+        .addExtraArgs("-threads", "16")
+          .addExtraArgs("-crf", "10")
         .done
       /*val twoPass = new TwoPassFFmpegJob(ffmpeg, builder, new ProgressListener() {
         override def progress(progress: Progress): Unit = {
