@@ -32,6 +32,9 @@ class Mp4Module extends AbstractModule {
 
     bind(classOf[FFmpegEncoderWithAss])
       .to(classOf[FFmpegEncoderWithAssImpl])
+
+    bind(classOf[OgvEncoder])
+      .to(classOf[OgvEncoderImpl])
   }
 
 }

@@ -21,7 +21,8 @@ import scala.collection.JavaConverters._
 
 object TwoPassFFJob {
 
-  val logger = LoggerFactory.getLogger("TwoPassFFJob")
+  val onePassLogger = LoggerFactory.getLogger("OnePassFFJob")
+  val twoPassLogger = LoggerFactory.getLogger("TwoPassFFJob")
 
   def deletePassLog(path: Path, passlogPrefix: String)(implicit ec: ExecutionContext): Unit = {
     //val cwd = Paths.get("")
@@ -39,16 +40,16 @@ object TwoPassFFJob {
     builder.setPassPrefix(passlogPrefix)
     val pass1ExecList = ffmpeg.path(builder.setPass(1).setVerbosity(Verbosity.INFO).build()).asScala.toList
     lazy val pass1Exec = EncodeHelper.execWithPath(pass1ExecList, root, { message =>
-      logger.info(message)
+      onePassLogger.info(message)
     }, { message =>
-      logger.info(message)
+      onePassLogger.info(message)
     })
 
     val pass2ExecList = ffmpeg.path(builder.setPass(2).setVerbosity(Verbosity.INFO).build()).asScala.toList
     lazy val pass2Exec = EncodeHelper.execWithPath(pass2ExecList, root, { message =>
-      logger.info(message)
+      twoPassLogger.info(message)
     }, { message =>
-      logger.info(message)
+      twoPassLogger.info(message)
     }).map { (_: Unit) =>
       deletePassLog(Paths.get(root.toURI), passlogPrefix)
     }

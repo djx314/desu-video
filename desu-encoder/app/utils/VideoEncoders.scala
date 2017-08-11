@@ -2,12 +2,17 @@ package assist.controllers
 
 import javax.inject.{Inject, Singleton}
 
-import net.scalax.mp4.encoder.{EncoderAbs, FFmpegEncoder, FFmpegEncoderWithAss, FormatFactoryEncoder}
+import net.scalax.mp4.encoder._
 
 @Singleton
-class VideoEncodersImpl @Inject() (formatFactoryEncoder: FormatFactoryEncoder, fFmpegEncoder: FFmpegEncoder, fFmpegEncoderWithAss: FFmpegEncoderWithAss) extends VideoEncoders {
+class VideoEncodersImpl @Inject() (
+                                    formatFactoryEncoder: FormatFactoryEncoder,
+                                   fFmpegEncoder: FFmpegEncoder,
+                                   fFmpegEncoderWithAss: FFmpegEncoderWithAss,
+                                    ogvEncoder: OgvEncoder
+                                  ) extends VideoEncoders {
 
-  override val encoders = formatFactoryEncoder :: fFmpegEncoder :: fFmpegEncoderWithAss :: Nil
+  override val encoders = formatFactoryEncoder :: fFmpegEncoder :: fFmpegEncoderWithAss :: ogvEncoder :: Nil
 
 }
 
