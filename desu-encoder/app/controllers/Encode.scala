@@ -1,6 +1,7 @@
 package assist.controllers
 
 import java.io.File
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 import javax.inject.{Inject, Singleton}
@@ -12,6 +13,8 @@ import io.circe.syntax._
 import io.circe.generic.auto._
 import net.scalax.mp4.encoder.CurrentEncode
 import org.apache.commons.io.FileUtils
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import play.api.libs.circe.Circe
 
 import scala.concurrent.Future
@@ -31,39 +34,51 @@ class Encode @Inject() (
   def encodeRequest = Action.async(parse.multipartFormData(Long.MaxValue)) { implicit request =>
 
     def encodeVideoFuture(videoInfo: VideoInfo) = {
-      val encodeKey = UUID.randomUUID().toString
-      val currentRoot = new File(ffRootFile, encodeKey)
+      val encodeDateTimeFormat = DateTimeFormat.forPattern("yyyy年MM月dd日HH时mm分ss秒SSS")
+      val encodeTime = DateTime.now
+      val encoderTimeStr = encodeTime.toString(encodeDateTimeFormat)
+
+      val sourceFilesWithName = (0 to videoInfo.videoLength - 1).map { index =>
+        request.body.file("video_" + index).map {
+          s =>
+            s -> s.filename
+        }.toList
+      }.flatten
+
+      val (temFiles, fileNames) = sourceFilesWithName.unzip
+
+      val dirName = (encoderTimeStr +: fileNames).mkString("《》")
+      val currentRoot = new File(ffRootFile, dirName)
       currentRoot.mkdirs()
 
       val infoFile = new File(currentRoot, videoInfo.videoKey + ".txt")
-      val date = new Date()
-      val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS")
-      val writeStr = s"${encodeKey}\r\n标题:${videoInfo.videoKey}\r\n时间:${dateFormat.format(date)}"
+      val writeStr = s"${dirName}\r\n标题:${videoInfo.videoKey}\r\n时间:${encoderTimeStr}"
       FileUtils.writeStringToFile(infoFile, writeStr, "utf-8")
 
       val sourceDirectory = new File(currentRoot, "source")
       val targetDirectory = new File(currentRoot, "target")
       sourceDirectory.mkdirs()
       targetDirectory.mkdirs()
-      val sourceFiles = (0 to videoInfo.videoLength - 1).map { index =>
-        val sourceFile = new File(sourceDirectory, "video_" + index)
-        request.body.file("video_" + index).map(s => s.ref.moveTo(sourceFile, true))
-        sourceFile
+
+      val sourceFiles = temFiles.map { tempFile =>
+        val sourcePath = Paths.get(sourceDirectory.toPath.toString, tempFile.filename)
+        tempFile.ref.moveTo(sourcePath, true)
+        sourcePath.toFile
       }
 
       //push 正在编码额视频 key 供查询
-      currentEncode.addVideoKey(encodeKey)
+      currentEncode.addVideoKey(dirName)
 
       val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(videoInfo.videoInfo, sourceDirectory, sourceFiles.toList, targetDirectory).flatMap { files: List[File] =>
         reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
       }.andThen {
         case _ =>
           //转码完毕返回用户后去除当前 key
-        currentEncode.removeVideoKey(encodeKey)
+        currentEncode.removeVideoKey(dirName)
       }
       //Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
       sourceFiles.map(_.getCanonicalPath).foreach(println)
-      Future.successful(Ok(encodeKey))
+      Future.successful(Ok(dirName))
     }
 
     VideoInfo.videoForm.bindFromRequest.fold(

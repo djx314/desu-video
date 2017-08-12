@@ -1,6 +1,7 @@
 package net.scalax.mp4.encoder
 
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.{Date, Timer, TimerTask, UUID}
@@ -44,14 +45,14 @@ trait OgvEncoder extends EncoderAbs {
     val tempVideo = new File(targetRoot, "source_video")
     Files.copy(sourceFile.toPath, tempVideo.toPath)
 
-    val targetFile = new File(targetRoot, "encoded.ogv")
+    val targetFile = new File(targetRoot, "target.ogv")
 
     val ffmpeg = new FFmpeg(s"""$ffmpegExePath""")
 
     lazy val encodeFuture = Future {
 
       val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true)//Filename, or a FFmpegProbeResult
-        .addOutput("encoded.ogv")
+        .addOutput("target.ogv")
         .setFormat("ogg")
         //.setTargetSize(250000)
         //.disableSubtitle()
