@@ -6,13 +6,12 @@ import net.scalax.mp4.encoder._
 
 @Singleton
 class VideoEncodersImpl @Inject() (
-                                    formatFactoryEncoder: FormatFactoryEncoder,
                                    fFmpegEncoder: FFmpegEncoder,
                                    fFmpegEncoderWithAss: FFmpegEncoderWithAss,
                                     ogvEncoder: OgvEncoder
                                   ) extends VideoEncoders {
 
-  override val encoders = formatFactoryEncoder :: fFmpegEncoder :: fFmpegEncoderWithAss :: ogvEncoder :: Nil
+  override val encoders = fFmpegEncoder :: fFmpegEncoderWithAss :: ogvEncoder :: Nil
 
 }
 

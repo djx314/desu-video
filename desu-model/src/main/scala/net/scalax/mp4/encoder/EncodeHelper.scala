@@ -11,22 +11,6 @@ object EncodeHelper {
 
   val logger = LoggerFactory.getLogger("Exec Factory")
 
-  def processGen(process: java.lang.Process)(implicit ec: ExecutionContext): Future[List[String]] = {
-    val waitForF = Future { process.waitFor }
-    Future.sequence(List(
-      listen(process.getInputStream(), { s =>
-        println(s"命令行输出(正确):$s")
-        s
-      }),
-      listen(process.getErrorStream(), { s =>
-        println(s"命令行输出(错误):$s")
-        s
-      })
-    )).map { s =>
-      s.flatten
-    }
-  }
-
   def listen[T](s: InputStream, result: String => T)(implicit ec: ExecutionContext): Future[List[T]] = Future {
     val inputReader = new InputStreamReader(s)
     val inputBuReader = new BufferedReader(inputReader)
@@ -46,21 +30,7 @@ object EncodeHelper {
     }
   }
 
-  def execCommand(command: String)(implicit ec: ExecutionContext): Future[List[String]] = {
-    val runtime = Runtime.getRuntime
-    println(s"exec: $command")
-    processGen(runtime.exec(command))
-  }
-
-  @deprecated
-  def execWithDir(commands: List[String], dir: File)(implicit ec: ExecutionContext): Future[List[String]] = {
-    val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
-    pros.directory(dir)
-    println(s"exec: ${pros.command().toArray.mkString(" ")}")
-    processGen(pros.start())
-  }
-
-  def execWithPath(commands: List[String], dir: File, successGen: String => Unit = { _ => () }, failGen: String => Unit = { _ => () })(implicit ec: ExecutionContext): Future[Unit] = {
+  def execWithPath(commands: List[String], dir: File, outPutGen: Either[String, String] => Unit = { _ => () })(implicit ec: ExecutionContext): Future[Unit] = {
     val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
     pros.directory(dir)
     logger.info(s"exec: ${pros.command().toArray.mkString(" ")}\ndir: ${dir.getCanonicalPath}")
@@ -68,11 +38,11 @@ object EncodeHelper {
     val proccess = pros.start()
     val resultF = Future.sequence(List(
       listen(proccess.getInputStream(), { s =>
-        val result = successGen(s)
+        val result = outPutGen(Right(s))
         result
       }),
       listen(proccess.getErrorStream(), { s =>
-        val result = failGen(s)
+        val result = outPutGen(Left(s))
         result
       })
     )).map { s =>

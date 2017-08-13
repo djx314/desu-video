@@ -12,8 +12,8 @@ class Mp4Module extends AbstractModule {
     bind(classOf[VideoEncoders])
       .to(classOf[VideoEncodersImpl])
 
-    bind(classOf[FormatFactoryEncoder])
-      .to(classOf[FormatFactoryEncoderImpl])
+    /*bind(classOf[FormatFactoryEncoder])
+      .to(classOf[FormatFactoryEncoderImpl])*/
 
     bind(classOf[FFConfig])
       .to(classOf[VideoConfig])

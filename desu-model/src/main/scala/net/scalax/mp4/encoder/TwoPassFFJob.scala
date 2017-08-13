@@ -39,17 +39,19 @@ object TwoPassFFJob {
     val passlogPrefix = UUID.randomUUID.toString
     builder.setPassPrefix(passlogPrefix)
     val pass1ExecList = ffmpeg.path(builder.setPass(1).setVerbosity(Verbosity.INFO).build()).asScala.toList
-    lazy val pass1Exec = EncodeHelper.execWithPath(pass1ExecList, root, { message =>
-      onePassLogger.info(message)
-    }, { message =>
-      onePassLogger.info(message)
+    lazy val pass1Exec = EncodeHelper.execWithPath(pass1ExecList, root, {
+      case Left(s) =>
+        onePassLogger.info(s)
+      case Right(s) =>
+        onePassLogger.info(s)
     })
 
     val pass2ExecList = ffmpeg.path(builder.setPass(2).setVerbosity(Verbosity.INFO).build()).asScala.toList
-    lazy val pass2Exec = EncodeHelper.execWithPath(pass2ExecList, root, { message =>
-      twoPassLogger.info(message)
-    }, { message =>
-      twoPassLogger.info(message)
+    lazy val pass2Exec = EncodeHelper.execWithPath(pass2ExecList, root, {
+      case Left(s) =>
+        twoPassLogger.info(s)
+      case Right(s) =>
+        twoPassLogger.info(s)
     }).map { (_: Unit) =>
       deletePassLog(Paths.get(root.toURI), passlogPrefix)
     }

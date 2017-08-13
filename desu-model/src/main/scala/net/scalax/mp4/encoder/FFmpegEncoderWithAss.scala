@@ -97,10 +97,11 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
         e.printStackTrace
         throw e
     }.flatMap { (s: Unit) =>
-      EncodeHelper.execWithPath(List(mp4BoxExePath, "-inter", "0", targetFile.getName), targetRoot, { s =>
-        logger.info(s)
-      }, { s =>
-        logger.info(s)
+      EncodeHelper.execWithPath(List(mp4BoxExePath, "-inter", "0", targetFile.getName), targetRoot, {
+        case Left(s) =>
+          logger.info(s)
+        case Right(s) =>
+          logger.info(s)
       })
     }.map { (_: Unit) =>
       List(targetFile)
