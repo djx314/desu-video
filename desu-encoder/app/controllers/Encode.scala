@@ -41,13 +41,14 @@ class Encode @Inject() (
       val sourceFilesWithName = (0 to videoInfo.videoLength - 1).map { index =>
         request.body.file("video_" + index).map {
           s =>
-            s -> s.filename
+            s
         }.toList
       }.flatten
 
-      val (temFiles, fileNames) = sourceFilesWithName.unzip
+      val temFiles = sourceFilesWithName
+      val uuid = UUID.randomUUID().toString
 
-      val dirName = (encoderTimeStr +: fileNames).mkString("《》")
+      val dirName = encoderTimeStr + "-" + uuid
       val currentRoot = new File(ffRootFile, dirName)
       currentRoot.mkdirs()
 
@@ -60,8 +61,8 @@ class Encode @Inject() (
       sourceDirectory.mkdirs()
       targetDirectory.mkdirs()
 
-      val sourceFiles = temFiles.map { tempFile =>
-        val sourcePath = Paths.get(sourceDirectory.toPath.toString, tempFile.filename)
+      val sourceFiles = temFiles.zipWithIndex.map { case (tempFile, index) =>
+        val sourcePath = Paths.get(sourceDirectory.toPath.toString, "source_" + index)
         tempFile.ref.moveTo(sourcePath, true)
         sourcePath.toFile
       }

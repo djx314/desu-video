@@ -39,6 +39,7 @@ trait FFmpegEncoder extends EncoderAbs {
   }
   else
     fFConfig.mp4ExePath*/
+  lazy val ffProbeExePath = fFConfig.ffProbePath
 
   override def encode(videoInfo: String, sourceRoot: File, sourceFiles: List[File], targetRoot: File): Future[List[File]] = {
     formatFactoryEncode(videoInfo, sourceFiles(0), targetRoot)
@@ -46,20 +47,24 @@ trait FFmpegEncoder extends EncoderAbs {
 
   def formatFactoryEncode(videoInfo: String, sourceFile: File, targetRoot: File): Future[List[File]] = {
     targetRoot.mkdirs()
-    val tempVideo = new File(targetRoot, "source_video")
+    val tempVideo = new File(targetRoot, sourceFile.getName)
     Files.copy(sourceFile.toPath, tempVideo.toPath)
+    val targetSize = Files.size(tempVideo.toPath)
 
-    val targetFile = new File(targetRoot, "encoded.mp4")
+    val targetFile = new File(targetRoot, sourceFile.getName + ".mp4")
+    val ffprobe = new FFprobe(ffProbeExePath)
+
     Future {
       val ffmpeg = new FFmpeg(s"""$ffmpegExePath""")
       //val ffprobe = new FFprobe("ffprobe")
 
-      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
-        .addOutput("encoded.mp4")
+      val builder = new FFmpegBuilder().addInput(ffprobe.probe(tempVideo.getCanonicalPath)).overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
+        .addOutput(targetFile.getCanonicalPath)
+        .setTargetSize(targetSize)
         .setFormat("mp4")
-        //.setTargetSize(250000)
         .disableSubtitle
-        .setVideoBitRate(1000000L)
+        //.setVideoBitRate(1000000L)
+        //.setVideoBitRate(40L * 1000L * 1000L)
         .setAudioChannels(1)
         .setAudioCodec("aac")
         .setAudioSampleRate(48000)
@@ -68,8 +73,8 @@ trait FFmpegEncoder extends EncoderAbs {
         //.setVideoFrameRate(24, 1)
         //.setVideoResolution(640, 480)
         .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
+        .addExtraArgs("-crf", "10")
         .done
-
       //val executor = new FFmpegExecutor(ffmpeg, ffprobe)
 
       //println(scala.collection.JavaConverters.iterableAsScalaIterableConverter(builder.build()).asScala.toList)

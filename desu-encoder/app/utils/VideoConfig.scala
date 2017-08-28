@@ -24,6 +24,7 @@ class VideoConfig @Inject() (
   lazy val winFfmpegTempFile = new File(winFfmpegTmpRoot, s"${UUID.randomUUID().toString}")
   lazy val ffmpegRootPath = new File(winFfmpegTempFile, "FormatFactory-4.1.0")
   lazy val ffmpegExeFile = new File(ffmpegRootPath, "FFModules/Encoder/ffmpeg.exe")
+  lazy val ffprobeExeFile = new File(ffmpegRootPath, "FFModules/Encoder/ffprobe.exe")
   lazy val mp4boxExeFile = new File(ffmpegRootPath, "FFModules/Encoder/MP4Box/mp4box.exe")
 
   if (scala.util.Properties.isWin) {
@@ -48,12 +49,20 @@ class VideoConfig @Inject() (
   override val ffmpegExePath = {
     //configure.get[String]("djx314.soft.ffmpeg")
     if (scala.util.Properties.isWin) {
-      println(ffmpegExeFile.getCanonicalPath)
       ffmpegExeFile.getCanonicalPath
     } else {
       "ffmpeg"
     }
   }
+
+  override val ffProbePath = {
+    if (scala.util.Properties.isWin) {
+      ffprobeExeFile.getCanonicalPath
+    } else {
+      "ffprobe"
+    }
+  }
+
   override val mp4ExePath = {
     //configure.get[String]("djx314.soft.mp4box")
     if (scala.util.Properties.isWin) {
