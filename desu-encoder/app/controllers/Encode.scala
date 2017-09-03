@@ -18,6 +18,7 @@ import org.joda.time.format.DateTimeFormat
 import play.api.libs.circe.Circe
 
 import scala.concurrent.Future
+import scala.util.matching.Regex
 
 @Singleton
 class Encode @Inject() (
@@ -33,6 +34,9 @@ class Encode @Inject() (
 
   def encodeRequest = Action.async(parse.multipartFormData(Long.MaxValue)) { implicit request =>
 
+    println(request.headers)
+    println(request.contentType)
+
     def encodeVideoFuture(videoInfo: VideoInfo) = {
       val encodeDateTimeFormat = DateTimeFormat.forPattern("yyyy年MM月dd日HH时mm分ss秒SSS")
       val encodeTime = DateTime.now
@@ -41,6 +45,7 @@ class Encode @Inject() (
       val sourceFilesWithName = (0 to videoInfo.videoLength - 1).map { index =>
         request.body.file("video_" + index).map {
           s =>
+            println(s.filename)
             s
         }.toList
       }.flatten
@@ -62,7 +67,7 @@ class Encode @Inject() (
       targetDirectory.mkdirs()
 
       val sourceFiles = temFiles.zipWithIndex.map { case (tempFile, index) =>
-        val sourcePath = Paths.get(sourceDirectory.toPath.toString, "source_" + index)
+        val sourcePath = Paths.get(sourceDirectory.toPath.toString, tempFile.filename.replaceAllLiterally("?", "")/*"source_" + index*/)
         tempFile.ref.moveTo(sourcePath, true)
         sourcePath.toFile
       }
