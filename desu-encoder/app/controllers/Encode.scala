@@ -6,8 +6,9 @@ import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 import javax.inject.{Inject, Singleton}
 
+import archer.controllers.CommonController
 import net.scalax.mp4.model.VideoInfo
-import play.api.mvc.InjectedController
+import play.api.mvc.{ControllerComponents, InjectedController}
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
@@ -25,8 +26,9 @@ class Encode @Inject() (
                         currentEncode: CurrentEncode,
                         videoEncoders: VideoEncoders,
                         videoPathConfig: VideoPathConfig,
-                        reply: FilesReply
-                       ) extends InjectedController with Circe {
+                        reply: FilesReply,
+controllerComponents: ControllerComponents
+                       ) extends CommonController(controllerComponents) with Circe {
 
   implicit def ec = defaultExecutionContext
 

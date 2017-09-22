@@ -10,7 +10,7 @@ object CustomSettings {
   
   def scalaSettings =
     Seq(
-      scalaVersion := "2.12.2",
+      scalaVersion := "2.12.3",
       scalacOptions ++= Seq("-feature", "-deprecation"),
       //libraryDependencies += "com.lihaoyi" %% "acyclic" % "0.1.4" % "provided",
       //autoCompilerPlugins := true,

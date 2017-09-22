@@ -1,18 +1,19 @@
 package assist.controllers
 
-import java.io.File
-import java.net.URI
 import javax.inject.{Inject, Singleton}
 
+import archer.controllers.CommonController
 import net.scalax.mp4.play.CustomAssets
 import play.api.Configuration
-import play.api.mvc.{AbstractController, ControllerComponents, InjectedController}
+import play.api.mvc.ControllerComponents
 
 import scala.concurrent.Future
 
 @Singleton
 class Assets @Inject() (assets: CustomAssets,
-                        configure: Configuration) extends InjectedController {
+                        configure: Configuration,
+                        controllerComponents: ControllerComponents
+                       ) extends CommonController(controllerComponents) {
   implicit def ec = defaultExecutionContext
   /*val targetRoot = {
     configure.get[String]("djx314.path.base.target")

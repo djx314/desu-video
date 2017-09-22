@@ -1,6 +1,4 @@
 import org.xarcher.sbt.CustomSettings
-import org.xarcher.sbt.Dependencies
-import org.xarcher.sbt.Helpers._
 
 import sbt._
 import sbt.Keys._
@@ -32,7 +30,6 @@ lazy val encoder = (project in file("./desu-encoder"))
   .settings(CustomSettings.customSettings: _*)
   .dependsOn(playCirce)
   .dependsOn(model)*/
-
 
 lazy val model = (project in file("./desu-model"))
   .settings(CustomSettings.commonProjectSettings: _*)

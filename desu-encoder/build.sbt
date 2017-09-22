@@ -18,7 +18,14 @@ transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
 name := "desu-encoder"
 version := "0.0.1"
 
-libraryDependencies += guice
+libraryDependencies ++= Seq(
+  "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided",
+  "com.softwaremill.macwire" %% "macrosakka" % "2.3.0" % "provided",
+  "com.softwaremill.macwire" %% "util" % "2.3.0",
+  "com.softwaremill.macwire" %% "proxy" % "2.3.0"
+)
+
+//libraryDependencies += guice
 libraryDependencies += ws
 libraryDependencies += "commons-io" % "commons-io" % "2.5"
 libraryDependencies += "play-circe" %% "play-circe" % "2.6-0.8.0"
