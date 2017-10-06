@@ -1,8 +1,5 @@
 import org.xarcher.sbt.CustomSettings
 
-import sbt._
-import sbt.Keys._
-
 val printlnDo = println("""
 |   __     __     __
 |  / /    / /    / /

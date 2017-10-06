@@ -1,11 +1,11 @@
 resolvers ++= Seq(
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
-  "mavenRepoJX" at "http://repo1.maven.org/maven2/",
+  "mavenRepoJX" at "http://repo1.maven.org/maven2/"
   //"oschina" at "http://maven.oschina.net/content/groups/public",
-  "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+  //"jgit-repo" at "http://download.eclipse.org/jgit/maven"
 )
 
-externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
+//externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
 
 val playVersion = "2.6.6"
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % playVersion)

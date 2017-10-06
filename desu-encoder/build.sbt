@@ -15,6 +15,8 @@ lazy val playVersion = play.core.PlayVersion.current
 
 transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
 
+resolvers += "Bintary JCenter" at "http://jcenter.bintray.com"
+
 name := "desu-encoder"
 version := "0.0.1"
 
