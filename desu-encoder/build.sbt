@@ -32,7 +32,7 @@ libraryDependencies += ws
 libraryDependencies += "com.typesafe.play" %% "play-ahc-ws-standalone" % "1.1.2"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.5"
-libraryDependencies += "play-circe" %% "play-circe" % "2.6-0.8.0"
+libraryDependencies += "com.dripower" % "play-circe_2.12" % "2609M2.0"
 
 enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
 
