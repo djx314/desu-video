@@ -103,7 +103,7 @@ trait FFmpegEncoder extends EncoderAbs {
         e.printStackTrace
         throw e
     }.flatMap { (s: Unit) =>
-      EncodeHelper.execWithPath(List(mp4BoxExePath, "-inter", "0", targetFile.getName), targetRoot, {
+      EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFile.getName), targetRoot, {
         case Left(s) =>
           logger.info(s)
         case Right(s) =>

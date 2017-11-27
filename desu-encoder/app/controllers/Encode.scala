@@ -69,7 +69,7 @@ controllerComponents: ControllerComponents
       targetDirectory.mkdirs()
 
       val sourceFiles = temFiles.zipWithIndex.map { case (tempFile, index) =>
-        val sourcePath = Paths.get(sourceDirectory.toPath.toString, tempFile.filename.replaceAllLiterally("?", "")/*"source_" + index*/)
+        val sourcePath = Paths.get(sourceDirectory.toPath.toString, s"video_$index"/*tempFile.filename.replaceAllLiterally("?", "")*/)
         tempFile.ref.moveTo(sourcePath, true)
         sourcePath.toFile
       }
