@@ -47,11 +47,12 @@ trait FFmpegEncoder extends EncoderAbs {
 
   def formatFactoryEncode(videoInfo: String, sourceFile: File, targetRoot: File): Future[List[File]] = {
     targetRoot.mkdirs()
-    val tempVideo = new File(targetRoot, sourceFile.getName)
+    val tempVideo = new File(targetRoot, "video_01.mp4")
     Files.copy(sourceFile.toPath, tempVideo.toPath)
     val targetSize = Files.size(tempVideo.toPath)
 
-    val targetFile = new File(targetRoot, sourceFile.getName + ".mp4")
+    val targetFileName = "video_target.mp4"
+    val targetFile = new File(targetRoot, targetFileName)
     val ffprobe = new FFprobe(ffProbeExePath)
 
     Future {
@@ -59,7 +60,8 @@ trait FFmpegEncoder extends EncoderAbs {
       //val ffprobe = new FFprobe("ffprobe")
 
       val builder = new FFmpegBuilder().addInput(ffprobe.probe(tempVideo.getCanonicalPath)).overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
-        .addOutput(targetFile.getCanonicalPath)
+        //.addOutput(targetFile.getCanonicalPath)
+        .addOutput(targetFileName)
         .setTargetSize(targetSize)
         .setFormat("mp4")
         .disableSubtitle
@@ -103,7 +105,7 @@ trait FFmpegEncoder extends EncoderAbs {
         e.printStackTrace
         throw e
     }.flatMap { (s: Unit) =>
-      EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFile.getName), targetRoot, {
+      EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFileName), targetRoot, {
         case Left(s) =>
           logger.info(s)
         case Right(s) =>
