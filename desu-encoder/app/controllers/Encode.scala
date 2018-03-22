@@ -3,12 +3,12 @@ package assist.controllers
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.{Date, UUID}
-import javax.inject.{Inject, Singleton}
+import java.util.{ Date, UUID }
+import javax.inject.{ Inject, Singleton }
 
 import archer.controllers.CommonController
 import net.scalax.mp4.model.VideoInfo
-import play.api.mvc.{ControllerComponents, InjectedController}
+import play.api.mvc.{ ControllerComponents, InjectedController }
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
@@ -23,12 +23,11 @@ import scala.util.matching.Regex
 
 @Singleton
 class Encode @Inject() (
-                        currentEncode: CurrentEncode,
-                        videoEncoders: VideoEncoders,
-                        videoPathConfig: VideoPathConfig,
-                        reply: FilesReply,
-controllerComponents: ControllerComponents
-                       ) extends CommonController(controllerComponents) with Circe {
+  currentEncode: CurrentEncode,
+  videoEncoders: VideoEncoders,
+  videoPathConfig: VideoPathConfig,
+  reply: FilesReply,
+  controllerComponents: ControllerComponents) extends CommonController(controllerComponents) with Circe {
 
   implicit def ec = defaultExecutionContext
 
@@ -68,10 +67,11 @@ controllerComponents: ControllerComponents
       sourceDirectory.mkdirs()
       targetDirectory.mkdirs()
 
-      val sourceFiles = temFiles.zipWithIndex.map { case (tempFile, index) =>
-        val sourcePath = Paths.get(sourceDirectory.toPath.toString, s"video_$index"/*tempFile.filename.replaceAllLiterally("?", "")*/)
-        tempFile.ref.moveTo(sourcePath, true)
-        sourcePath.toFile
+      val sourceFiles = temFiles.zipWithIndex.map {
+        case (tempFile, index) =>
+          val sourcePath = Paths.get(sourceDirectory.toPath.toString, s"video_$index" /*tempFile.filename.replaceAllLiterally("?", "")*/ )
+          tempFile.ref.moveTo(sourcePath, true)
+          sourcePath.toFile
       }
 
       //push 正在编码额视频 key 供查询
@@ -82,7 +82,7 @@ controllerComponents: ControllerComponents
       }.andThen {
         case _ =>
           //转码完毕返回用户后去除当前 key
-        currentEncode.removeVideoKey(dirName)
+          currentEncode.removeVideoKey(dirName)
       }
       //Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
       sourceFiles.map(_.getCanonicalPath).foreach(println)
@@ -97,8 +97,7 @@ controllerComponents: ControllerComponents
       videoInfo => {
         println("返回结果:" + videoInfo)
         encodeVideoFuture(videoInfo)
-      }
-    )
+      })
   }
 
   def isEncoding(uuid: String) = Action.async { implicit request =>

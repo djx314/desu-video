@@ -47,7 +47,5 @@ object VideoInfo {
       "videoKey" -> nonEmptyText,
       "videoLength" -> number,
       "videoInfo" -> nonEmptyText,
-      "returnPath" -> nonEmptyText
-    )(VideoInfo.apply)(VideoInfo.unapply)
-  )
+      "returnPath" -> nonEmptyText)(VideoInfo.apply)(VideoInfo.unapply))
 }

@@ -1,11 +1,11 @@
 package net.scalax.mp4.encoder
 
-import java.io.{BufferedReader, File, InputStream, InputStreamReader}
-import java.util.{Timer, TimerTask}
+import java.io.{ BufferedReader, File, InputStream, InputStreamReader }
+import java.util.{ Timer, TimerTask }
 
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 object EncodeHelper {
 
@@ -44,8 +44,7 @@ object EncodeHelper {
       listen(proccess.getErrorStream(), { s =>
         val result = outPutGen(Left(s))
         result
-      })
-    )).map { s =>
+      }))).map { s =>
       s.flatten
     }
     val waitForF = Future { proccess.waitFor }

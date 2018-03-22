@@ -1,16 +1,15 @@
 package net.scalax.mp4.encoder
 
 import java.util.concurrent.Executors
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 
 import play.api.inject.ApplicationLifecycle
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
+import scala.concurrent.{ ExecutionContext, ExecutionContextExecutorService, Future }
 
 @Singleton
 class Mp4Execution @Inject() (
-  applicationLifecycle: ApplicationLifecycle
-) {
+  applicationLifecycle: ApplicationLifecycle) {
 
   val multiThread: ExecutionContextExecutorService = {
     ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(100))

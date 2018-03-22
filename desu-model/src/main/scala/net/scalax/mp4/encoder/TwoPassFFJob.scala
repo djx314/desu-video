@@ -1,20 +1,20 @@
 package net.scalax.mp4.encoder
 
 import java.io.File
-import java.nio.file.{DirectoryStream, Files, Path, Paths}
+import java.nio.file.{ DirectoryStream, Files, Path, Paths }
 import java.text.SimpleDateFormat
-import java.util.{Date, Timer, TimerTask, UUID}
+import java.util.{ Date, Timer, TimerTask, UUID }
 import javax.inject.Singleton
 import javax.inject.Inject
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.builder.FFmpegBuilder.Verbosity
 import net.bramp.ffmpeg.job.TwoPassFFmpegJob
-import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
+import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._

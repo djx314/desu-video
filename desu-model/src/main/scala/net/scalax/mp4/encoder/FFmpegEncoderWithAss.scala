@@ -3,20 +3,20 @@ package net.scalax.mp4.encoder
 import java.io.File
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.{Date, Timer, TimerTask, UUID}
+import java.util.{ Date, Timer, TimerTask, UUID }
 import javax.inject.Singleton
 import javax.inject.Inject
 
 import com.google.common.base.Throwables
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.FFmpegJob.State
-import net.bramp.ffmpeg.job.{FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob}
-import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
+import net.bramp.ffmpeg.job.{ FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob }
+import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -31,14 +31,14 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 
   implicit val execContext: ExecutionContext
 
-  lazy val ffmpegExePath = fFConfig.ffmpegExePath/*if (fFConfig.useCanonicalPath) {
+  lazy val ffmpegExePath = fFConfig.ffmpegExePath /*if (fFConfig.useCanonicalPath) {
     val path = new File(fFConfig.ffmpegExePath).getCanonicalPath
     path
   }
   else
     fFConfig.ffmpegExePath*/
 
-  lazy val mp4BoxExePath = fFConfig.mp4ExePath/*if(fFConfig.useCanonicalPath) {
+  lazy val mp4BoxExePath = fFConfig.mp4ExePath /*if(fFConfig.useCanonicalPath) {
     val path = new File(fFConfig.mp4ExePath).getCanonicalPath
     path
   }
@@ -65,7 +65,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 
     lazy val encodeFuture = Future {
 
-      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true)//Filename, or a FFmpegProbeResult
+      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
         .addOutput("encoded.mp4")
         .addExtraArgs("-vf", s"subtitles=source_ass:force_style='fontname=微软雅黑,fontsize=24'")
         .setFormat("mp4")

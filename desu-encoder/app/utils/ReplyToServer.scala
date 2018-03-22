@@ -1,13 +1,13 @@
 package assist.controllers
 
 import java.io.File
-import javax.inject.{Inject, Singleton}
+import javax.inject.{ Inject, Singleton }
 
-import akka.stream.scaladsl.{FileIO, Source}
-import net.scalax.mp4.model.{RequestInfo, VideoInfo}
+import akka.stream.scaladsl.{ FileIO, Source }
+import net.scalax.mp4.model.{ RequestInfo, VideoInfo }
 import org.slf4j.LoggerFactory
 import play.api.libs.ws.WSClient
-import play.api.mvc.MultipartFormData.{DataPart, FilePart}
+import play.api.mvc.MultipartFormData.{ DataPart, FilePart }
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,8 +19,9 @@ trait FilesReply {
   val ws: WSClient
 
   def replyVideo(videoInfo: VideoInfo, targetFiles: List[File]): Future[RequestInfo] = Future {
-    val fileParts = targetFiles.zipWithIndex.map { case (file, index) =>
-      FilePart("video_" + index, file.getName, Option("text/plain"), FileIO.fromPath(file.toPath))
+    val fileParts = targetFiles.zipWithIndex.map {
+      case (file, index) =>
+        FilePart("video_" + index, file.getName, Option("text/plain"), FileIO.fromPath(file.toPath))
     }
     println(fileParts)
     ws.url(videoInfo.returnPath).post(Source(

@@ -1,11 +1,11 @@
 package utils
 
 import java.io.File
-import java.util.{Date, UUID}
-import javax.inject.{Inject, Singleton}
+import java.util.{ Date, UUID }
+import javax.inject.{ Inject, Singleton }
 
 import assist.controllers.VideoPathConfig
-import net.scalax.mp4.encoder.{CurrentEncode, FFConfig}
+import net.scalax.mp4.encoder.{ CurrentEncode, FFConfig }
 import org.slf4j.LoggerFactory
 import org.xarcher.nodeWeb.modules.CopyHelper
 import play.api.Configuration
@@ -15,8 +15,7 @@ import scala.concurrent.duration.Duration
 
 @Singleton
 class VideoConfig @Inject() (
-                        configure: Configuration
-                       ) extends FFConfig with VideoPathConfig with CurrentEncode {
+  configure: Configuration) extends FFConfig with VideoPathConfig with CurrentEncode {
   val logger = LoggerFactory.getLogger(classOf[FFConfig])
 
   lazy val tempFile = new File(scala.util.Properties.tmpDir)

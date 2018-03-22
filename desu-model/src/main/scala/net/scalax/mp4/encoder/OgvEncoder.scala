@@ -4,20 +4,20 @@ import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.{Date, Timer, TimerTask, UUID}
+import java.util.{ Date, Timer, TimerTask, UUID }
 import javax.inject.Singleton
 import javax.inject.Inject
 
 import com.google.common.base.Throwables
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.FFmpegJob.State
-import net.bramp.ffmpeg.job.{FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob}
-import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
+import net.bramp.ffmpeg.job.{ FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob }
+import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -51,7 +51,7 @@ trait OgvEncoder extends EncoderAbs {
 
     lazy val encodeFuture = Future {
 
-      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true)//Filename, or a FFmpegProbeResult
+      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
         .addOutput("target.ogv")
         .setFormat("ogg")
         //.setTargetSize(250000)
@@ -66,7 +66,7 @@ trait OgvEncoder extends EncoderAbs {
         //.setVideoResolution(640, 480)
         .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
         .addExtraArgs("-threads", "16")
-          .addExtraArgs("-crf", "10")
+        .addExtraArgs("-crf", "10")
         .done
       /*val twoPass = new TwoPassFFmpegJob(ffmpeg, builder, new ProgressListener() {
         override def progress(progress: Progress): Unit = {

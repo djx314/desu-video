@@ -10,7 +10,7 @@ import play.api._
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import router.Routes
-import play.api.mvc.{BodyParsers, CookieHeaderEncoding, DefaultCookieHeaderEncoding}
+import play.api.mvc.{ BodyParsers, CookieHeaderEncoding, DefaultCookieHeaderEncoding }
 import com.softwaremill.macwire._
 import net.scalax.mp4.encoder._
 import utils.VideoConfig
@@ -22,19 +22,18 @@ class InjectedAhcWSComponents(
   override val configuration: Configuration,
   override val applicationLifecycle: ApplicationLifecycle,
   override val materializer: Materializer,
-  override val executionContext: ExecutionContext
-) extends AhcWSComponents
+  override val executionContext: ExecutionContext) extends AhcWSComponents
 
 class AppComponents(context: Context)
-    extends BuiltInComponentsFromContext(context)
-    with NoHttpFiltersComponents {
+  extends BuiltInComponentsFromContext(context)
+  with NoHttpFiltersComponents {
 
   private implicit def as = actorSystem
   private implicit lazy val ec = executionContext
 
   /**
-    * Assets 模块配置开始
-    */
+   * Assets 模块配置开始
+   */
   private lazy val AssetsConfigurationProvider = wire[_root_.controllers.AssetsConfigurationProvider]
   private def AssetsConfigurationGen(a: _root_.controllers.AssetsConfigurationProvider) = a.get
   private lazy val AssetsConfiguration = wireWith(AssetsConfigurationGen _)
@@ -61,18 +60,18 @@ class AppComponents(context: Context)
   private lazy val FilesReply: FilesReply = wire[FilesReplyImpl]
 
   /**
-    * Assets 模块配置结束
-    */
+   * Assets 模块配置结束
+   */
 
   /**
-    * ws 模块配置开始
-    */
+   * ws 模块配置开始
+   */
   private lazy val InjectedAhcWSComponents = wire[InjectedAhcWSComponents]
   private def wsGen(a: AhcWSComponents) = a.wsClient
   private lazy val ws = wireWith(wsGen _)
   /**
-    * ws 模块配置结束
-    */
+   * ws 模块配置结束
+   */
 
   /*private lazy val Index = wire[Index]
 
