@@ -72,6 +72,8 @@ trait FFmpegEncoder extends EncoderAbs {
         .setAudioSampleRate(48000)
         .setAudioBitRate(32768)
         .setVideoCodec("libx264")
+        .addExtraArgs("-c:v", "h264_amf")
+
         //.setVideoFrameRate(24, 1)
         //.setVideoResolution(640, 480)
         .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
