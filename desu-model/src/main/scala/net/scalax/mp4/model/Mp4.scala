@@ -42,10 +42,8 @@ object VideoInfo {
   import play.api.data.Forms._
 
   val videoForm = Form(
-    mapping(
-      "encodeType" -> nonEmptyText,
-      "videoKey" -> nonEmptyText,
-      "videoLength" -> number,
-      "videoInfo" -> nonEmptyText,
-      "returnPath" -> nonEmptyText)(VideoInfo.apply)(VideoInfo.unapply))
+    mapping("encodeType" -> nonEmptyText, "videoKey" -> nonEmptyText, "videoLength" -> number, "videoInfo" -> nonEmptyText, "returnPath" -> nonEmptyText)(
+      VideoInfo.apply
+    )(VideoInfo.unapply)
+  )
 }

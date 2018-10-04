@@ -1,8 +1,8 @@
 package org.xarcher.nodeWeb.modules
 
-import java.io.{ File, InputStream }
-import java.net.{ JarURLConnection, URL }
-import java.nio.file.{ Files, Path, Paths }
+import java.io.{File, InputStream}
+import java.net.{JarURLConnection, URL}
+import java.nio.file.{Files, Path, Paths}
 import java.util.Date
 import java.util.jar.JarFile
 
@@ -20,7 +20,7 @@ object CopyHelper {
   def copyFromClassPath(paths: List[String], targetRoot: Path)(implicit ec: ExecutionContext): Future[Boolean] = Future {
     Files.createDirectories(targetRoot)
     val classPathStr = paths.mkString("/")
-    val sourURLs = getClass.getClassLoader.getResources(classPathStr).asScala.toStream
+    val sourURLs     = getClass.getClassLoader.getResources(classPathStr).asScala.toStream
     sourURLs.map { sourURL =>
       val date = new Date()
       sourURL match {
@@ -42,22 +42,25 @@ object CopyHelper {
   }
 
   def copyFilesFromJarFile(jarFile: JarFile, prefix: String, targetRoot: Path) = {
-    val entries = jarFile.entries()
+    val entries      = jarFile.entries()
     val scalaEntries = entries.asScala.toStream
-    scalaEntries.filter { s =>
-      s.getName.startsWith(prefix) && (!s.isDirectory)
-    }.map { entry =>
-      var inputS: InputStream = null
-      try {
-        inputS = getClass.getClassLoader.getResourceAsStream(entry.getName)
-        val entryPath = Paths.get(targetRoot.toFile.getCanonicalPath, entry.getName.drop(prefix.size))
-        doCopyFile(inputS, entryPath)
-      } finally {
-        if (inputS ne null) {
-          inputS.close()
+    scalaEntries
+      .filter { s =>
+        s.getName.startsWith(prefix) && (!s.isDirectory)
+      }
+      .map { entry =>
+        var inputS: InputStream = null
+        try {
+          inputS = getClass.getClassLoader.getResourceAsStream(entry.getName)
+          val entryPath = Paths.get(targetRoot.toFile.getCanonicalPath, entry.getName.drop(prefix.size))
+          doCopyFile(inputS, entryPath)
+        } finally {
+          if (inputS ne null) {
+            inputS.close()
+          }
         }
       }
-    }.toList
+      .toList
   }
 
 }

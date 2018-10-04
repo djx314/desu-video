@@ -3,12 +3,12 @@ package assist.controllers
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.{ Date, UUID }
-import javax.inject.{ Inject, Singleton }
+import java.util.{Date, UUID}
+import javax.inject.{Inject, Singleton}
 
 import archer.controllers.CommonController
 import net.scalax.mp4.model.VideoInfo
-import play.api.mvc.{ ControllerComponents, InjectedController }
+import play.api.mvc.{ControllerComponents, InjectedController}
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
@@ -22,39 +22,42 @@ import scala.concurrent.Future
 import scala.util.matching.Regex
 
 @Singleton
-class Encode @Inject() (
+class Encode @Inject()(
   currentEncode: CurrentEncode,
   videoEncoders: VideoEncoders,
   videoPathConfig: VideoPathConfig,
   reply: FilesReply,
-  controllerComponents: ControllerComponents) extends CommonController(controllerComponents) with Circe {
+  controllerComponents: ControllerComponents
+) extends CommonController(controllerComponents)
+    with Circe {
 
   implicit def ec = defaultExecutionContext
 
   val ffRootFile = new File(videoPathConfig.uploadRoot)
 
   def encodeRequest = Action.async(parse.multipartFormData(Long.MaxValue)) { implicit request =>
-
     println(request.headers)
     println(request.contentType)
 
     def encodeVideoFuture(videoInfo: VideoInfo) = {
       val encodeDateTimeFormat = DateTimeFormat.forPattern("yyyy年MM月dd日HH时mm分ss秒SSS")
-      val encodeTime = DateTime.now
-      val encoderTimeStr = encodeTime.toString(encodeDateTimeFormat)
+      val encodeTime           = DateTime.now
+      val encoderTimeStr       = encodeTime.toString(encodeDateTimeFormat)
 
       val sourceFilesWithName = (0 to videoInfo.videoLength - 1).map { index =>
-        request.body.file("video_" + index).map {
-          s =>
+        request.body
+          .file("video_" + index)
+          .map { s =>
             println(s.filename)
             s
-        }.toList
+          }
+          .toList
       }.flatten
 
       val temFiles = sourceFilesWithName
-      val uuid = UUID.randomUUID().toString
+      val uuid     = UUID.randomUUID().toString
 
-      val dirName = encoderTimeStr + "-" + uuid
+      val dirName     = encoderTimeStr + "-" + uuid
       val currentRoot = new File(ffRootFile, dirName)
       currentRoot.mkdirs()
 
@@ -77,27 +80,30 @@ class Encode @Inject() (
       //push 正在编码额视频 key 供查询
       currentEncode.addVideoKey(dirName)
 
-      val resultFiles = videoEncoders.encoders.find(_.encodeType == videoInfo.encodeType).get.encode(videoInfo.videoInfo, sourceDirectory, sourceFiles.toList, targetDirectory).flatMap { files: List[File] =>
-        reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
-      }.andThen {
-        case _ =>
-          //转码完毕返回用户后去除当前 key
-          currentEncode.removeVideoKey(dirName)
-      }
+      val resultFiles = videoEncoders.encoders
+        .find(_.encodeType == videoInfo.encodeType)
+        .get
+        .encode(videoInfo.videoInfo, sourceDirectory, sourceFiles.toList, targetDirectory)
+        .flatMap { files: List[File] =>
+          reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
+        }
+        .andThen {
+          case _ =>
+            //转码完毕返回用户后去除当前 key
+            currentEncode.removeVideoKey(dirName)
+        }
       //Future.successful(Ok(RequestInfo(true, sourceFiles.map(_.getCanonicalPath).mkString(",")).asJson))
       sourceFiles.map(_.getCanonicalPath).foreach(println)
       Future.successful(Ok(dirName))
     }
 
-    VideoInfo.videoForm.bindFromRequest.fold(
-      formWithErrors => {
-        println("参数错误")
-        Future.successful(BadRequest("错误的参数"))
-      },
-      videoInfo => {
-        println("返回结果:" + videoInfo)
-        encodeVideoFuture(videoInfo)
-      })
+    VideoInfo.videoForm.bindFromRequest.fold(formWithErrors => {
+      println("参数错误")
+      Future.successful(BadRequest("错误的参数"))
+    }, videoInfo => {
+      println("返回结果:" + videoInfo)
+      encodeVideoFuture(videoInfo)
+    })
   }
 
   def isEncoding(uuid: String) = Action.async { implicit request =>

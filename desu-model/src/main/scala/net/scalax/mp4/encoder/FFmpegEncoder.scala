@@ -3,17 +3,17 @@ package net.scalax.mp4.encoder
 import java.io.File
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.{ Date, Timer, TimerTask, UUID }
+import java.util.{Date, Timer, TimerTask, UUID}
 import javax.inject.Singleton
 import javax.inject.Inject
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.TwoPassFFmpegJob
-import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
+import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
 import org.slf4j.LoggerFactory
 
 trait FFmpegEncoder extends EncoderAbs {
@@ -33,7 +33,7 @@ trait FFmpegEncoder extends EncoderAbs {
   else
     fFConfig.ffmpegExePath*/
 
-  lazy val mp4BoxExePath = fFConfig.mp4ExePath /*if(fFConfig.useCanonicalPath) {
+  lazy val mp4BoxExePath  = fFConfig.mp4ExePath /*if(fFConfig.useCanonicalPath) {
     val path = new File(fFConfig.mp4ExePath).getCanonicalPath
     path
   }
@@ -52,14 +52,16 @@ trait FFmpegEncoder extends EncoderAbs {
     val targetSize = Files.size(tempVideo.toPath)
 
     val targetFileName = "video_target.mp4"
-    val targetFile = new File(targetRoot, targetFileName)
-    val ffprobe = new FFprobe(ffProbeExePath)
+    val targetFile     = new File(targetRoot, targetFileName)
+    val ffprobe        = new FFprobe(ffProbeExePath)
 
     Future {
       val ffmpeg = new FFmpeg(s"""$ffmpegExePath""")
       //val ffprobe = new FFprobe("ffprobe")
 
-      val builder = new FFmpegBuilder().addInput(ffprobe.probe(tempVideo.getCanonicalPath)).overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
+      val builder = new FFmpegBuilder()
+        .addInput(ffprobe.probe(tempVideo.getCanonicalPath))
+        .overrideOutputFiles(true) // Filename, or a FFmpegProbeResult
         //.addOutput(targetFile.getCanonicalPath)
         .addOutput(targetFileName)
         .setTargetSize(targetSize)
@@ -102,26 +104,29 @@ trait FFmpegEncoder extends EncoderAbs {
 
       twoPass.run()*/
       TwoPassFFJob.exec(ffmpeg, builder, targetRoot)
-    }.flatMap(identity).recover {
-      case e: Exception =>
-        e.printStackTrace
-        throw e
-    }.flatMap { (s: Unit) =>
-      EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFileName), targetRoot, {
-        case Left(s) =>
-          logger.info(s)
-        case Right(s) =>
-          logger.info(s)
-      })
-    }.map { (_: Unit) =>
-      List(targetFile)
-    }
+    }.flatMap(identity)
+      .recover {
+        case e: Exception =>
+          e.printStackTrace
+          throw e
+      }
+      .flatMap { (s: Unit) =>
+        EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFileName), targetRoot, {
+          case Left(s) =>
+            logger.info(s)
+          case Right(s) =>
+            logger.info(s)
+        })
+      }
+      .map { (_: Unit) =>
+        List(targetFile)
+      }
   }
 
 }
 
 @Singleton
-class FFmpegEncoderImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoder {
-  override val fFConfig = ffmpegConfig
+class FFmpegEncoderImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoder {
+  override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

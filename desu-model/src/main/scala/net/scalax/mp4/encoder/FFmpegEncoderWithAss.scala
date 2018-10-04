@@ -3,20 +3,20 @@ package net.scalax.mp4.encoder
 import java.io.File
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.{ Date, Timer, TimerTask, UUID }
+import java.util.{Date, Timer, TimerTask, UUID}
 import javax.inject.Singleton
 import javax.inject.Inject
 
 import com.google.common.base.Throwables
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.FFmpegJob.State
-import net.bramp.ffmpeg.job.{ FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob }
-import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
+import net.bramp.ffmpeg.job.{FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob}
+import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -53,7 +53,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
     //implicit val ec = Execution.multiThread
     targetRoot.mkdirs()
     val tempVideo = new File(targetRoot, "source_video")
-    val tempAss = new File(targetRoot, "source_ass")
+    val tempAss   = new File(targetRoot, "source_ass")
     Files.copy(sourceFile.toPath, tempVideo.toPath)
     Files.copy(assFile.toPath, tempAss.toPath)
 
@@ -65,7 +65,9 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 
     lazy val encodeFuture = Future {
 
-      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
+      val builder = new FFmpegBuilder()
+        .setInput("source_video")
+        .overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
         .addOutput("encoded.mp4")
         .addExtraArgs("-vf", s"subtitles=source_ass:force_style='fontname=微软雅黑,fontsize=24'")
         .setFormat("mp4")
@@ -92,20 +94,23 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
       //logger.info(s"于${format.format(new Date())}运行命令:${ffmpeg.path(builder.build())}")
       TwoPassFFJob.exec(ffmpeg, builder, targetRoot)
       //twoPass.run()
-    }.flatMap(identity).recover {
-      case e: Exception =>
-        e.printStackTrace
-        throw e
-    }.flatMap { (s: Unit) =>
-      EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFile.getName), targetRoot, {
-        case Left(s) =>
-          logger.info(s)
-        case Right(s) =>
-          logger.info(s)
-      })
-    }.map { (_: Unit) =>
-      List(targetFile)
-    }
+    }.flatMap(identity)
+      .recover {
+        case e: Exception =>
+          e.printStackTrace
+          throw e
+      }
+      .flatMap { (s: Unit) =>
+        EncodeHelper.execWithPath(List(mp4BoxExePath, "-isma", targetFile.getName), targetRoot, {
+          case Left(s) =>
+            logger.info(s)
+          case Right(s) =>
+            logger.info(s)
+        })
+      }
+      .map { (_: Unit) =>
+        List(targetFile)
+      }
     //srtEncodeFuture.flatMap(_ => encodeFuture)
     encodeFuture
   }
@@ -113,7 +118,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 }
 
 @Singleton
-class FFmpegEncoderWithAssImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoderWithAss {
-  override val fFConfig = ffmpegConfig
+class FFmpegEncoderWithAssImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoderWithAss {
+  override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

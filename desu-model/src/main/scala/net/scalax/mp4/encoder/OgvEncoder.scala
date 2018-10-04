@@ -4,20 +4,20 @@ import java.io.File
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.text.SimpleDateFormat
-import java.util.{ Date, Timer, TimerTask, UUID }
+import java.util.{Date, Timer, TimerTask, UUID}
 import javax.inject.Singleton
 import javax.inject.Inject
 
 import com.google.common.base.Throwables
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import net.bramp.ffmpeg.FFmpeg
 import net.bramp.ffmpeg.FFmpegExecutor
 import net.bramp.ffmpeg.FFprobe
 import net.bramp.ffmpeg.builder.FFmpegBuilder
 import net.bramp.ffmpeg.job.FFmpegJob.State
-import net.bramp.ffmpeg.job.{ FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob }
-import net.bramp.ffmpeg.progress.{ Progress, ProgressListener }
+import net.bramp.ffmpeg.job.{FFmpegJob, SinglePassFFmpegJob, TwoPassFFmpegJob}
+import net.bramp.ffmpeg.progress.{Progress, ProgressListener}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -51,7 +51,9 @@ trait OgvEncoder extends EncoderAbs {
 
     lazy val encodeFuture = Future {
 
-      val builder = new FFmpegBuilder().setInput("source_video").overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
+      val builder = new FFmpegBuilder()
+        .setInput("source_video")
+        .overrideOutputFiles(true) //Filename, or a FFmpegProbeResult
         .addOutput("target.ogv")
         .setFormat("ogg")
         //.setTargetSize(250000)
@@ -78,13 +80,15 @@ trait OgvEncoder extends EncoderAbs {
       //logger.info(s"于${format.format(new Date())}运行命令:${ffmpeg.path(builder.build())}")
       TwoPassFFJob.exec(ffmpeg, builder, targetRoot)
       //twoPass.run()
-    }.flatMap(identity).recover {
-      case e: Exception =>
-        e.printStackTrace
-        throw e
-    }.map { (_: Unit) =>
-      List(targetFile)
-    }
+    }.flatMap(identity)
+      .recover {
+        case e: Exception =>
+          e.printStackTrace
+          throw e
+      }
+      .map { (_: Unit) =>
+        List(targetFile)
+      }
     //srtEncodeFuture.flatMap(_ => encodeFuture)
     encodeFuture
   }
@@ -92,7 +96,7 @@ trait OgvEncoder extends EncoderAbs {
 }
 
 @Singleton
-class OgvEncoderImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends OgvEncoder {
-  override val fFConfig = ffmpegConfig
+class OgvEncoderImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends OgvEncoder {
+  override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

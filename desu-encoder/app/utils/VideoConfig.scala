@@ -1,11 +1,10 @@
 package utils
 
 import java.io.File
-import java.util.{ Date, UUID }
-import javax.inject.{ Inject, Singleton }
+import java.util.{Date, UUID}
 
 import assist.controllers.VideoPathConfig
-import net.scalax.mp4.encoder.{ CurrentEncode, FFConfig }
+import net.scalax.mp4.encoder.{CurrentEncode, FFConfig}
 import org.slf4j.LoggerFactory
 import org.xarcher.nodeWeb.modules.CopyHelper
 import play.api.Configuration
@@ -13,23 +12,26 @@ import play.api.Configuration
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
-@Singleton
-class VideoConfig @Inject() (
-  configure: Configuration) extends FFConfig with VideoPathConfig with CurrentEncode {
+class VideoConfig(configure: Configuration) extends FFConfig with VideoPathConfig with CurrentEncode {
   val logger = LoggerFactory.getLogger(classOf[FFConfig])
 
-  lazy val tempFile = new File(scala.util.Properties.tmpDir)
-  lazy val winFfmpegTmpRoot = new File(tempFile, "ffmpegTemp")
+  lazy val tempFile          = new File(scala.util.Properties.tmpDir)
+  lazy val winFfmpegTmpRoot  = new File(tempFile, "ffmpegTemp")
   lazy val winFfmpegTempFile = new File(winFfmpegTmpRoot, s"${UUID.randomUUID().toString}")
-  lazy val ffmpegRootPath = new File(winFfmpegTempFile, "FormatFactory-4.1.0")
-  lazy val ffmpegExeFile = new File(ffmpegRootPath, "FFModules/Encoder/ffmpeg.exe")
-  lazy val ffprobeExeFile = new File(ffmpegRootPath, "FFModules/Encoder/ffprobe.exe")
-  lazy val mp4boxExeFile = new File(ffmpegRootPath, "FFModules/Encoder/MP4Box/mp4box.exe")
+  lazy val ffmpegRootPath    = new File(winFfmpegTempFile, "FormatFactory-4.1.0")
+  lazy val ffmpegExeFile     = new File(ffmpegRootPath, "FFModules/Encoder/ffmpeg/ffmpeg.exe")
+  lazy val ffprobeExeFile    = new File(ffmpegRootPath, "FFModules/Encoder/ffmpeg/ffprobe.exe")
+  lazy val mp4boxExeFile     = new File(ffmpegRootPath, "FFModules/Encoder/MP4Box/mp4box.exe")
 
   if (scala.util.Properties.isWin) {
     val oldDate = new Date()
     logger.info(s"复制 ffmpeg 可执行文件到 ${winFfmpegTempFile.getCanonicalPath}")
-    Await.result(CopyHelper.copyFromClassPath(List("net", "scalax", "mp4", "encoder", "assets"), winFfmpegTempFile.toPath)(scala.concurrent.ExecutionContext.Implicits.global), Duration.Inf)
+    Await.result(
+        CopyHelper.copyFromClassPath(List("net", "scalax", "mp4", "encoder", "assets"), winFfmpegTempFile.toPath)(
+          scala.concurrent.ExecutionContext.Implicits.global
+      )
+      , Duration.Inf
+    )
     logger.info(s"ffmpeg 复制工作完成，耗时${(new Date().getTime - oldDate.getTime)}毫秒")
     logger.info(s"ffmpeg 可执行文件路径：${ffmpegExeFile.getCanonicalPath}")
     logger.info(s"mp4box 可执行文件路径：${mp4boxExeFile.getCanonicalPath}")
