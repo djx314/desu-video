@@ -23,11 +23,11 @@ import scala.util.matching.Regex
 
 @Singleton
 class Encode @Inject()(
-  currentEncode: CurrentEncode,
-  videoEncoders: VideoEncoders,
-  videoPathConfig: VideoPathConfig,
-  reply: FilesReply,
-  controllerComponents: ControllerComponents
+    currentEncode: CurrentEncode
+  , videoEncoders: VideoEncoders
+  , videoPathConfig: VideoPathConfig
+  , reply: FilesReply
+  , controllerComponents: ControllerComponents
 ) extends CommonController(controllerComponents)
     with Circe {
 

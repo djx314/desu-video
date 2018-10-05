@@ -4,3 +4,5 @@ libraryDependencies += {
 }
 
 libraryDependencies += "net.bramp.ffmpeg" % "ffmpeg" % "0.6.1"
+
+scalafmtOnCompile := true

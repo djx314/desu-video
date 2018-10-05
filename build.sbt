@@ -16,3 +16,5 @@ lazy val encoder = (project in file("./desu-encoder")).settings(CustomSettings.c
   .dependsOn(model)*/
 
 lazy val model = (project in file("./desu-model")).settings(CustomSettings.commonProjectSettings: _*)
+
+scalafmtOnCompile := true

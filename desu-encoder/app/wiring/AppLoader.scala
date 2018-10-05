@@ -1,8 +1,5 @@
 package wiring
 
-import javax.inject.Named
-
-import akka.actor.ActorSystem
 import akka.stream.Materializer
 import assist.controllers._
 import play.api.ApplicationLoader.Context
@@ -10,7 +7,6 @@ import play.api._
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import router.Routes
-import play.api.mvc.{BodyParsers, CookieHeaderEncoding, DefaultCookieHeaderEncoding}
 import com.softwaremill.macwire._
 import net.scalax.mp4.encoder._
 import utils.VideoConfig
@@ -18,11 +14,11 @@ import utils.VideoConfig
 import scala.concurrent.ExecutionContext
 
 class InjectedAhcWSComponents(
-  override val environment: Environment,
-  override val configuration: Configuration,
-  override val applicationLifecycle: ApplicationLifecycle,
-  override val materializer: Materializer,
-  override val executionContext: ExecutionContext
+    override val environment: Environment
+  , override val configuration: Configuration
+  , override val applicationLifecycle: ApplicationLifecycle
+  , override val materializer: Materializer
+  , override val executionContext: ExecutionContext
 ) extends AhcWSComponents
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NoHttpFiltersComponents {
@@ -50,7 +46,8 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   private lazy val Encode                       = wire[assist.controllers.Encode]
   private lazy val VideoEncoders: VideoEncoders = wire[VideoEncodersImpl]
 
-  private lazy val FFmpegEncoder: FFmpegEncoder               = wire[FFmpegEncoderImpl]
+  private lazy val FFmpegEncoder: FFmpegEncoder = wire[FFmpegEncoderImpl]
+
   private lazy val FFmpegEncoderWithAss: FFmpegEncoderWithAss = wire[FFmpegEncoderWithAssImpl]
   private lazy val OgvEncoder: OgvEncoder                     = wire[OgvEncoderImpl]
   private lazy val Mp4Execution: Mp4Execution                 = wire[Mp4Execution]

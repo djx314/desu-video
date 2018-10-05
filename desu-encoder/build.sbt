@@ -44,3 +44,5 @@ mappings in Universal ++= copyFiles(
     file("./FormatFactory-4.1.0")
   , "FormatFactory-4.1.0"
 )
+
+scalafmtOnCompile := true
