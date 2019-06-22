@@ -3,6 +3,6 @@ libraryDependencies += {
   "com.typesafe.play" %% "play" % playVersion % "provided"
 }
 
-libraryDependencies += "net.bramp.ffmpeg" % "ffmpeg" % "0.6.1"
+libraryDependencies += "net.bramp.ffmpeg" % "ffmpeg" % "0.6.2"
 
 scalafmtOnCompile := true
