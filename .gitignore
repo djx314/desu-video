@@ -1,8 +1,8 @@
-/.idea
+/desu-encoder/.idea
 /logs
 /conf/evolutions
 /bin/
 /sbt
-/sbt.bat
+/desu-encoder/sbt.bat
 /conf/generated.keystore
 *target*
