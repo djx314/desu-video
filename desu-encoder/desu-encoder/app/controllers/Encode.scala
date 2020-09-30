@@ -17,12 +17,12 @@ import play.api.libs.circe.Circe
 import scala.concurrent.Future
 
 @Singleton
-class Encode @Inject()(
-    currentEncode: CurrentEncode
-  , videoEncoders: VideoEncoders
-  , videoPathConfig: VideoPathConfig
-  , reply: FilesReply
-  , controllerComponents: ControllerComponents
+class Encode @Inject() (
+  currentEncode: CurrentEncode,
+  videoEncoders: VideoEncoders,
+  videoPathConfig: VideoPathConfig,
+  reply: FilesReply,
+  controllerComponents: ControllerComponents
 ) extends CommonController(controllerComponents)
     with Circe {
 
@@ -79,9 +79,7 @@ class Encode @Inject()(
         .find(_.encodeType == videoInfo.encodeType)
         .get
         .encode(videoInfo.videoInfo, sourceDirectory, sourceFiles.toList, targetDirectory)
-        .flatMap { files: List[File] =>
-          reply.replyVideo(videoInfo.copy(videoLength = files.size), files)
-        }
+        .flatMap { files: List[File] => reply.replyVideo(videoInfo.copy(videoLength = files.size), files) }
         .andThen {
           case _ =>
             //转码完毕返回用户后去除当前 key
@@ -101,8 +99,6 @@ class Encode @Inject()(
     })
   }
 
-  def isEncoding(uuid: String) = Action.async { implicit request =>
-    Future successful Ok(currentEncode.keyExists(uuid).toString)
-  }
+  def isEncoding(uuid: String) = Action.async { implicit request => Future successful Ok(currentEncode.keyExists(uuid).toString) }
 
 }

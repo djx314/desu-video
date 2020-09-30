@@ -27,10 +27,10 @@ class VideoConfig(configure: Configuration) extends FFConfig with VideoPathConfi
     val oldDate = new Date()
     logger.info(s"复制 ffmpeg 可执行文件到 ${winFfmpegTempFile.getCanonicalPath}")
     Await.result(
-        CopyHelper.copyFromClassPath(List("net", "scalax", "mp4", "encoder", "assets"), winFfmpegTempFile.toPath)(
-          scala.concurrent.ExecutionContext.Implicits.global
-      )
-      , Duration.Inf
+      CopyHelper.copyFromClassPath(List("net", "scalax", "mp4", "encoder", "assets"), winFfmpegTempFile.toPath)(
+        scala.concurrent.ExecutionContext.Implicits.global
+      ),
+      Duration.Inf
     )
     logger.info(s"ffmpeg 复制工作完成，耗时${(new Date().getTime - oldDate.getTime)}毫秒")
     logger.info(s"ffmpeg 可执行文件路径：${ffmpegExeFile.getCanonicalPath}")

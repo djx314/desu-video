@@ -10,8 +10,7 @@ import play.api.mvc.ControllerComponents
 import scala.concurrent.Future
 
 @Singleton
-class Assets @Inject()(assets: CustomAssets, configure: Configuration, controllerComponents: ControllerComponents)
-    extends CommonController(controllerComponents) {
+class Assets @Inject() (assets: CustomAssets, configure: Configuration, controllerComponents: ControllerComponents) extends CommonController(controllerComponents) {
   implicit def ec = defaultExecutionContext
   /*val targetRoot = {
     configure.get[String]("djx314.path.base.target")

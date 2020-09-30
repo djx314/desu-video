@@ -1,4 +1,4 @@
-package org.xarcher.sbt
+package org.scalax.sbt
 
 import sbt._
 import sbt.Keys._
@@ -6,7 +6,7 @@ import sbt.Keys._
 object CustomSettings {
 
   def customSettings        = scalaSettings ++ playSettings ++ assemblyPluginSettings ++ nativePackageSettings
-  def commonProjectSettings = scalaSettings
+  def commonProjectSettings = scalaSettings ++ fmt
 
   def scalaSettings =
     Seq(
@@ -17,6 +17,8 @@ object CustomSettings {
       //addCompilerPlugin("com.lihaoyi" %% "acyclic" % "0.1.4")
       addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
     )
+
+  val fmt             = org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile := true
 
   val playSettings = {
 

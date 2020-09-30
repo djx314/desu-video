@@ -1,8 +1,8 @@
-libraryDependencies += {
-  val playVersion = play.core.PlayVersion.current
-  "com.typesafe.play" %% "play" % playVersion % "provided"
-}
+import org.scalax.sbt.CustomSettings
+import org.scalax.sbt.Dependencies
 
-libraryDependencies += "net.bramp.ffmpeg" % "ffmpeg" % "0.6.2"
+libraryDependencies += Dependencies.playLib
 
-scalafmtOnCompile := true
+libraryDependencies += Dependencies.ffmpeg
+
+CustomSettings.commonProjectSettings

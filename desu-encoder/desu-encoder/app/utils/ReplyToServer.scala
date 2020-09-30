@@ -27,8 +27,8 @@ trait FilesReply {
       println(fileParts)
       ws.url(videoInfo.returnPath)
         .post(
-            Source(
-              fileParts :::
+          Source(
+            fileParts :::
               DataPart("videoKey", videoInfo.videoKey) ::
               DataPart("videoInfo", videoInfo.videoInfo) ::
               DataPart("returnPath", videoInfo.returnPath) ::
@@ -55,7 +55,7 @@ trait FilesReply {
 }
 
 @Singleton
-class FilesReplyImpl @Inject()(wsClient: WSClient) extends FilesReply {
+class FilesReplyImpl @Inject() (wsClient: WSClient) extends FilesReply {
 
   override val ws: WSClient = wsClient
 

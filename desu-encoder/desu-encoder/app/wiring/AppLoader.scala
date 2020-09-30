@@ -14,11 +14,11 @@ import utils.VideoConfig
 import scala.concurrent.ExecutionContext
 
 class InjectedAhcWSComponents(
-    override val environment: Environment
-  , override val configuration: Configuration
-  , override val applicationLifecycle: ApplicationLifecycle
-  , override val materializer: Materializer
-  , override val executionContext: ExecutionContext
+  override val environment: Environment,
+  override val configuration: Configuration,
+  override val applicationLifecycle: ApplicationLifecycle,
+  override val materializer: Materializer,
+  override val executionContext: ExecutionContext
 ) extends AhcWSComponents
 
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NoHttpFiltersComponents {
