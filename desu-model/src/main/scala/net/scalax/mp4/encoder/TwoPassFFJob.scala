@@ -54,13 +54,9 @@ object TwoPassFFJob {
         case Right(s) =>
           twoPassLogger.info(s)
       })
-      .map { (_: Unit) =>
-        deletePassLog(Paths.get(root.toURI), passlogPrefix)
-      }
+      .map { (_: Unit) => deletePassLog(Paths.get(root.toURI), passlogPrefix) }
 
-    pass1Exec.flatMap { (_: Unit) =>
-      pass2Exec
-    }
+    pass1Exec.flatMap { (_: Unit) => pass2Exec }
   }
 
 }

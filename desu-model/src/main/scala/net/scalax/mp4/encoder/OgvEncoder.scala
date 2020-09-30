@@ -86,9 +86,7 @@ trait OgvEncoder extends EncoderAbs {
           e.printStackTrace
           throw e
       }
-      .map { (_: Unit) =>
-        List(targetFile)
-      }
+      .map { (_: Unit) => List(targetFile) }
     //srtEncodeFuture.flatMap(_ => encodeFuture)
     encodeFuture
   }
@@ -96,7 +94,7 @@ trait OgvEncoder extends EncoderAbs {
 }
 
 @Singleton
-class OgvEncoderImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends OgvEncoder {
+class OgvEncoderImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends OgvEncoder {
   override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

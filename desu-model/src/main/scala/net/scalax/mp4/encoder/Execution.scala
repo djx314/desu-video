@@ -8,7 +8,7 @@ import play.api.inject.ApplicationLifecycle
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
 
 @Singleton
-class Mp4Execution @Inject()(applicationLifecycle: ApplicationLifecycle) {
+class Mp4Execution @Inject() (applicationLifecycle: ApplicationLifecycle) {
 
   val multiThread: ExecutionContextExecutorService = {
     ExecutionContext.fromExecutorService(Executors.newFixedThreadPool(100))

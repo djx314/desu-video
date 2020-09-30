@@ -4,7 +4,7 @@ lazy val playVersion = play.core.PlayVersion.current
 
 CustomSettings.commonProjectSettings
 
-transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
+// transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
 
 dependsOn(encoder)
 

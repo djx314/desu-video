@@ -45,9 +45,7 @@ object CopyHelper {
     val entries      = jarFile.entries()
     val scalaEntries = entries.asScala.toStream
     scalaEntries
-      .filter { s =>
-        s.getName.startsWith(prefix) && (!s.isDirectory)
-      }
+      .filter { s => s.getName.startsWith(prefix) && (!s.isDirectory) }
       .map { entry =>
         var inputS: InputStream = null
         try {

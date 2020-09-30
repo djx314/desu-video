@@ -108,9 +108,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
             logger.info(s)
         })
       }
-      .map { (_: Unit) =>
-        List(targetFile)
-      }
+      .map { (_: Unit) => List(targetFile) }
     //srtEncodeFuture.flatMap(_ => encodeFuture)
     encodeFuture
   }
@@ -118,7 +116,7 @@ trait FFmpegEncoderWithAss extends EncoderAbs {
 }
 
 @Singleton
-class FFmpegEncoderWithAssImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoderWithAss {
+class FFmpegEncoderWithAssImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoderWithAss {
   override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

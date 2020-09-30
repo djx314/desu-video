@@ -60,7 +60,6 @@ trait FFmpegEncoder extends EncoderAbs {
         .setAudioBitRate(32768)
         .setVideoCodec("libx264")
         .addExtraArgs("-c:v", "h264_amf")
-
         //.setVideoFrameRate(24, 1)
         //.setVideoResolution(640, 480)
         .setStrict(FFmpegBuilder.Strict.EXPERIMENTAL)
@@ -103,15 +102,13 @@ trait FFmpegEncoder extends EncoderAbs {
             logger.info(s)
         })
       }
-      .map { (_: Unit) =>
-        List(targetFile)
-      }
+      .map { (_: Unit) => List(targetFile) }
   }
 
 }
 
 @Singleton
-class FFmpegEncoderImpl @Inject()(ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoder {
+class FFmpegEncoderImpl @Inject() (ffmpegConfig: FFConfig, mp4Execution: Mp4Execution) extends FFmpegEncoder {
   override val fFConfig    = ffmpegConfig
   override val execContext = mp4Execution.multiThread
 }

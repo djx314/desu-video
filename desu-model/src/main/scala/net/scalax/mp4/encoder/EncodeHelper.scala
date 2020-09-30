@@ -30,9 +30,7 @@ object EncodeHelper {
     }
   }
 
-  def execWithPath(commands: List[String], dir: File, outPutGen: Either[String, String] => Unit = { _ =>
-    ()
-  })(implicit ec: ExecutionContext): Future[Unit] = {
+  def execWithPath(commands: List[String], dir: File, outPutGen: Either[String, String] => Unit = { _ => () })(implicit ec: ExecutionContext): Future[Unit] = {
     val pros = new ProcessBuilder(scala.collection.JavaConverters.seqAsJavaListConverter(commands).asJava)
     pros.directory(dir)
     logger.info(s"exec: ${pros.command().toArray.mkString(" ")}\ndir: ${dir.getCanonicalPath}")
@@ -46,14 +44,10 @@ object EncodeHelper {
         val result = outPutGen(Left(s))
         result
       })))
-      .map { s =>
-        s.flatten
-      }
+      .map { s => s.flatten }
     val waitForF = Future { proccess.waitFor }
     println("等待命令行输出")
-    resultF.map { (_: List[Unit]) =>
-      ()
-    }
+    resultF.map { (_: List[Unit]) => () }
   }
 
   def windowsWaitTargetFileFinishedEncode(targetFile: File)(implicit ec: ExecutionContext): Future[Boolean] = {
@@ -66,7 +60,8 @@ object EncodeHelper {
           case e: Exception =>
             println("未完成转码")
             false
-        } else
+        }
+      else
         false
 
     if (isSuccess) {

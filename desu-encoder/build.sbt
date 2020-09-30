@@ -3,7 +3,7 @@ import sbt.Keys._
 
 lazy val playVersion = play.core.PlayVersion.current
 
-transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
+// transitiveClassifiers in ThisBuild := Seq("sources", "jar", "javadoc")
 
 resolvers += "Bintary JCenter" at "http://jcenter.bintray.com"
 
