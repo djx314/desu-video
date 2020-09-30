@@ -13,18 +13,12 @@ name := "desu-encoder"
 version := "0.0.1"
 
 libraryDependencies ++= Dependencies.macwire
-
 libraryDependencies += ws
-
 libraryDependencies += Dependencies.commonsIO
-
 libraryDependencies ++= Dependencies.circe
 
-enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
-
+enablePlugins(PlayScala, PlayAkkaHttpServer)
 disablePlugins(PlayNettyServer)
-
-addCommandAlias("drun", "encoder/run 2333")
 
 def copyFiles(root: File, prefix: String): List[(File, String)] = {
   println(root.getCanonicalPath)
