@@ -1,0 +1,104 @@
+@(fileUrl: String)(parentUrl: String)
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>选择字幕文件</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1">
+    <title>Hello Amaze UI</title>
+
+        <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+        <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+    <link rel="icon" type="image/png" href="assets/i/favicon.png">
+
+        <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="assets/i/app-icon72x72@@2x.png">
+
+        <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Amaze UI"/>
+    <link rel="apple-touch-icon-precomposed" href="assets/i/app-icon72x72@@2x.png">
+
+        <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="assets/i/app-icon72x72@@2x.png">
+    <meta name="msapplication-TileColor" content="#0e90d2">
+
+    <link rel="stylesheet" href="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/AmazeUI-2.7.2/assets/css/amazeui.css")" media="all">
+    <style type="text/css">
+    body {}
+    </style>
+</head>
+<body>
+    <header data-am-widget="header"
+    class="am-header am-header-default">
+        <h1 class="am-header-title">
+            <a href="#" class="">
+            选择字幕文件
+            </a>
+        </h1>
+    </header>
+    <div data-am-widget="list_news" class="am-list-news am-list-news-default" >
+        <div class="am-list-news-bd">
+            <ul class="am-list">
+                <!--列表标题-->
+                <div class="am-list-news-hd am-cf">
+                    <!--带更多链接-->
+                    <a data-bind="click: function() { gotoParent(); }" class="">
+                        <h2>上一级目录</h2>
+                    </a>
+                </div>
+                <!-- ko foreach: { data: filesPath, as: 'eachFile' } -->
+                <li class="am-g am-list-item-desced">
+                    <a class="am-list-item-hd" data-bind="text: eachFile.fileName, click: function() { $parent.enterFile(eachFile); }"></a>
+                    <div class="am-list-item-text" style="overflow: hidden; display: block;">
+                    </div>
+                </li>
+                <!-- /ko -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- 选择放大级别开始 -->
+    <div class="am-modal-actions" id="ass-prompt">
+        <div class="am-modal-actions-group">
+            <ul class="am-list">
+                <li class="am-modal-actions-header">选择放大级数</li>
+                <li class="am-modal-actions-danger">
+                    <a href="#" data-bind="click: function() { encodeFile(0.5); }">小</a>
+                </li>
+                <li class="am-modal-actions-danger">
+                    <a href="#" data-bind="click: function() { encodeFile(1); }">中</a>
+                </li>
+                <li class="am-modal-actions-danger">
+                    <a href="#" data-bind="click: function() { encodeFile(2); }">大</a>
+                </li>
+                <li class="am-modal-actions-danger">
+                    <a href="#" data-bind="click: function() { encodeFile(3); }">特大</a>
+                </li>
+            </ul>
+        </div>
+        <div class="am-modal-actions-group">
+            <button class="am-btn am-btn-secondary am-btn-block" data-am-modal-close>取消</button>
+        </div>
+    </div>
+    <!-- 选择放大级别结束 -->
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/jquery/jquery-1.12.4.min.js")"></script>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/knockout/knockout-3.5.0rc2.js")"></script>
+    <script type="text/javascript">
+        fileUrl = "@fileUrl";
+        initParentUrl = "@parentUrl";
+    </script>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("files/ass-index.js")"></script>
+</body>
+</html>

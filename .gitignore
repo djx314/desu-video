@@ -1,8 +1,10 @@
 /desu-encoder/.idea
+/desu-hentai/.idea
 /logs
 /conf/evolutions
 /bin/
 /sbt
 /desu-encoder/sbt.bat
+/desu-hentai/sbt.bat
 /conf/generated.keystore
 *target*

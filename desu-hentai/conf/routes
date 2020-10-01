@@ -1,0 +1,26 @@
+# Map static resources from the /public folder to the /assets URL path
+#GET        /assets                     assist.controllers.Assets.root
+GET         /staticAssets/*file         assist.controllers.CommonAssetsController.staticAt(root = "/public", file)
+POST        /encode                     assist.controllers.Encoder.encodeFile
+
+POST        /uploadEncodedFile          assist.controllers.Encoder.uploadEncodedFile
+
+GET         /tempfile/*file             assist.controllers.Assets.tempFile(file)
+
+GET         /picList/*path              assist.controllers.Assets.pictureList(path)
+
+GET         /play/*file                 assist.controllers.Assets.player(file)
+
+POST        /deleteTempDir              assist.controllers.Assets.deleteTempDir
+
+POST       /dirInfoRequest             assist.controllers.FilesList.at
+
+GET         /withAss                    assist.controllers.Assets.withAss(path: String)
+
+POST        /filesWithAss               assist.controllers.FilesList.atAss
+
+POST        /encodeWithAss              assist.controllers.Encoder.saveAssInfo
+
+GET         /                           assist.controllers.Assets.files
+GET         /boot                       assist.controllers.Assets.boot
+GET         /favicon.ico                assist.controllers.Assets.favicon

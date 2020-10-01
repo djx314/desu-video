@@ -1,0 +1,91 @@
+@(videoUrl: String)(assUrl: Option[String])(assScale: BigDecimal)
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>里番在线浏览器</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1">
+    <title>Hello Amaze UI</title>
+
+        <!-- Set render engine for 360 browser -->
+    <meta name="renderer" content="webkit">
+
+        <!-- No Baidu Siteapp-->
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+
+        <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+
+        <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Amaze UI"/>
+
+    <link rel="stylesheet" href="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/AmazeUI-2.7.2/assets/css/amazeui.css")" media="all">
+    <style type="text/css">
+    body {}
+        html, body { width: 100%; height: 100%; }
+        #video { width: 3em; height: 3em; }
+    </style>
+</head>
+<body>
+    <video id="video" controls="controls">
+    </video>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/jquery/jquery-1.12.4.min.js")"></script>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/AmazeUI-2.7.2/assets/js/amazeui.js")"></script>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/knockout/knockout-3.4.2.js")"></script>
+    <script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/assjs/ass.js")"></script>
+    <script type="text/javascript">
+        var currentUrl = "@videoUrl";
+        var videoPath = "/tempfile/" + currentUrl + "?bust=" + new Date().getTime();
+
+        var hasAss = @{assUrl.isDefined};
+        var assPath = "@{assUrl.getOrElse("")}";
+        var assScale = @assScale;
+        $(function() {
+            var video = $("#video");
+            video.attr("src", videoPath);
+            var videoDom = video[0];
+
+            var resizeVideo = function() { };
+
+            $(window).resize(function () {
+                resizeVideo();
+            });
+            var event = video.bind("playing", function () {
+                $(window).trigger("resize");
+                event.unbind();
+            });
+
+            if (hasAss === true) {
+            $.get("/assets/" + assPath)
+                .done(function (response) {
+                    var ass = new ASS();
+                    ass.init(response, videoDom);
+                    resizeVideo = function() {
+                        video.width($("body").width());
+                        video.height($("body").height());
+                        ass.resize();
+                        ass.scale = ass.scale * assScale;
+                        console.log(ass.scale);
+                    };
+
+                    videoDom.play();
+                });
+            } else {
+                resizeVideo = function() {
+                    video.width($("body").width());
+                    video.height($("body").height());
+                };
+                videoDom.play();
+            }
+        });
+    </script>
+@*<script type="text/javascript" src="@assist.controllers.routes.Assets.staticAt("files/files-index.js")"></script>*@
+</body>
+</html>

@@ -1,0 +1,65 @@
+<div class="files-list-content">
+    <ul class="files-list-ul">
+        <!--列表标题-->
+        <div class="am-list-news-hd am-cf">
+            <!--带更多链接-->
+            <a class="" data-bind="attr: { href: vm.parentUrl() }">
+                <h2>上一级目录</h2>
+            </a>
+        </div>
+        <!-- ko foreach: { data: vm.filesPath, as: 'eachFile' } -->
+        <li class="files-list-item">
+            <!-- ko if: eachFile.canEncode === true -->
+            <span class="am-list-item-hd" data-bind="text: eachFile.fileName"></span>
+            <!-- /ko -->
+            <!-- ko if: (eachFile.canEncode === false) && (eachFile.isDirectory === false) -->
+            <a class="am-list-item-hd" data-bind="attr: { href: eachFile.nginxUrl }, text: eachFile.fileName"></a>
+            <!-- /ko -->
+            <!-- ko if: eachFile.isDirectory === true -->
+            <a class="am-list-item-hd" data-bind="attr: { href: eachFile.requestUrl }, text: eachFile.fileName"></a>
+            <!-- /ko -->
+            <div class="am-list-item-text" style="overflow: hidden; display: block;">
+                <!-- ko if: (eachFile.temfileExists === false) && (eachFile.canEncode === true) && (eachFile.isEncoding === false) -->
+                <form method="get" data-bind="attr: { action: eachFile.nginxUrl }" style="float: left; overflow: hidden;">
+                    <input type="hidden" name="date" data-bind="value: new Date().getTime()" />
+                    <input type="submit" value="直接观看" class="layui-btn layui-btn-warm layui-btn-sm" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </form>
+                <button data-bind="click: function() { $parent.encodeFile(eachFile); }" class="layui-btn layui-btn-danger layui-btn-sm">立刻转码</button>&nbsp;&nbsp;&nbsp;
+                <!-- /ko -->
+                <!-- ko if: (eachFile.temfileExists === false) && (eachFile.canEncode === true) && (eachFile.isEncoding === true) -->
+                <button type="button" class="layui-btn layui-btn-warm layui-btn-sm">转码中，请稍候</button>&nbsp;&nbsp;&nbsp;
+                <button data-bind="click: function() { $parent.encodeFile(eachFile); }" class="layui-btn layui-btn-danger layui-btn-sm">重新发送转码指令</button>&nbsp;&nbsp;&nbsp;
+                <!-- /ko -->
+                <!-- ko if: (eachFile.temfileExists === true) && (eachFile.canEncode === true) && (eachFile.isEncoding === false) -->
+                <form method="get" data-bind="attr: { action: eachFile.tempUrl }" style="float: left; overflow: hidden;">
+                    <input type="hidden" name="date" data-bind="value: new Date().getTime()" />
+                    <input type="submit" value="立刻观看" class="layui-btn layui-btn-normal layui-btn-sm" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </form>
+                <form method="get" data-bind="attr: { action: '/withAss' }" style="float: left; overflow: hidden;">
+                    <input type="hidden" name="path" data-bind="value: eachFile.requestUrl" />
+                    <input type="submit" value="绑定字幕" class="layui-btn layui-btn-normal layui-btn-sm" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </form>
+                <div style="float: left; overflow: hidden;">
+                    <button data-bind="click: function() { $parent.encodeFile(eachFile); }" class="layui-btn layui-btn-danger layui-btn-sm">重新转码</button>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: (eachFile.temfileExists === true) && (eachFile.canEncode === true) && (eachFile.isEncoding === true) -->
+                <div style="float: left; overflow: hidden;">
+                    <button type="button" class="layui-btn layui-btn-warm layui-btn-sm">转码中，请稍候</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </div>
+                <form method="get" data-bind="attr: { action: eachFile.tempUrl }" style="float: left; overflow: hidden;">
+                    <input type="hidden" name="date" data-bind="value: new Date().getTime()" />
+                    <input type="submit" value="立刻观看" class="layui-btn layui-btn-normal layui-btn-sm" />
+                </form>
+                <!-- /ko -->
+            </div>
+        </li>
+        <!-- /ko -->
+        <li class="am-g am-list-item-desced">
+            <a href="#" class="am-list-item-hd">&nbsp;</a>
+            <div class="am-list-item-text" style="overflow: hidden; display: block;">
+                <button data-bind="click: function() { deleteTempDir(); }" class="layui-btn layui-btn-danger layui-btn-sm">删除本页缓存</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+        </li>
+    </ul>
+</div>
