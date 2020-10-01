@@ -74,7 +74,7 @@ object CustomSettings {
     )
   }
 
-  final val customSettings = scalaSettings ++ playSettings ++ assemblyPluginSettings ++ nativePackageSettings
+  final val customSettings = scalaSettings ++ playSettings ++ assemblyPluginSettings ++ nativePackageSettings ++ fmt
   final val commonProjectSettings = scalaSettings ++ fmt
 
 }

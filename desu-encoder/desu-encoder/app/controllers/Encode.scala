@@ -99,6 +99,6 @@ class Encode @Inject() (
     })
   }
 
-  def isEncoding(uuid: String) = Action.async { implicit request => Future successful Ok(currentEncode.keyExists(uuid).toString) }
+  // def isEncoding(uuid: String) = Action.async { implicit request => Future successful Ok(currentEncode.keyExists(uuid).toString) }
 
 }
