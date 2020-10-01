@@ -20,14 +20,14 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-literal"
 ).map(_ % commonCirceVersion)
 
-libraryDependencies += "org.scalax" %% "kirito" % "0.0.1-20200325SNAP1"
+libraryDependencies += "org.scalax" %% "ugeneric-circe" % "0.0.1-SNAP2020071301"
 
 libraryDependencies += ws
 libraryDependencies += "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2"
 libraryDependencies += "commons-io"        % "commons-io"              % "2.6"
 libraryDependencies += "com.dripower"      %% "play-circe"             % "2812.0"
 libraryDependencies += "io.circe"          %% "circe-generic-extras"   % circeVersion
-libraryDependencies += "org.scalax"        %% "asuna-macros"           % "0.0.3-20200325SNAP1"
+//libraryDependencies += "org.scalax"        %% "asuna-macros"           % "0.0.3-20200325SNAP1"
 //libraryDependencies += "org.apache.httpcomponents" % "httpmime" % "4.5.3"
 
 libraryDependencies ++= Seq(

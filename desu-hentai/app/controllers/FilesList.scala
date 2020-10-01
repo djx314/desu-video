@@ -15,7 +15,6 @@ import utils.{FileUtil, HentaiConfig}
 import net.scalax.asuna.sample.dto2.FutureDtoHelper
 import org.slf4j.LoggerFactory
 import io.circe.syntax._
-import org.scalax.kirito.circe.KCirce
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -25,6 +24,7 @@ import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.http4s.server.blaze._
+import ugeneric.circe.UCirce
 
 class FilesList(hentaiConfig: HentaiConfig, wSClient: WSClient, fileUtil: FileUtil, controllerComponents: ControllerComponents)
     extends CommonController(controllerComponents)
@@ -225,14 +225,12 @@ class FilesList(hentaiConfig: HentaiConfig, wSClient: WSClient, fileUtil: FileUt
 
 case class FileSimpleInfo(fileName: String, encodeUrl: String, isDir: Boolean)
 object FileSimpleInfo {
-  object emptyTable
-  implicit def filePathImplicitEncoder: io.circe.Encoder[FileSimpleInfo] = KCirce.encodeCaseClassWithTable(emptyTable)
-  implicit def filePathImplicitDecoder: Decoder[FileSimpleInfo]          = KCirce.decodeCaseClassWithTable(emptyTable)
+  implicit def filePathImplicitEncoder: io.circe.Encoder[FileSimpleInfo] = UCirce.encodeCaseClass
+  implicit def filePathImplicitDecoder: Decoder[FileSimpleInfo]          = UCirce.decodeCaseClass
 }
 
 case class DirSimpleInfo(parentPath: String, urls: List[FileSimpleInfo])
 object DirSimpleInfo {
-  object emptyTable
-  implicit def filePathImplicitEncoder: io.circe.Encoder[DirSimpleInfo] = KCirce.encodeCaseClassWithTable(emptyTable)
-  implicit def filePathImplicitDecoder: Decoder[DirSimpleInfo]          = KCirce.decodeCaseClassWithTable(emptyTable)
+  implicit def filePathImplicitEncoder: io.circe.Encoder[DirSimpleInfo] = UCirce.encodeCaseClass
+  implicit def filePathImplicitDecoder: Decoder[DirSimpleInfo]          = UCirce.decodeCaseClass
 }

@@ -1,36 +1,24 @@
 package net.scalax.asuna.sample.dto2
 
-import asuna.{Application2, AsunaTuple0, Context2, Plus2, PropertyTag1, TupleTag}
-import asuna.macros.multiply.{AsunaMultiplyGeneric, AsunaMultiplyRepGeneric}
-import asuna.macros.single.AsunaSetterGeneric
+import zsg.macros.multiply.{ZsgMultiplyGeneric, ZsgMultiplyRepGeneric}
+import zsg.macros.single.{ZsgGeneric, ZsgSetterGeneric}
+import zsg.{ApplicationX4, Context2, Context4, Plus4, PropertyTag, ZsgTuple0}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait FutureDtoWrapper[RepOut, DataType] {
+trait FutureDtoWrapper[RepTag, DataTag, RepOut, DataType] {
   def rep(rep: RepOut)(implicit ec: ExecutionContext): Future[DataType]
 }
 
 object FutureDtoWrapper {
-  implicit def futureDtoShapeImplicit1[T]: Application2[FutureDtoWrapper, PropertyTag1[T, T], T, T] =
-    new Application2[FutureDtoWrapper, PropertyTag1[T, T], T, T] {
-      override def application(context: Context2[FutureDtoWrapper]): FutureDtoWrapper[T, T] = {
-        new FutureDtoWrapper[T, T] {
-          override def rep(rep: T)(implicit ec: ExecutionContext): Future[T] = {
-            Future.successful(rep)
-          }
-        }
-      }
+  implicit def futureDtoShapeImplicit1[T]: FutureDtoWrapper[PropertyTag[T], PropertyTag[T], T, T] =
+    new FutureDtoWrapper[PropertyTag[T], PropertyTag[T], T, T] {
+      override def rep(rep: T)(implicit ec: ExecutionContext): Future[T] = Future.successful(rep)
     }
 
-  implicit def futureDtoShapeImplicit2[T]: Application2[FutureDtoWrapper, PropertyTag1[Future[T], T], Future[T], T] =
-    new Application2[FutureDtoWrapper, PropertyTag1[Future[T], T], Future[T], T] {
-      override def application(context: Context2[FutureDtoWrapper]): FutureDtoWrapper[Future[T], T] = {
-        new FutureDtoWrapper[Future[T], T] {
-          override def rep(rep: Future[T])(implicit ec: ExecutionContext): Future[T] = {
-            rep
-          }
-        }
-      }
+  implicit def futureDtoShapeImplicit2[T]: FutureDtoWrapper[PropertyTag[Future[T]], PropertyTag[T], Future[T], T] =
+    new FutureDtoWrapper[PropertyTag[Future[T]], PropertyTag[T], Future[T], T] {
+      override def rep(rep: Future[T])(implicit ec: ExecutionContext): Future[T] = rep
     }
 }
 
@@ -38,37 +26,53 @@ trait FutureDtoGetter[DataType] {
   def model(implicit ec: ExecutionContext): Future[DataType]
 }
 
-trait FutureDtoHelper {
-
-  object dtoFContext extends Context2[FutureDtoWrapper] {
-    override def append[X1, X2, Y1, Y2, Z1, Z2](x: FutureDtoWrapper[X1, X2], y: FutureDtoWrapper[Y1, Y2])(
-      p: Plus2[X1, X2, Y1, Y2, Z1, Z2]
-    ): FutureDtoWrapper[Z1, Z2] = {
-      new FutureDtoWrapper[Z1, Z2] {
-        override def rep(rep: Z1)(implicit ec: ExecutionContext): Future[Z2] = {
-          x.rep(p.takeHead1(rep)).flatMap(x2 => y.rep(p.takeTail1(rep)).map(y2 => p.plus2(x2, y2)))
-        }
-      }
-    }
-    override def start: FutureDtoWrapper[AsunaTuple0, AsunaTuple0] = {
-      new FutureDtoWrapper[AsunaTuple0, AsunaTuple0] {
-        override def rep(rep: AsunaTuple0)(implicit ec: ExecutionContext): Future[AsunaTuple0] = {
-          Future.successful(AsunaTuple0.value)
-        }
+class dtoFContext extends Context4[FutureDtoWrapper] {
+  /*override def append[X1, X2, Y1, Y2, Z1, Z2](x: FutureDtoWrapper[X1, X2], y: FutureDtoWrapper[Y1, Y2])(
+    p: Plus2[X1, X2, Y1, Y2, Z1, Z2]
+  ): FutureDtoWrapper[Z1, Z2] = {
+    new FutureDtoWrapper[Z1, Z2] {
+      override def rep(rep: Z1)(implicit ec: ExecutionContext): Future[Z2] = {
+        x.rep(p.takeHead1(rep)).flatMap(x2 => y.rep(p.takeTail1(rep)).map(y2 => p.plus2(x2, y2)))
       }
     }
   }
+  override def start: FutureDtoWrapper[AsunaTuple0, AsunaTuple0] = {
+    new FutureDtoWrapper[AsunaTuple0, AsunaTuple0] {
+      override def rep(rep: AsunaTuple0)(implicit ec: ExecutionContext): Future[AsunaTuple0] = {
+        Future.successful(AsunaTuple0.value)
+      }
+    }
+  }*/
+  override def append[X1, X2, X3, X4, Y1, Y2, Y3, Y4, Z1, Z2, Z3, Z4](x: FutureDtoWrapper[X1, X2, X3, X4], y: FutureDtoWrapper[Y1, Y2, Y3, Y4])(
+    p: Plus4[X1, X2, X3, X4, Y1, Y2, Y3, Y4, Z1, Z2, Z3, Z4]
+  ): FutureDtoWrapper[Z1, Z2, Z3, Z4] = {
+    new FutureDtoWrapper[Z1, Z2, Z3, Z4] {
+      override def rep(rep: Z3)(implicit ec: ExecutionContext): Future[Z4] = x.rep(p.takeHead3(rep)).flatMap(x3 => y.rep(p.takeTail3(rep)).map(y3 => p.plus4(x3, y3)))
+    }
+  }
+
+  override def start: FutureDtoWrapper[ZsgTuple0, ZsgTuple0, ZsgTuple0, ZsgTuple0] = new FutureDtoWrapper[ZsgTuple0, ZsgTuple0, ZsgTuple0, ZsgTuple0] {
+    override def rep(rep: ZsgTuple0)(implicit ec: ExecutionContext): Future[ZsgTuple0] = Future.successful(rep)
+  }
+}
+
+object dtoFContext {
+  val value: dtoFContext = new dtoFContext
+}
+
+trait FutureDtoHelper {
 
   def dtoWithTable[Model] = new TableApply[Model]
 
   class TableApply[Model] {
-    def apply[Table, R <: TupleTag, Prop, Nam, Rep](table: Table)(
-      implicit ll: AsunaMultiplyGeneric.Aux[Table, Model, R],
-      app: Application2[FutureDtoWrapper, R, Rep, Prop],
-      repGeneric: AsunaMultiplyRepGeneric[Table, Model, Rep],
-      cv3: AsunaSetterGeneric[Model, Prop]
+    def apply[Table, R, DataTag, Prop, Nam, Rep](table: Table)(
+      implicit ll: ZsgMultiplyGeneric.Aux[Table, Model, R],
+      zd: ZsgGeneric.Aux[Model, DataTag],
+      app: ApplicationX4[FutureDtoWrapper, dtoFContext, R, DataTag, Rep, Prop],
+      repGeneric: ZsgMultiplyRepGeneric[Table, Model, Rep],
+      cv3: ZsgSetterGeneric[Model, Prop]
     ): FutureDtoGetter[Model] = {
-      val i   = app.application(dtoFContext)
+      val i   = app.application(dtoFContext.value)
       val rep = repGeneric.rep(table)
       new FutureDtoGetter[Model] {
         override def model(implicit ec: ExecutionContext): Future[Model] = {
