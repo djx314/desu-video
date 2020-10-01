@@ -16,6 +16,7 @@ libraryDependencies ++= Dependencies.macwire
 libraryDependencies += ws
 libraryDependencies += Dependencies.commonsIO
 libraryDependencies ++= Dependencies.circe
+libraryDependencies ++= Dependencies.zio
 
 enablePlugins(PlayScala, PlayAkkaHttpServer)
 disablePlugins(PlayNettyServer)

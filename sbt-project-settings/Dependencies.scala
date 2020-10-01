@@ -28,4 +28,20 @@ object Dependencies {
   val playVersion = play.core.PlayVersion.current
   val playLib = "com.typesafe.play" %% "play" % playVersion % "provided"
 
+  val xioVersion   = "0.0.1-SNAPSHOT"
+  val tapirVersion = "0.17.0-M1"
+  val zio = List(
+    "dev.zio"                      %% "zio-interop-cats"              % "2.1.4.0",
+    "org.scalax.xio"               %% "xio"                           % xioVersion,
+    "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % "2.2.8",
+    "com.softwaremill.sttp.tapir"  %% "tapir-play-server"             % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-zio"                     % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-zio-http4s-server"       % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-openapi-docs"            % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-openapi-circe-yaml"      % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-swagger-ui-play"         % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-redoc-play"              % tapirVersion,
+    "com.softwaremill.sttp.tapir"  %% "tapir-json-circe"              % tapirVersion
+  )
+
 }
