@@ -8,7 +8,12 @@ import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.ahc.AhcWSComponents
 import router.Routes
 import com.softwaremill.macwire._
+import play.api.routing.SimpleRouter
+import tapir_controllers.EncodeTapirLink
 import utils._
+import utils.tapir.TapirComponentsApplication
+import zio.{Runtime, ZEnv, ZIO}
+import zio.interop.catz._
 
 import scala.concurrent.ExecutionContext
 
@@ -20,7 +25,7 @@ class InjectedAhcWSComponents(
   override val executionContext: ExecutionContext
 ) extends AhcWSComponents
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NoHttpFiltersComponents {
+class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with NoHttpFiltersComponents with TapirComponentsApplication {
 
   private implicit def as      = actorSystem
   private implicit lazy val ec = executionContext
@@ -55,10 +60,23 @@ class AppComponents(context: Context) extends BuiltInComponentsFromContext(conte
   private def wsGen(a: AhcWSComponents)    = a.wsClient
   private lazy val ws                      = wireWith(wsGen _)
 
+  implicit val runtime: Runtime[ZEnv] = Runtime.default
+  type Eff[A] = ZIO[ZEnv, Throwable, A]
+
+  private val appContextImpl = {
+    val commonInstance = new commons.HttpContextImpl(configer = configuration)
+    runtime.unsafeRun(commonInstance.live.memoize.toResource[Eff].allocated)
+  }
+
+  implicit val appContext: commons.HttpContext = appContextImpl._1
+
+  applicationLifecycle.addStopHook(() => runtime.unsafeRunToFuture(appContextImpl._2))
+
   // Router
   override lazy val router = {
     val routePrefix: String = "/"
-    wire[Routes]
+    val route1              = wire[EncodeTapirLink]
+    wire[Routes].orElse(SimpleRouter(route1.listRoute))
   }
 
 }
