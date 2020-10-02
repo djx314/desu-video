@@ -8,3 +8,5 @@
 /desu-hentai/sbt.bat
 /conf/generated.keystore
 *target*
+/frontend/package-lock.json
+/frontend/node_modules
