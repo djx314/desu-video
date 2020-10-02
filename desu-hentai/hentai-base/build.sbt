@@ -1,7 +1,7 @@
-scalaVersion := "2.13.1"
+import org.scalax.sbt.CustomSettings
 
 libraryDependencies += "ch.qos.logback" % "logback-core" % "1.2.3"
 
-org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile := false
-
 name := "hentai-base"
+
+CustomSettings.commonProjectSettings

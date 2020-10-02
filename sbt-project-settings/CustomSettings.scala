@@ -74,7 +74,9 @@ object CustomSettings {
     )
   }
 
-  final val customSettings = scalaSettings ++ playSettings ++ assemblyPluginSettings ++ nativePackageSettings ++ fmt
-  final val commonProjectSettings = scalaSettings ++ fmt
+  val orgSetting = List(version := "0.0.1", organization := "org.scalax.desu")
+
+  final val customSettings = scalaSettings ++ playSettings ++ assemblyPluginSettings ++ nativePackageSettings ++ fmt ++ orgSetting
+  final val commonProjectSettings = scalaSettings ++ fmt ++ orgSetting
 
 }

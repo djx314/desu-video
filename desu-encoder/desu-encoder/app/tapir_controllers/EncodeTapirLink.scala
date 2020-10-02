@@ -9,12 +9,12 @@ class EncodeTapirLink(tapirComponents: TapirComponents, appContenxt: wiring.comm
 
   val zioEndpoint = zlayerToRoute(appContenxt)
 
-  val encodeRoute = TapirRoute.encodeEndpoint.zServerLogic(TapirController.isEncoding _)
+  val encodeRoute = TapirEndpoint.encodeEndpoint.zServerLogic(TapirHandle.isEncoding _)
 
   import sttp.tapir.openapi.circe.yaml._
 
   private val docName = "docs"
-  val swaggerPlay     = new SwaggerPlay(TapirRoute.docs.toYaml, yamlName = s"${docName}.yaml", contextPath = docName).routes
+  val swaggerPlay     = new SwaggerPlay(TapirEndpoint.docs.toYaml, yamlName = s"${docName}.yaml", contextPath = docName).routes
 
   val listRoute = zioEndpoint.toRoutes(encodeRoute, swaggerPlay)
 
