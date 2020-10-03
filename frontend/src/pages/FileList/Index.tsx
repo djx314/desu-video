@@ -4,7 +4,7 @@ import { useState } from "react"
 import * as style from "./style"
 import { getBarHeight, HeadBar } from "./Components/HeadBar"
 import { FileListContent } from "./Components/FileListContent"
-import Axios from "axios"
+import axios from "axios"
 
 const getDocumentHeight = () => document.documentElement.clientHeight
 
@@ -15,13 +15,25 @@ const FileList = () => {
         docHeightState(getDocumentHeight())
     })
     
+    const [fileListModel, fileListModelState] = useState(Array<String>())
 
-    Axios
+    axios.get<Array<String>>('/fileList')
+        .then(function (response) {
+            // handle success
+            fileListModelState(response.data);
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .then(function () {
+            // always executed
+        })
 
     return (
         <div css={style.bodyContent(docHeight)}>
             <HeadBar contentHeight={docHeight} />
-            <FileListContent listHeight={docHeight - getBarHeight(docHeight)} />
+            <FileListContent listHeight={docHeight - getBarHeight(docHeight)} fileList={fileListModel} />
         </div>
     )
 }
