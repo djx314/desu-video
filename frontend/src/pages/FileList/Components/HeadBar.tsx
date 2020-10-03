@@ -7,7 +7,7 @@ interface HeadBarParameter {
 }
 
 export const getBarHeight = (bodyHeight: number) => {
-    return (bodyHeight > 600) ? 50 : (bodyHeight / 10)
+    return (bodyHeight / 10 > 50) ? 50 : (bodyHeight / 10)
 }
 
 export const HeadBar = (param: HeadBarParameter) => {
