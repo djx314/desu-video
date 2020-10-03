@@ -2,7 +2,9 @@
 import { jsx } from "@emotion/core"
 import { useState } from "react"
 import * as style from "./style"
-import HeadBar from "./Components/HeadBar"
+import { getBarHeight, HeadBar } from "./Components/HeadBar"
+import { FileListContent } from "./Components/FileListContent"
+import Axios from "axios"
 
 const getDocumentHeight = () => document.documentElement.clientHeight
 
@@ -13,14 +15,13 @@ const FileList = () => {
         docHeightState(getDocumentHeight())
     })
     
+
+    Axios
+
     return (
         <div css={style.bodyContent(docHeight)}>
             <HeadBar contentHeight={docHeight} />
-            <div>dfgetrt</div>
-            <div>dfgetrt</div>
-            <div>dfgetrt</div>
-            <div>dfgetrt</div>
-            <div>dfgetrt</div>
+            <FileListContent listHeight={docHeight - getBarHeight(docHeight)} />
         </div>
     )
 }
