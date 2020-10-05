@@ -10,7 +10,9 @@ export const barContent = (barHeight: number) => {
 
 export const fileListComp = (compHeight: number) => {
     return css({
-        lineHeight: `${compHeight}px`,
+        lineHeight: "normal",
+        paddingTop: compHeight * 0.1,
+        paddingBottom: compHeight * 0.1,
         fontSize: `${compHeight * 0.6}px`,
         color: "rgb(233, 233, 233)"
     })

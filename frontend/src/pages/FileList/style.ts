@@ -7,3 +7,7 @@ export const bodyContent = (bodyHeight: number) => {
         backgroundColor: "red"
     })
 }
+
+export const ContentStyle = styled.div`
+    padding: 10px;
+`

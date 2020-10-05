@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import * as style from "./style"
 import { getBarHeight, HeadBar } from "./Components/HeadBar"
 import { FileListContent } from "./Components/FileListContent"
@@ -17,7 +17,8 @@ const FileList = () => {
     
     const [fileListModel, fileListModelState] = useState(Array<String>())
 
-    axios.get<Array<String>>('/fileList')
+    useEffect(() => {
+        axios.get<Array<String>>('/fileList')
         .then(function (response) {
             // handle success
             fileListModelState(response.data);
@@ -29,6 +30,7 @@ const FileList = () => {
         .then(function () {
             // always executed
         })
+    }, [])
 
     return (
         <div css={style.bodyContent(docHeight)}>
