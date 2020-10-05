@@ -18,4 +18,9 @@ object TapirHandle {
       _ <- putStrLn(s"获取目录文件")
     } yield i
 
+  def picList(n: List[String]): ZIO[Console, Nothing, List[String]] =
+    for {
+      _ <- putStrLn(s"获取图片目录：${n.mkString("(", ",", ")")}")
+    } yield n
+
 }
