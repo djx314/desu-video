@@ -1,0 +1,3 @@
+# Map static resources from the /public folder to the /assets URL path
+POST        /encode        assist.controllers.Encode.encodeRequest
+# GET         /isEncoding    assist.controllers.Encode.isEncoding(uuid: String)

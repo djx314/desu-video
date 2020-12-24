@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>里番在线浏览器</title>
+    @views.html.commonHeader()
+    <link rel="stylesheet" type="text/css" href="@assist.controllers.routes.CommonAssetsController.staticAt("files/files-style.css")" />
+    <script type="text/javascript">
+            require(["../staticAssets/app/index"]);
+    </script>
+</head>
+<body>
+    <header data-am-widget="header" class="am-header am-header-default">
+        <h1 class="am-header-title">
+            <a href="#" class="">
+            里番在线浏览
+            </a>
+        </h1>
+    </header>
+    <div id="applicationHost"></div>
+</body>
+</html>

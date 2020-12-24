@@ -1,0 +1,70 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="viewport"
+content="width=device-width, initial-scale=1" />
+<title>Hello Amaze UI</title>
+
+<!-- Set render engine for 360 browser -->
+<meta name="renderer" content="webkit" />
+
+<!-- No Baidu Siteapp-->
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes" />
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-title" content="Amaze UI" />
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileColor" content="#0e90d2" />
+
+<script type="text/javascript" src="@assist.controllers.routes.CommonAssetsController.staticAt("lib/requirejs/require.js")"></script>
+<script type="text/javascript">
+    requirejs.config({
+        shim: {
+            "jquery": {
+                exports: "jQuery"
+            },
+            "layui": {
+                exports: "layui"
+            },
+            "jUploader": {
+                deps: ["jquery"]
+            }
+        },
+        packages: [{
+            location: "@assist.controllers.routes.CommonAssetsController.staticAt("javascripts/archer")",
+            name:  "archer"
+        }],
+        paths: {
+            "baseLayui": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/layui-v2.4.3/layui/layui")",
+            "jquery": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/jquery/jquery-1.12.4.min")",
+            "jqueryCookie": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/jquery/jquery.cookie")",
+            "knockout": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/knockout/knockout-3.5.1")",
+            "komapping": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/knockout/knockout.mapping-2.4.1")",
+            "text": "@assist.controllers.routes.CommonAssetsController.staticAt("lib/requirejs-text/text")",
+            "lifan": "@assist.controllers.routes.CommonAssetsController.staticAt("app")",
+            "durandal": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/durandal-2.2.0/js")",
+            "plugins": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/durandal-2.2.0/js/plugins")",
+            "transitions": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/durandal-2.2.0/js/transitions")",
+            "jUploader": "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/jquery.jUploader-v1.01/js/jquery.jUploader-1.01")"
+        }
+    });
+    define("layui", function(require) {
+        require("baseLayui");
+        layui.config({
+            dir: "@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/layui-v2.4.3/layui/")",
+            version: true
+        });
+        return layui;
+    });
+</script>
+<link rel="stylesheet" type="text/css" href="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/layui-v2.4.3/layui/css/layui.css")" />
+<link rel="stylesheet" type="text/css" href="@assist.controllers.routes.CommonAssetsController.staticAt("frameworks/durandal-2.2.0/css/durandal.css")" />
