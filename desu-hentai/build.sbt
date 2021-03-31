@@ -37,6 +37,11 @@ libraryDependencies ++= Seq(
   "org.webjars.bower" % "requirejs-text" % "2.0.15"
 )
 
+libraryDependencies ++= Seq(
+  "com.github.julien-truffaut" %% "monocle-core"  % "3.0.0-M1",
+  "com.github.julien-truffaut" %% "monocle-macro" % "3.0.0-M1", // Not required for Scala 3
+)
+
 fork in run := false
 enablePlugins(play.sbt.PlayScala, PlayAkkaHttpServer)
 disablePlugins(PlayNettyServer)
