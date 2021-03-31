@@ -1,0 +1,10 @@
+/desu-encoder/.idea
+/desu-hentai/.idea
+/logs
+/conf/evolutions
+/bin/
+/sbt
+/conf/generated.keystore
+*target*
+/frontend/package-lock.json
+/frontend/node_modules
