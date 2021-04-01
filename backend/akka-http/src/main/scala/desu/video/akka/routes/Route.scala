@@ -5,6 +5,11 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
+import com.typesafe.config.ConfigFactory
+
+import java.nio.file.{Files, Path, Paths}
+import java.util.stream.Collectors
+import scala.concurrent.Future
 import scala.io.StdIn
 
 object HttpServerRoutingMinimal {
@@ -15,10 +20,17 @@ object HttpServerRoutingMinimal {
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.executionContext
 
+    val dirPath = Paths.get(ConfigFactory.load().getString("desu.video.file.rootPath"))
+
+    import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+    import scala.jdk.CollectionConverters._
+    import io.circe.syntax._
+
     val route =
       path("hello") {
         get {
-          complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+          def fileList = Future { Files.list(dirPath).map(_.toFile.getName).collect(Collectors.toList[String]).asScala.to(List) }
+          onSuccess(fileList)(list => complete(list.asJson))
         }
       }
 
