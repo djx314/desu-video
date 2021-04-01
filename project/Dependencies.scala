@@ -5,8 +5,7 @@ import sbt.Keys._
 
 object Dependencies {
 
-  val xioVersion   = "0.0.1-SNAPSHOT"
-  val tapirVersion = "0.17.19"
+  val tapirVersion = "0.18.0-M1"
   val zio = List(
     "dev.zio" %% "zio-interop-cats" % "2.3.1.0",
     "dev.zio" %% "zio"              % "1.0.5",
