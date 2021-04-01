@@ -8,7 +8,8 @@ import java.nio.file.{Files, Path, Paths}
 object AppConfig {
 
   val rootPath: ZIO[Layers.VideoConf, Throwable, Path] = {
-    def validatePath(path: Path) = if (Files.exists(path) && Files.isDirectory(path)) ZIO.succeed(path) else ZIO.fail(new Exception("路径不存在或路径不是文件夹。"))
+    def validatePath(path: Path) =
+      if (Files.exists(path) && Files.isDirectory(path)) ZIO.succeed(path) else ZIO.fail(new Exception("路径不存在或路径不是文件夹。"))
     for {
       conf  <- ZIO.access[Layers.VideoConf](_.get)
       root  <- ZIO.effect(conf.config.getString("desu.video.file.rootPath"))

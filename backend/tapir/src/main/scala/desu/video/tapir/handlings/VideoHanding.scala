@@ -3,13 +3,14 @@ package desu.video.tapir.handlings
 import desu.video.tapir.config.AppConfig
 import desu.video.tapir.endpoints.VideoEndpoints
 import desu.video.tapir.mainapp.Layers
-import sttp.tapir.ztapir._
-import sttp.tapir.generic.auto._
-import zio.ZIO
-
 import java.nio.file.{Files, Path}
 import java.util.stream.Collectors
+
 import scala.jdk.CollectionConverters._
+import sttp.tapir.ztapir._
+import sttp.tapir.generic.auto._
+
+import zio.ZIO
 
 object VideoHanding {
 
