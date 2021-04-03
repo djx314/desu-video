@@ -9,5 +9,5 @@ object SZShow {
     override def toList(list: Int): List[String] => List[String] = l => list.toString :: l
   }
 
-  def show[T](t: T)(implicit i: SZShow[T]) = i.toList(t)(List.empty).mkString("(", " , ", ")")
+  def show[T](t: T)(implicit i: SZShow[T]) = i.toList(t)(List.empty).mkString("(", ", ", ")")
 }
