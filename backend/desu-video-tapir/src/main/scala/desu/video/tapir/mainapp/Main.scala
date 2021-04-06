@@ -17,7 +17,7 @@ object Main extends zio.App {
       val builder2 = builder
         .bindHttp(8080, "19.125.1.24")
         .withHttpApp(AppRoutes.routes.orNotFound)
-        .withIdleTimeout(10.minutes)
+        .withIdleTimeout(11.minutes)
         .withResponseHeaderTimeout(10.minutes)
       builder2.serve.compile.drain
     }
