@@ -1,4 +1,0 @@
-org.scalax.sbt.CustomSettings.scalaConfig
-org.scalax.sbt.CustomSettings.fmtConfig
-
-name := "desu-shushouzhi"
