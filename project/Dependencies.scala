@@ -5,10 +5,10 @@ import sbt.Keys._
 
 object Dependencies {
 
-  val AkkaVersion           = "2.6.8"
+  val AkkaVersion           = "2.6.15"
   val AkkaHttpVersion       = "10.2.4"
-  val akkaHttpCirceVersion  = "1.36.0"
-  val slf4jVersion          = "1.7.30"
+  val akkaHttpCirceVersion  = "1.37.0"
+  val slf4jVersion          = "1.7.31"
   val typeSafeConfigVersion = "1.4.1"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
@@ -22,7 +22,7 @@ object Dependencies {
     "de.heikoseeberger" %% "akka-http-circe"  % akkaHttpCirceVersion
   )
 
-  val http4sVersion = "1.0.0-M16"
+  val http4sVersion = "1.0.0-M23"
 
   val http4s = Seq(
     "org.http4s" %% "http4s-dsl"          % http4sVersion,
@@ -30,8 +30,15 @@ object Dependencies {
     "org.http4s" %% "http4s-blaze-client" % http4sVersion
   )
 
-  val catsVersion = "3.0.0"
+  val catsVersion = "3.1.1"
 
   val cats = Seq("org.typelevel" %% "cats-effect" % "3.0.0")
+
+  val circeVersion = "0.14.1"
+  val circe = Seq(
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic"% circeVersion,
+    "io.circe" %% "circe-parser"% circeVersion
+  )
 
 }

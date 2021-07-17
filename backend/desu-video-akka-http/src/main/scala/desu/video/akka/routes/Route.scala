@@ -21,7 +21,7 @@ object HttpServerRoutingMinimal {
 
     val route = path("hello") {
       get {
-        onSuccess(FileList.list)(list => complete(list.asJson))
+        onSuccess(FileService.list)(list => complete(list.asJson))
       }
     }
 

@@ -5,11 +5,10 @@ import com.typesafe.config.ConfigFactory
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.Executors
 import java.util.stream.Collectors
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 
-object FileList {
+object FileService {
 
   implicit val ec = ExecutionContext.fromExecutor(Executors.newCachedThreadPool())
 
