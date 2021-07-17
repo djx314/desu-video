@@ -41,4 +41,13 @@ object Dependencies {
     "io.circe" %% "circe-parser"  % circeVersion
   )
 
+  val macwireVersion = "2.3.7"
+
+  val macwire = Seq(
+    "com.softwaremill.macwire" %% "macros"     % macwireVersion % "provided",
+    "com.softwaremill.macwire" %% "macrosakka" % macwireVersion % "provided",
+    "com.softwaremill.macwire" %% "util"       % macwireVersion,
+    "com.softwaremill.macwire" %% "proxy"      % macwireVersion
+  )
+
 }

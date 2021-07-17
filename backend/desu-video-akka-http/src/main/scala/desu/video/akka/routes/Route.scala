@@ -5,9 +5,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
-
+import desu.video.akka.mainapp.MainApp
 import io.circe.syntax._
 
 import scala.io.StdIn
@@ -21,7 +20,7 @@ object HttpServerRoutingMinimal {
 
     val route = path("hello") {
       get {
-        onSuccess(FileService.list)(list => complete(list.asJson))
+        onSuccess(MainApp.fileList.list)(list => complete(list.asJson))
       }
     }
 
