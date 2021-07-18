@@ -16,10 +16,12 @@ object Dependencies {
   val simpleLogger = List("org.slf4j" % "slf4j-simple" % slf4jVersion)
 
   val akkaHttp = Seq(
-    "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion,
-    "com.typesafe.akka" %% "akka-stream"      % AkkaVersion,
-    "com.typesafe.akka" %% "akka-http"        % AkkaHttpVersion,
-    "de.heikoseeberger" %% "akka-http-circe"  % akkaHttpCirceVersion
+    "com.typesafe.akka" %% "akka-actor-typed"    % AkkaVersion,
+    "com.typesafe.akka" %% "akka-stream"         % AkkaVersion,
+    "com.typesafe.akka" %% "akka-http"           % AkkaHttpVersion,
+    "de.heikoseeberger" %% "akka-http-circe"     % akkaHttpCirceVersion,
+    "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion,
+    "com.typesafe.akka" %% "akka-http-testkit"   % AkkaHttpVersion
   )
 
   val http4sVersion = "1.0.0-M23"
@@ -48,6 +50,12 @@ object Dependencies {
     "com.softwaremill.macwire" %% "macrosakka" % macwireVersion % "provided",
     "com.softwaremill.macwire" %% "util"       % macwireVersion,
     "com.softwaremill.macwire" %% "proxy"      % macwireVersion
+  )
+
+  val scalatestVersion = "3.2.9"
+  val scalatest = Seq(
+    "org.scalactic" %% "scalactic" % scalatestVersion,
+    "org.scalatest" %% "scalatest" % scalatestVersion % "test"
   )
 
 }
