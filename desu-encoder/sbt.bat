@@ -1,1 +1,0 @@
-java -Xss100M -Dsbt.override.build.repos=true -jar ./sbt-launch.jar

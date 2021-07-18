@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigFactory
 
 import java.nio.file.{Files, Paths}
 import java.util.stream.Collectors
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{blocking, ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 
 class FileService(implicit ec: ExecutionContext) {
@@ -13,7 +13,10 @@ class FileService(implicit ec: ExecutionContext) {
 
   def list: Future[List[String]] = {
     def fileStream = Files.list(dirPath).map(_.toFile.getName)
-    Future { fileStream.collect(Collectors.toList[String]).asScala.to(List) }
+    Future {
+      val l = blocking(fileStream.collect(Collectors.toList[String]))
+      l.asScala.to(List)
+    }
   }
 
 }
