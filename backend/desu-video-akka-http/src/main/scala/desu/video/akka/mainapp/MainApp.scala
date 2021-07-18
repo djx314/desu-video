@@ -1,15 +1,17 @@
 package desu.video.akka.mainapp
 
-import desu.video.akka.routes.FileService
-
 import scala.concurrent.ExecutionContext
-
 import com.softwaremill.macwire._
+import desu.video.akka.config.AppConfig
+import desu.video.akka.service.FileService
+import desu.video.common.slick.DesuDatabase
 
 object MainApp {
 
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(null)
+  private lazy val appConfig                = wire[AppConfig]
+  private lazy val desuDatabase             = wire[DesuDatabase]
 
-  val fileList = wire[FileService]
+  lazy val fileList = wire[FileService]
 
 }
