@@ -13,6 +13,8 @@ import io.circe.syntax._
 import desu.video.common.slick.model.Tables._
 import desu.video.common.slick.model.Tables.profile.api._
 
+import scala.util.{Failure, Success}
+
 class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit ec: ExecutionContext) {
 
   val db = desuDatabase.db
@@ -35,7 +37,7 @@ class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit ec:
     val dirMappingOptF = db.run(DirMapping.filter(_.filePath === fileNameJson).result.headOption)
 
     def insertQuery = DirMapping returning DirMapping.map(_.id) into ((model, id) => model.copy(id = id))
-    def notExistsF  = db.run(insertQuery += DirMappingRow(id = -1, filePath = fileName))
+    def notExistsF  = db.run(insertQuery += DirMappingRow(id = -1, filePath = fileNameJson))
 
     def fromOpt(opt: Option[DirMappingRow]) = opt match {
       case Some(dirMapping) => Future.successful(dirMapping)
@@ -45,7 +47,10 @@ class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit ec:
     for {
       dirOpt     <- dirMappingOptF
       dirMapping <- fromOpt(dirOpt)
-    } yield DirId(id = dirMapping.id, fileName = dirMapping.filePath)
+    } yield DirId(
+      id = dirMapping.id,
+      fileName = io.circe.parser.parse(dirMapping.filePath).flatMap(_.asJson.as[List[String]]).getOrElse(List.empty).head
+    )
   }
 
 }

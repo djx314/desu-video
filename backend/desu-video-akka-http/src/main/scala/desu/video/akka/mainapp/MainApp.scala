@@ -12,6 +12,6 @@ object MainApp {
   private lazy val appConfig                = wire[AppConfig]
   private lazy val desuDatabase             = wire[DesuDatabase]
 
-  lazy val fileList = wire[FileService]
+  lazy val fileService = wire[FileService]
 
 }

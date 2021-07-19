@@ -7,15 +7,23 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import desu.video.akka.mainapp.MainApp
+import desu.video.akka.model.RootFileNameRequest
 import io.circe.syntax._
 
 import scala.io.StdIn
 
 object HttpServerRoutingMinimal {
+  def fileService = MainApp.fileService
 
-  val route = path("hello") {
+  val route = path("rootPathFiles") {
     get {
-      onSuccess(MainApp.fileList.rootPathFiles)(list => complete(list.asJson))
+      onSuccess(fileService.rootPathFiles)(list => complete(list.asJson))
+    }
+  } ~ path("rootPathFile") {
+    post {
+      entity(as[RootFileNameRequest]) { fileName =>
+        onSuccess(fileService.rootPathRequestFileId(fileName.fileName))(model => complete(model.asJson))
+      }
     }
   }
 
