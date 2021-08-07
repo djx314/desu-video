@@ -14,9 +14,10 @@ object Dependencies {
   val macwireVersion        = "2.3.7"
   val circeVersion          = "0.14.1"
   val catsVersion           = "3.1.1"
-  val http4sVersion         = "1.0.0-M23"
+  val http4sVersion         = "0.23.1"
   val slickVersion          = "3.3.3"
   val mysqlVersion          = "8.0.25"
+  val tapirVersion          = "0.19.0-M4"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -37,7 +38,7 @@ object Dependencies {
     "org.http4s" %% "http4s-blaze-client" % http4sVersion
   )
 
-  val cats = Seq("org.typelevel" %% "cats-effect" % "3.0.0")
+  val cats = Seq("org.typelevel" %% "cats-effect" % "3.2.2")
 
   val circe = Seq(
     "io.circe" %% "circe-core"    % circeVersion,
@@ -63,6 +64,20 @@ object Dependencies {
     "com.typesafe.slick" %% "slick"          % slickVersion,
     "com.typesafe.slick" %% "slick-codegen"  % slickVersion,
     "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
+  )
+
+  val sttp = List("com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.2.0")
+
+  val tapir = List(
+    "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % tapirVersion,
+    // HTTP4S
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s" % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-redoc-http4s"      % tapirVersion
   )
 
 }

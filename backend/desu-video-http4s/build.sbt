@@ -7,3 +7,4 @@ libraryDependencies ++= org.scalax.sbt.Dependencies.config
 libraryDependencies ++= org.scalax.sbt.Dependencies.simpleLogger
 libraryDependencies ++= org.scalax.sbt.Dependencies.http4s
 libraryDependencies ++= org.scalax.sbt.Dependencies.cats
+libraryDependencies ++= org.scalax.sbt.Dependencies.tapir

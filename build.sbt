@@ -5,7 +5,7 @@ name := "desu-video"
 
 val rootPath    = file(".")
 val backendPath = rootPath / "backend"
-val commonPath = backendPath / "desu-video-common"
+val commonPath  = backendPath / "desu-video-common"
 
 val common   = project in commonPath
 val http4s   = (project in backendPath / "desu-video-http4s").dependsOn(common)
@@ -13,6 +13,5 @@ val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(commo
 
 addCommandAlias("prun", "http4s/reStart")
 addCommandAlias("krun", "akkaHttp/run")
-
 
 addCommandAlias("slickCodegen", s"common/runMain desu.video.common.slick.codegen.MysqlDesuVideoCodegen ${commonPath.getAbsolutePath}")
