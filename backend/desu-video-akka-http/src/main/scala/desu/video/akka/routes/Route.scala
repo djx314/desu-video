@@ -7,17 +7,23 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import desu.video.akka.mainapp.MainApp
-import desu.video.akka.model.RootFileNameRequest
+import desu.video.akka.model.{FileNotConfirmException, RootFileNameRequest}
+import desu.video.common.model.DesuResult
 import io.circe.syntax._
 
 import scala.io.StdIn
+import scala.util.{Failure, Success}
 
 object HttpServerRoutingMinimal {
   def fileService = MainApp.fileService
 
   val route = path("rootPathFiles") {
     get {
-      onSuccess(fileService.rootPathFiles)(list => complete(list.asJson))
+      onComplete(fileService.rootPathFiles) {
+        case Success(list)                       => complete(DesuResult.data(true, list))
+        case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
+        case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
+      }
     }
   } ~ path("rootPathFile") {
     post {

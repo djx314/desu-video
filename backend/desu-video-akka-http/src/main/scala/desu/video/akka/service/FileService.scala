@@ -1,10 +1,10 @@
 package desu.video.akka.service
 
 import desu.video.akka.config.AppConfig
-import desu.video.akka.model.{DirId, RootPathFiles}
+import desu.video.akka.model.{DirId, FileNotConfirmException, RootPathFiles}
 import desu.video.common.slick.DesuDatabase
 
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.util.stream.Collectors
 import scala.concurrent.{blocking, ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
@@ -12,23 +12,27 @@ import io.circe._
 import io.circe.syntax._
 import desu.video.common.slick.model.Tables._
 import desu.video.common.slick.model.Tables.profile.api._
-
-import scala.util.{Failure, Success}
+import org.slf4j.LoggerFactory
 
 class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit ec: ExecutionContext) {
+  val logger = LoggerFactory.getLogger(getClass)
 
   val db = desuDatabase.db
 
+  /** @throws FileNotConfirmException
+    * @return
+    */
   def rootPathFiles: Future[RootPathFiles] = {
-    def fileStream = Files.list(appConfig.rootPath).map(_.toFile.getName)
-    Future {
-      // 再次判断文件是否存在或者是否文件夹
-      val confirm = blocking(Files.exists(appConfig.rootPath) && Files.isDirectory(appConfig.rootPath))
-      if (confirm) {
-        val l = blocking(fileStream.collect(Collectors.toList[String]))
-        RootPathFiles(dirConfirm = confirm, files = l.asScala.to(List))
-      } else RootPathFiles(dirConfirm = false, files = List.empty)
+    def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
+    def rootPathFiles(path: Path) = Future {
+      val l = blocking(fileList(path))
+      RootPathFiles(files = l.asScala.to(List))
     }
+
+    for {
+      path  <- Future.fromTry(appConfig.rootPath.toTry)
+      model <- rootPathFiles(path)
+    } yield model
   }
 
   def rootPathRequestFileId(fileName: String): Future[DirId] = {

@@ -1,21 +1,24 @@
 package desu.video.akka.config
 
 import com.typesafe.config.ConfigFactory
+import desu.video.akka.model.FileNotConfirmException
+import org.slf4j.LoggerFactory
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 
 class AppConfig {
+  val logger = LoggerFactory.getLogger(getClass)
 
   val dirPath = ConfigFactory.load().getString("desu.video.file.rootPath")
 
-  private def getRootPath = {
+  def rootPath: Either[FileNotConfirmException, Path] = {
     val path = Paths.get(dirPath)
     if (!Files.exists(path) || !Files.isDirectory(path)) {
-      throw new IllegalArgumentException("App root file not exists or app root file is not a directory.")
-    }
-    path
-  }
+      val message = s"App root file not exists or app root file is not a directory. Root file path is $dirPath"
+      logger.error(message)
+      Left(FileNotConfirmException("App root file not exists or app root file is not a directory."))
+    } else Right(path)
 
-  val rootPath = getRootPath
+  }
 
 }
