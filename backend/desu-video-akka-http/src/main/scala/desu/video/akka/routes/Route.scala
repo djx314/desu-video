@@ -26,6 +26,7 @@ object HttpServerRoutingMinimal {
       }
     }
   } ~ path("rootPathFile") {
+    // 未调整
     post {
       entity(as[RootFileNameRequest]) { fileName =>
         onSuccess(fileService.rootPathRequestFileId(fileName.fileName))(model => complete(model.asJson))

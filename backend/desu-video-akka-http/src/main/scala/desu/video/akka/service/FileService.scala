@@ -35,6 +35,11 @@ class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit ec:
     } yield model
   }
 
+  /**
+   * 未调整
+   * @param fileName
+   * @return
+   */
   def rootPathRequestFileId(fileName: String): Future[DirId] = {
     val fileNameJson = List(fileName).asJson.noSpaces
 
