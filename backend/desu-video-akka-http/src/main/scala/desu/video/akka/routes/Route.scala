@@ -1,7 +1,5 @@
 package desu.video.akka.routes
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
@@ -19,10 +17,12 @@ object HttpServerRoutingMinimal {
 
   val route = path("rootPathFiles") {
     get {
-      onComplete(fileService.rootPathFiles) {
-        case Success(list)                       => complete(DesuResult.data(true, list))
-        case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
-        case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
+      extractLog { implicit log =>
+        onComplete(fileService.rootPathFiles) {
+          case Success(list)                       => complete(DesuResult.data(true, list))
+          case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
+          case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
+        }
       }
     }
   } ~ path("rootPathFile") {
@@ -35,7 +35,7 @@ object HttpServerRoutingMinimal {
   }
 
   def main(args: Array[String]): Unit = {
-    implicit val system = ActorSystem(Behaviors.empty, "my-system")
+    implicit val system = MainApp.system
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.executionContext
 
