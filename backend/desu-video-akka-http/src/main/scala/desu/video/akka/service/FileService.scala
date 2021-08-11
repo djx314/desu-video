@@ -1,15 +1,11 @@
 package desu.video.akka.service
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
-import akka.event.LoggingAdapter
 import desu.video.akka.config.AppConfig
-import desu.video.akka.model.{DirId, FileNotConfirmException, RootPathFiles}
+import desu.video.akka.model.DirId
 import desu.video.common.slick.DesuDatabase
 
-import java.nio.file.{Files, Path}
-import java.util.stream.Collectors
-import scala.concurrent.{blocking, Future}
-import scala.jdk.CollectionConverters._
+import scala.concurrent.Future
 import io.circe.syntax._
 import desu.video.common.slick.model.Tables._
 import desu.video.common.slick.model.Tables.profile.api._
@@ -18,23 +14,6 @@ class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit sys
   implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig("desu-dispatcher"))
 
   val db = desuDatabase.db
-
-  /** @throws FileNotConfirmException
-    * @return
-    */
-  def rootPathFiles(implicit logger: LoggingAdapter): Future[RootPathFiles] = {
-    logger.info("11111111111111111111111111111111111111111111111111111111111111111111111")
-    def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
-    def rootPathFiles(path: Path) = Future {
-      val l = blocking(fileList(path))
-      RootPathFiles(files = l.asScala.to(List))
-    }
-
-    for {
-      path  <- Future.fromTry(appConfig.rootPath.toTry)
-      model <- rootPathFiles(path)
-    } yield model
-  }
 
   /** 未调整
     * @param fileName
