@@ -23,7 +23,7 @@ object MainApp {
   private lazy val fileService = wire[FileService]
   private lazy val fileFinder  = wire[FileFinder]
 
-  lazy val route = wire[HttpServerRoutingMinimal]
+  lazy val routingMinimal = wire[HttpServerRoutingMinimal]
 
 }
 
@@ -34,7 +34,7 @@ object HttpServerRoutingMinimal {
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.executionContext
 
-    val bindingFuture = Http().newServerAt("localhost", 8080).bind(MainApp.route.route)
+    val bindingFuture = Http().newServerAt("localhost", 8080).bind(MainApp.routingMinimal.route)
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
