@@ -10,8 +10,10 @@ trait DirMappingTable {
   import slick.jdbc.{GetResult => GR}
 
   /** Entity class storing rows of table DirMapping
-    *  @param id Database column id SqlType(INT UNSIGNED), AutoInc, PrimaryKey
-    *  @param filePath Database column file_path SqlType(VARCHAR), Length(1000,true)
+    * @param id
+    *   Database column id SqlType(INT UNSIGNED), AutoInc, PrimaryKey
+    * @param filePath
+    *   Database column file_path SqlType(VARCHAR), Length(1000,true)
     */
   case class DirMappingRow(id: Long, filePath: String)
 

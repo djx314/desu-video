@@ -10,16 +10,26 @@ trait FlywaySchemaHistoryTable {
   import slick.jdbc.{GetResult => GR}
 
   /** Entity class storing rows of table FlywaySchemaHistory
-    *  @param installedRank Database column installed_rank SqlType(INT), PrimaryKey
-    *  @param version Database column version SqlType(VARCHAR), Length(50,true), Default(None)
-    *  @param description Database column description SqlType(VARCHAR), Length(200,true)
-    *  @param `type` Database column type SqlType(VARCHAR), Length(20,true)
-    *  @param script Database column script SqlType(VARCHAR), Length(1000,true)
-    *  @param checksum Database column checksum SqlType(INT), Default(None)
-    *  @param installedBy Database column installed_by SqlType(VARCHAR), Length(100,true)
-    *  @param installedOn Database column installed_on SqlType(TIMESTAMP)
-    *  @param executionTime Database column execution_time SqlType(INT)
-    *  @param success Database column success SqlType(BIT)
+    * @param installedRank
+    *   Database column installed_rank SqlType(INT), PrimaryKey
+    * @param version
+    *   Database column version SqlType(VARCHAR), Length(50,true), Default(None)
+    * @param description
+    *   Database column description SqlType(VARCHAR), Length(200,true)
+    * @param `type`
+    *   Database column type SqlType(VARCHAR), Length(20,true)
+    * @param script
+    *   Database column script SqlType(VARCHAR), Length(1000,true)
+    * @param checksum
+    *   Database column checksum SqlType(INT), Default(None)
+    * @param installedBy
+    *   Database column installed_by SqlType(VARCHAR), Length(100,true)
+    * @param installedOn
+    *   Database column installed_on SqlType(TIMESTAMP)
+    * @param executionTime
+    *   Database column execution_time SqlType(INT)
+    * @param success
+    *   Database column success SqlType(BIT)
     */
   case class FlywaySchemaHistoryRow(
     installedRank: Int,
@@ -49,8 +59,8 @@ trait FlywaySchemaHistoryTable {
     )
   }
 
-  /** Table description of table flyway_schema_history. Objects of this class serve as prototypes for rows in queries.
-    *  NOTE: The following names collided with Scala keywords and were escaped: type
+  /** Table description of table flyway_schema_history. Objects of this class serve as prototypes for rows in queries. NOTE: The following
+    * names collided with Scala keywords and were escaped: type
     */
   class FlywaySchemaHistory(_tableTag: Tag)
       extends profile.api.Table[FlywaySchemaHistoryRow](_tableTag, Some("desu_video"), "flyway_schema_history") {
@@ -97,8 +107,7 @@ trait FlywaySchemaHistoryTable {
     /** Database column description SqlType(VARCHAR), Length(200,true) */
     val description: Rep[String] = column[String]("description", O.Length(200, varying = true))
 
-    /** Database column type SqlType(VARCHAR), Length(20,true)
-      *  NOTE: The name was escaped because it collided with a Scala keyword.
+    /** Database column type SqlType(VARCHAR), Length(20,true) NOTE: The name was escaped because it collided with a Scala keyword.
       */
     val `type`: Rep[String] = column[String]("type", O.Length(20, varying = true))
 

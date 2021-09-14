@@ -16,7 +16,7 @@ object Dependencies {
   val http4sVersion         = "0.23.3"
   val slickVersion          = "3.3.3"
   val mysqlVersion          = "8.0.26"
-  val tapirVersion          = "0.19.0-M8"
+  val tapirVersion          = "0.19.0-M9"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -74,9 +74,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % tapirVersion,
-    // HTTP4S
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s" % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-redoc-http4s"      % tapirVersion
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui"         % tapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % tapirVersion
   )
 
 }
