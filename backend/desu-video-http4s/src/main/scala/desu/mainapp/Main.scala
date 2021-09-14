@@ -24,7 +24,7 @@ object Main extends zio.App {
   }
 
   override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    val action1: RIO[AppEnv, Unit] = ZIO.runtime[AppEnv].flatMap(startApp)
+    val action1 = ZIO.runtime[AppEnv].flatMap(startApp)
     action1.provideCustomLayer(applicationContenxtlive).exitCode
   }
 
