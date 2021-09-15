@@ -9,25 +9,29 @@ import desu.video.akka.model.FileNotConfirmException
 
 import java.nio.file.{Files, Path, Paths}
 
-import scala.concurrent.{blocking, Future}
+import scala.concurrent.Future
 
 class AppConfig(system: ActorSystem[Nothing]) {
+  val defaultDispatcherName = "desu-dispatcher"
+
+  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(defaultDispatcherName))
+  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
 
   val dirPath = ConfigFactory.load().getString("desu.video.file.rootPath")
 
   def rootPath(implicit logger: LoggingAdapter): Future[Path] = {
-    // AppConfig 极有可能会用到非 blocking 的 ec，故而将 blocking 的 ec 作为函数内部引用。
-    implicit val blockExecutionContext = system.dispatchers.lookup(DispatcherSelector.blocking())
-    val f = Future {
-      val path      = Paths.get(dirPath)
-      val isConfirm = blocking(!Files.exists(path) || !Files.isDirectory(path))
-      if (isConfirm) {
-        val message = s"App root file not exists or app root file is not a directory. Root file path is $dirPath"
-        logger.error(message)
-        Future.failed(FileNotConfirmException("App root file not exists or app root file is not a directory."))
-      } else Future(path)
-    }
-    f.flatten
+    val path       = Paths.get(dirPath)
+    def isConfirmF = Future(!Files.exists(path) || !Files.isDirectory(path))(blockExecutionContext)
+    def result(isConfirm: Boolean): Future[Path] = if (isConfirm) {
+      val message = s"App root file not exists or app root file is not a directory. Root file path is $dirPath"
+      logger.error(message)
+      Future.failed(FileNotConfirmException("App root file not exists or app root file is not a directory."))
+    } else Future(path)
+
+    for {
+      isConfirm <- isConfirmF
+      f         <- result(isConfirm)
+    } yield f
   }
 
 }
