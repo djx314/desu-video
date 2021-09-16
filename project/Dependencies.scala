@@ -67,6 +67,8 @@ object Dependencies {
 
   val sttp = List("com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.3.14")
 
+  val zioLogging = "dev.zio" %% "zio-logging" % "0.5.12"
+
   val tapir = List(
     "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % tapirVersion,
