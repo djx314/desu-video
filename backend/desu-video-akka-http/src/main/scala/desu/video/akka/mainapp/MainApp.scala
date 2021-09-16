@@ -36,7 +36,6 @@ object HttpServerRoutingMinimal {
 
     val bindingFuture = Http().newServerAt("localhost", 8080).bind(MainApp.routingMinimal.route)
 
-
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
     bindingFuture

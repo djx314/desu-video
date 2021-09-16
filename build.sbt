@@ -7,9 +7,10 @@ val rootPath    = file(".")
 val backendPath = rootPath / "backend"
 val commonPath  = backendPath / "desu-video-common"
 
-val common   = project in commonPath
+val common   = project in backendPath / "desu-video-common"
 val http4s   = (project in backendPath / "desu-video-http4s").dependsOn(common)
 val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(common)
+val nodeTest  = project in backendPath / "node-test"
 
 addCommandAlias("prun", "http4s/reStart")
 addCommandAlias("krun", "akkaHttp/run")
