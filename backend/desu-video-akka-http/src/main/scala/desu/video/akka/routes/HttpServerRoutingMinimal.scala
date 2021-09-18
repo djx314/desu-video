@@ -11,7 +11,9 @@ import scala.util.{Failure, Success}
 
 class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService) {
 
-  val route = path("rootPathFiles") {
+  val prefix = pathPrefix("api" / "desu")
+
+  val routeWithPath = path("rootPathFiles") {
     get {
       extractLog { implicit log =>
         onComplete(fileFinder.rootPathFiles) {
@@ -29,5 +31,7 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
       }
     }
   }
+
+  val route = prefix(routeWithPath)
 
 }
