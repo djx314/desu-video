@@ -1,4 +1,4 @@
-package desu.video.akka.config
+package gd.robot.akka.config
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.event.LoggingAdapter
@@ -11,9 +11,6 @@ import java.nio.file.{Files, Path, Paths}
 
 import scala.concurrent.Future
 
-object AppConfig {
-  val defaultDispatcherName = "desu-dispatcher"
-}
 class AppConfig(system: ActorSystem[Nothing]) {
   implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
@@ -34,5 +31,8 @@ class AppConfig(system: ActorSystem[Nothing]) {
       f         <- result(isConfirm)
     } yield f
   }
+}
 
+object AppConfig {
+  val defaultDispatcherName = "desu-dispatcher"
 }

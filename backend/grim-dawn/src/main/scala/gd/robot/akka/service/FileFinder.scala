@@ -1,17 +1,14 @@
-package desu.video.akka.service
+package gd.robot.akka.service
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.event.LoggingAdapter
-
-import desu.video.akka.config.AppConfig
+import gd.robot.akka.config.AppConfig
 
 import java.awt.image.BufferedImage
 import java.nio.file.{Path, Paths}
 import java.awt.{Rectangle, Robot, Toolkit}
 import java.util.Date
-
 import javax.imageio.ImageIO
-
 import scala.util.{Failure, Success}
 import scala.concurrent.Future
 

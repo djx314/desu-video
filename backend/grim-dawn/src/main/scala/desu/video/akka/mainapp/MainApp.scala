@@ -2,14 +2,12 @@ package desu.video.akka.mainapp
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
-
 import com.softwaremill.macwire._
-import desu.video.akka.config.AppConfig
-import desu.video.akka.service.FileService
 import desu.video.common.slick.DesuDatabase
 import akka.http.scaladsl.Http
 import desu.video.akka.routes.HttpServerRoutingMinimal
-import desu.video.akka.service.FileFinder
+import gd.robot.akka.config.AppConfig
+import gd.robot.akka.service.{FileFinder, FileService}
 
 import scala.io.StdIn
 

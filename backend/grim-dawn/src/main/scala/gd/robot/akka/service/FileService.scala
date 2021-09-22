@@ -1,13 +1,13 @@
-package desu.video.akka.service
+package gd.robot.akka.service
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
-import desu.video.akka.config.AppConfig
 import desu.video.common.slick.DesuDatabase
 
 import scala.concurrent.Future
 import io.circe.syntax._
 import desu.video.common.slick.model.Tables._
 import desu.video.common.slick.model.Tables.profile.api._
+import gd.robot.akka.config.AppConfig
 import gd.robot.akka.gdactor.InputRobotActor
 
 import java.awt.Robot

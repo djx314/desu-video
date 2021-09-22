@@ -3,7 +3,7 @@ package gd.robot.akka.gdactor
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import akka.pattern.Patterns
-import desu.video.akka.config.AppConfig
+import gd.robot.akka.config.AppConfig
 
 import java.util.concurrent.Callable
 import scala.concurrent.Future

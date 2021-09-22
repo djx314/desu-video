@@ -2,7 +2,7 @@ package gd.robot.akka.gdactor
 
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
-import desu.video.akka.config.AppConfig
+import gd.robot.akka.config.AppConfig
 
 import java.awt.Robot
 import scala.concurrent.Future

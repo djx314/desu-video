@@ -2,14 +2,13 @@ package desu.video.akka.routes
 
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
-import desu.video.akka.model.{FileNotConfirmException, RootFileNameRequest}
-import desu.video.akka.service.{FileFinder, FileService}
+import desu.video.akka.model.FileNotConfirmException
 import desu.video.common.model.DesuResult
 import io.circe.syntax._
 import akkahttptwirl.TwirlSupport._
+import gd.robot.akka.service.{FileFinder, FileService}
 
 import java.nio.file.Paths
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService) {
