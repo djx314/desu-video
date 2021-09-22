@@ -6,6 +6,7 @@ import desu.video.akka.config.AppConfig
 
 import java.awt.Robot
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object CallRobotActor {
   sealed trait CallRobotInput
@@ -26,11 +27,13 @@ class CallRobotActor(context: ActorContext[CallRobotInput]) extends AbstractBeha
       case KeyPressMessage(code, replyTo) =>
         def keyPress   = Future(robot.keyPress(code))(blockExecutionContext)
         def keyRelease = Future(robot.keyRelease(code))(blockExecutionContext)
-        for {
+        val action = for {
           _ <- keyPress
           _ <- keyRelease
-        } {
-          replyTo ! InputRobotActor.ReplyKeyInput(code)
+        } yield {}
+        action.onComplete {
+          case Success(value)     => replyTo ! InputRobotActor.ReplyKeyInput(code)
+          case Failure(exception) => replyTo ! InputRobotActor.StopKeyInput
         }
     }
     Behaviors.same
