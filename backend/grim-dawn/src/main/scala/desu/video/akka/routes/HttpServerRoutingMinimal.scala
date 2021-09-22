@@ -17,7 +17,7 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
   val routeWithPath = path("callRobot") {
     get {
       extractLog { implicit log =>
-        onComplete(fileFinder.rootPathFiles) {
+        onComplete(fileService.callRobot) {
           case Success(list)                       => complete(DesuResult.data(true, list))
           case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
           case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
@@ -28,7 +28,7 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
     // 未调整
     post {
       entity(as[RootFileNameRequest]) { fileName =>
-        onSuccess(fileService.rootPathRequestFileId(fileName.fileName))(model => complete(model.asJson))
+        onSuccess(fileService.callRobot)(model => complete(model.asJson))
       }
     }
   }

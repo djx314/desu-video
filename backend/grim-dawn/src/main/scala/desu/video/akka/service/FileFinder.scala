@@ -11,13 +11,13 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
 class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
-  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(appConfig.defaultDispatcherName))
+  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
 
   /** @throws FileNotConfirmException
     * @return
     */
-  def rootPathFiles(implicit logger: LoggingAdapter): Future[RootPathFiles] = {
+  /*def rootPathFiles(implicit logger: LoggingAdapter): Future[RootPathFiles] = {
     def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
 
     for {
@@ -27,6 +27,6 @@ class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
       val files = model.asScala.to(List)
       RootPathFiles(files = files)
     }
-  }
+  }*/
 
 }
