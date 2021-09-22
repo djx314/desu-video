@@ -13,3 +13,4 @@ flywayLocations += "db/migration"
 libraryDependencies ++= org.scalax.sbt.Dependencies.mysql
 libraryDependencies ++= org.scalax.sbt.Dependencies.slick
 libraryDependencies ++= org.scalax.sbt.Dependencies.circe
+libraryDependencies ++= org.scalax.sbt.Dependencies.tapir
