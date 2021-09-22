@@ -8,6 +8,8 @@ import desu.video.common.model.DesuResult
 import io.circe.syntax._
 import akkahttptwirl.TwirlSupport._
 
+import java.nio.file.Paths
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService) {
@@ -24,11 +26,13 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
         }
       }
     }
-  } ~ path("rootPathFile") {
-    // 未调整
-    post {
-      entity(as[RootFileNameRequest]) { fileName =>
-        onSuccess(fileService.callRobot)(model => complete(model.asJson))
+  } ~ path("desktopPic") {
+    get {
+      extractLog { implicit log =>
+        onComplete(fileFinder.getDesktopFile) {
+          case Success(path) => getFromFile(path.toFile)
+          case Failure(_)    => getFromFile(Paths.get(".", "backend", "grim-dawn", "target", "效果图.png").toFile)
+        }
       }
     }
   }

@@ -9,7 +9,11 @@ object Route {
   object inner {
     val callRobotEndpoint = prefix.get.in("callRobot")
     val callRobotRequest  = SttpClientInterpreter().toRequestThrowDecodeFailures(callRobotEndpoint, Option.empty)
+
+    val desktopPicEndpoint = prefix.get.in("desktopPic")
+    val desktopPicRequest  = SttpClientInterpreter().toRequestThrowDecodeFailures(desktopPicEndpoint, Option.empty)
   }
 
   val callRobotUri = inner.callRobotRequest(()).uri.toString()
+  val desktopUri   = inner.desktopPicRequest(()).uri.toString()
 }
