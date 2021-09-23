@@ -27,7 +27,7 @@ class InputRobotActor(context: ActorContext[RobotInput]) extends AbstractBehavio
 
   var isStarted: Boolean = false
 
-  val sendTo = context.spawn(CallRobotActor(), "call-robot-actor")
+  val sendTo = context.spawnAnonymous(CallRobotActor())
 
   override def onMessage(msg: RobotInput): Behavior[RobotInput] = {
     msg match {

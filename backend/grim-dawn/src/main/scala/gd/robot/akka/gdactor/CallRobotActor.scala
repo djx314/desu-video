@@ -22,15 +22,15 @@ class CallRobotActor(context: ActorContext[CallRobotInput]) extends AbstractBeha
 
   val robot = new Robot
 
+  def callRobotKeyPress(code: Int) = Future {
+    robot.keyPress(code)
+    robot.keyRelease(code)
+  }(blockExecutionContext)
+
   override def onMessage(msg: CallRobotInput): Behavior[CallRobotInput] = {
     msg match {
       case KeyPressMessage(code, replyTo) =>
-        def keyPress   = Future(robot.keyPress(code))(blockExecutionContext)
-        def keyRelease = Future(robot.keyRelease(code))(blockExecutionContext)
-        val action = for {
-          _ <- keyPress
-          _ <- keyRelease
-        } yield {}
+        val action = callRobotKeyPress(code)
         action.onComplete {
           case Success(value)     => replyTo ! InputRobotActor.ReplyKeyInput(code)
           case Failure(exception) => replyTo ! InputRobotActor.StopKeyInput
