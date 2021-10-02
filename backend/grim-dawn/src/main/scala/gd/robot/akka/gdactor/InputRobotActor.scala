@@ -23,7 +23,7 @@ object InputRobotActor {
 
 import InputRobotActor._
 class InputRobotActor(context: ActorContext[RobotInput]) extends AbstractBehavior[RobotInput](context) {
-  implicit val executionContext = context.system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
+  implicit val executionContext = context.system.dispatchers.lookup(AppConfig.gdSelector)
 
   var isStarted: Boolean = false
 

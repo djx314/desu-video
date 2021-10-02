@@ -11,7 +11,7 @@ import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
 class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
-  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(appConfig.defaultDispatcherName))
+  implicit val executionContext = system.dispatchers.lookup(appConfig.desuSelector)
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
 
   /** @throws FileNotConfirmException

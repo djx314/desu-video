@@ -18,7 +18,7 @@ object CallRobotActor {
 import CallRobotActor._
 class CallRobotActor(context: ActorContext[CallRobotInput]) extends AbstractBehavior[CallRobotInput](context) {
   val blockExecutionContext     = context.system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = context.system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
+  implicit val executionContext = context.system.dispatchers.lookup(AppConfig.gdSelector)
 
   val robot = new Robot
 

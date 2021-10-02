@@ -13,7 +13,7 @@ import scala.util.{Failure, Success}
 import scala.concurrent.Future
 
 class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
-  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
+  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
 
   def getDesktopFile(implicit logger: LoggingAdapter): Future[Path] = {

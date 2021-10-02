@@ -21,7 +21,7 @@ object StartActor {
 import StartActor._
 class StartActor(context: ActorContext[CallStartActor]) extends AbstractBehavior[CallStartActor](context) {
   val blockExecutionContext     = context.system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = context.system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
+  implicit val executionContext = context.system.dispatchers.lookup(AppConfig.gdSelector)
 
   var preAddToPlay: List[CallStartKeyPress] = List.empty
 

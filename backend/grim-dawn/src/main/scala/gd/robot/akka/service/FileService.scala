@@ -14,7 +14,7 @@ import java.awt.Robot
 import java.awt.event.KeyEvent
 
 class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit system: ActorSystem[Nothing]) {
-  implicit val executionContext = system.dispatchers.lookup(DispatcherSelector.fromConfig(AppConfig.defaultDispatcherName))
+  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
   val db = desuDatabase.db
 
