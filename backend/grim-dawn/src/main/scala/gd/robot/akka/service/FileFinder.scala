@@ -29,7 +29,7 @@ class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
     val fileNameF = Future(new Date().getTime.toString + s".$defaultImageFormat")
     val pathF = for {
       fileName <- fileNameF
-      path1    <- Future(Paths.get(".", "target","backend", "grim-dawn", "target"))
+      path1    <- Future(Paths.get(".", "target", "backend", "grim-dawn", "target"))
       _        <- Future(Files.createDirectories(path1))
     } yield path1.resolve(fileName)
     def writeIO(buffer: BufferedImage, path: Path): Future[Boolean] =
