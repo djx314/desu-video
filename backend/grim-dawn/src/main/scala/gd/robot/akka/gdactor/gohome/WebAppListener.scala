@@ -26,31 +26,31 @@ object WebAppListener {
 
 import WebAppListener._
 class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
-  val blockExecutionContext     = context.system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = context.system.dispatchers.lookup(AppConfig.gdSelector)
+  val system                    = context.system
+  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
-  var gdHotKeyListener: GDHotKeyListener = null
-  var readyToListen: Boolean             = false
+  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
 
+  val gdHotKeyListener       = new GDHotKeyListener(context.self)
+  var readyToListen: Boolean = false
 
   def stopWebSystem = {
-    val system = context.system
-    val stopHotKey = Future(gdHotKeyListener.stopListen)(blockExecutionContext)
-   val cloneAction = for {
-    _ <- stopHotKey
-    binding1 <- binding
-    _ <- binding1.unbind()} yield {}
+    def stopHotKey() = Future(GDHotKeyListener.stopListen)(blockExecutionContext)
+    val cloneAction = for {
+      _               <- stopHotKey()
+      bindingInstance <- binding
+      _               <- bindingInstance.unbind()
+    } yield {}
     cloneAction.onComplete(_ => system.terminate())
   }
-
-
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case StartGoHomeKeyListener =>
-        gdHotKeyListener = new GDHotKeyListener(context.self)
+        // gdHotKeyListener = new GDHotKeyListener(context.self)
         Future(gdHotKeyListener.startListen)(blockExecutionContext)
-      case PressGoHomeKeyBoard => mouseRobot
+      case PressGoHomeKeyBoard => pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
       case ReadyToListen       => readyToListen = true
       case StopWebSystem       => stopWebSystem
     }

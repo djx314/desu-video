@@ -5,15 +5,14 @@ import com.melloware.jintellitype._
 
 import java.awt.event.KeyEvent
 
-class GDHotKeyListener(actorRef: ActorRef[GoHomeKeyListener.GoHomeKey]) extends HotkeyListener {
-  val STARTKEY   = 89
-  val STOPSYSTEM = 90
+class GDHotKeyListener(actorRef: ActorRef[WebAppListener.GoHomeKey]) extends HotkeyListener {
+  import GDHotKeyListener._
 
   override def onHotKey(identifier: Int): Unit = identifier match {
     case STARTKEY =>
-      actorRef ! GoHomeKeyListener.PressGoHomeKeyBoard
+      actorRef ! WebAppListener.PressGoHomeKeyBoard
     case STOPSYSTEM =>
-      actorRef ! GoHomeKeyListener.StopWebSystem
+      actorRef ! WebAppListener.StopWebSystem
       println("System terminate")
     case s => println("监听按键：", s)
   }
@@ -22,9 +21,14 @@ class GDHotKeyListener(actorRef: ActorRef[GoHomeKeyListener.GoHomeKey]) extends 
     JIntellitype.getInstance().registerHotKey(STARTKEY, 0, KeyEvent.VK_F11)
     JIntellitype.getInstance().registerHotKey(STOPSYSTEM, 0, KeyEvent.VK_F10)
     JIntellitype.getInstance().addHotKeyListener(this)
-    actorRef ! GoHomeKeyListener.ReadyToListen
+    actorRef ! WebAppListener.ReadyToListen
   }
 
+}
+
+object GDHotKeyListener {
+  val STARTKEY   = 89
+  val STOPSYSTEM = 90
   def stopListen: Unit = {
     JIntellitype.getInstance().unregisterHotKey(STARTKEY)
     JIntellitype.getInstance().unregisterHotKey(STOPSYSTEM)

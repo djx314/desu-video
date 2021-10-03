@@ -7,7 +7,7 @@ import desu.video.common.slick.DesuDatabase
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.gdactor.gohome.GoHomeKeyListener
+import gd.robot.akka.gdactor.gohome.{GoHomeKeyListener, WebAppListener}
 import gd.robot.akka.routes.HttpServerRoutingMinimal
 import gd.robot.akka.service.{FileFinder, FileService}
 
@@ -37,8 +37,8 @@ object HttpServerRoutingMinimal {
 
     val bindingFuture: Future[ServerBinding] = Http().newServerAt("localhost", 8080).bind(MainApp.routingMinimal.route)
 
-    val goHomeActor = system.systemActorOf(GoHomeKeyListener(bindingFuture), "go-home-key-listener")
-    goHomeActor ! GoHomeKeyListener.StartGoHomeKeyListener
+    val goHomeActor = system.systemActorOf(WebAppListener(bindingFuture), "web-app-listener")
+    goHomeActor ! WebAppListener.StartGoHomeKeyListener
 
     println(s"Server online at http://localhost:8080/\nPress Number1 to stop...")
     /*StdIn.readLine() // let it run until user presses return

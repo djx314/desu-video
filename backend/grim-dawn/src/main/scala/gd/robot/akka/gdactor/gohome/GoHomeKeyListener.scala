@@ -16,31 +16,19 @@ import scala.util.{Failure, Success}
 
 object GoHomeKeyListener {
   trait GoHomeKey
-  case object StartGoHomeKeyListener extends GoHomeKey
-  case object PressGoHomeKeyBoard    extends GoHomeKey
-  case object ReadyToListen          extends GoHomeKey
-  case object StopWebSystem          extends GoHomeKey
+  case object PressGoHomeKeyBoard extends GoHomeKey
+  case object PressFinish         extends GoHomeKey
 
-  def apply(binding: Future[ServerBinding]): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s, binding))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s))
 }
 
 import GoHomeKeyListener._
-class GoHomeKeyListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
-  val blockExecutionContext     = context.system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = context.system.dispatchers.lookup(AppConfig.gdSelector)
+class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+  val system                    = context.system
+  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
-  var gdHotKeyListener: GDHotKeyListener = null
-  var readyToListen: Boolean             = false
-
-  override def onSignal: PartialFunction[Signal, Behavior[GoHomeKey]] = { case PostStop =>
-    Future(gdHotKeyListener.stopListen)(blockExecutionContext)
-    Behaviors.stopped
-  }
-
-  def stopWebSystem = {
-    val system = context.system
-    binding.flatMap(_.unbind()).onComplete(_ => system.terminate())
-  }
+  var currentPress: Boolean = false
 
   def mouseRobot = {
     val robot = new Robot()
@@ -86,12 +74,14 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], binding: Future[Server
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
-      case StartGoHomeKeyListener =>
-        gdHotKeyListener = new GDHotKeyListener(context.self)
-        Future(gdHotKeyListener.startListen)(blockExecutionContext)
-      case PressGoHomeKeyBoard => mouseRobot
-      case ReadyToListen       => readyToListen = true
-      case StopWebSystem       => stopWebSystem
+      case PressGoHomeKeyBoard =>
+        if (currentPress == false) {
+          currentPress = true
+          context.pipeToSelf(mouseRobot) { _ =>
+            PressFinish
+          }
+        }
+      case PressFinish => currentPress = false
     }
     Behaviors.same
   }
