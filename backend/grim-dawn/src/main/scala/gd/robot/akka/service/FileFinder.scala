@@ -3,9 +3,11 @@ package gd.robot.akka.service
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.event.LoggingAdapter
 import gd.robot.akka.config.AppConfig
+import net.coobird.thumbnailator.Thumbnails
+import net.coobird.thumbnailator.resizers.configurations.ScalingMode
 
 import java.awt.image.BufferedImage
-import java.nio.file.{Path, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.awt.{Rectangle, Robot, Toolkit}
 import java.util.Date
 import javax.imageio.ImageIO
@@ -19,13 +21,17 @@ class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
   def getDesktopFile(implicit logger: LoggingAdapter): Future[Path] = {
     val defaultImageFormat = "png"
 
-    val screenshotF = Future {
+    def screenshotF = Future {
       val d = Toolkit.getDefaultToolkit.getScreenSize
       new Robot().createScreenCapture(new Rectangle(0, 0, d.width, d.height))
     }(blockExecutionContext)
 
     val fileNameF = Future(new Date().getTime.toString + s".$defaultImageFormat")
-    val pathF     = for (fileName <- fileNameF) yield Paths.get(".", "backend", "grim-dawn", "target", fileName)
+    val pathF = for {
+      fileName <- fileNameF
+      path1    <- Future(Paths.get(".", "target","backend", "grim-dawn", "target"))
+      _        <- Future(Files.createDirectories(path1))
+    } yield path1.resolve(fileName)
     def writeIO(buffer: BufferedImage, path: Path): Future[Boolean] =
       Future(ImageIO.write(buffer, defaultImageFormat, path.toFile))(blockExecutionContext)
 

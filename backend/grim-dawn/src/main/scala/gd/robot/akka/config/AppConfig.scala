@@ -11,14 +11,9 @@ import java.nio.file.{Files, Path, Paths}
 
 import scala.concurrent.Future
 
-class AppConfig(system: ActorSystem[Nothing]) {
-  val executionContext      = system.dispatchers.lookup(AppConfig.gdSelector)
-  val blockExecutionContext = system.dispatchers.lookup(DispatcherSelector.blocking())
-
-  val dirPath = ConfigFactory.load().getString("desu.video.file.rootPath")
-}
+class AppConfig(system: ActorSystem[Nothing])
 
 object AppConfig {
-  val defaultDispatcherName1 = "desu-dispatcher"
-  val gdSelector             = DispatcherSelector.fromConfig(defaultDispatcherName1)
+  val defaultDispatcherName = "desu-dispatcher"
+  val gdSelector            = DispatcherSelector.fromConfig(defaultDispatcherName)
 }

@@ -1,4 +1,4 @@
-package desu.video.akka.routes
+package gd.robot.akka.routes
 
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
