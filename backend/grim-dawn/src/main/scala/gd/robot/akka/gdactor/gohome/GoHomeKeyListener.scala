@@ -11,6 +11,7 @@ import scala.concurrent.Future
 object GoHomeKeyListener {
   trait GoHomeKey
   case object PressGoHomeKeyBoard extends GoHomeKey
+  case object PressCanStart       extends GoHomeKey
 
   def apply(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
     Behaviors.setup(s => new GoHomeKeyListener(s, actionQueue))
@@ -22,13 +23,17 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], actionQueue: ActorRef[
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  val self                      = context.self
+
+  var isNowWorking: Boolean = false
 
   import ActionQueue._
   def deleyAction(a: => Unit): Unit = {
     actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
     actionQueue ! ActionInputDelay(100)
   }
-  def completeAction: Unit = actionQueue ! ActionStop
+  def replyAction          = Future(self ! PressCanStart)
+  def completeAction: Unit = actionQueue ! ActionInputCommon(() => replyAction)
 
   def mouseRobot = {
     deleyAction(SystemRobot.keyPR(KeyEvent.VK_M))
@@ -47,7 +52,13 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], actionQueue: ActorRef[
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
-      case PressGoHomeKeyBoard => mouseRobot
+      case PressGoHomeKeyBoard =>
+        if (isNowWorking == false) {
+          isNowWorking = true
+          mouseRobot
+        }
+      case PressCanStart =>
+        isNowWorking = false
     }
     Behaviors.same
   }
