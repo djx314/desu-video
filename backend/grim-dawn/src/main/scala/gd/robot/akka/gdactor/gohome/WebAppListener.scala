@@ -10,16 +10,19 @@ import org.w3c.dom.events.MouseEvent
 import java.awt.Robot
 import java.awt.event.{InputEvent, KeyEvent}
 import java.util.concurrent.Callable
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, MILLISECONDS}
 import scala.util.{Failure, Success}
 
 object WebAppListener {
   trait GoHomeKey
-  case object StartGoHomeKeyListener extends GoHomeKey
-  case object PressGoHomeKeyBoard    extends GoHomeKey
-  case object ReadyToListen          extends GoHomeKey
-  case object StopWebSystem          extends GoHomeKey
+  case object StartGoHomeKeyListener               extends GoHomeKey
+  case class StartActionComplete(isReady: Boolean) extends GoHomeKey
+  case object PressGoHomeKeyBoard                  extends GoHomeKey
+  case object PressEnableBuffBoard                 extends GoHomeKey
+  case object RoundAction                          extends GoHomeKey
+  case object ReadyToListen                        extends GoHomeKey
+  case object StopWebSystem                        extends GoHomeKey
 
   def apply(binding: Future[ServerBinding]): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s, binding))
 }
@@ -29,12 +32,14 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  val self                      = context.self
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus]           = context.spawnAnonymous(ActionQueue())
-  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener(actionQueue))
+  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
+  val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
+  val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyEvent.VK_6, delay = 15000))
+  val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyEvent.VK_TAB, delay = 27000))
 
-  val gdHotKeyListener       = new GDHotKeyListener(context.self)
-  var readyToListen: Boolean = false
+  var isReady: Boolean = false
 
   def stopWebSystem = {
     def stopHotKey() = Future(GDHotKeyListener.stopListen)(blockExecutionContext)
@@ -46,14 +51,31 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
     cloneAction.onComplete(_ => system.terminate())
   }
 
+  self ! StartGoHomeKeyListener
+
+  private def delayMillions[T](million: Long, callable: Callable[Future[T]]): Future[T] = Patterns.after(
+    Duration(million, MILLISECONDS),
+    system.classicSystem.scheduler,
+    implicitly[ExecutionContext],
+    callable
+  )
+
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case StartGoHomeKeyListener =>
-        // gdHotKeyListener = new GDHotKeyListener(context.self)
-        Future(gdHotKeyListener.startListen)(blockExecutionContext)
-      case PressGoHomeKeyBoard => pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
-      case ReadyToListen       => readyToListen = true
-      case StopWebSystem       => stopWebSystem
+        context.pipeToSelf(Future(GDHotKeyListener.startListen(self))(blockExecutionContext)) {
+          case Success(value) => StartActionComplete(true)
+          case Failure(err)   => StartActionComplete(false)
+        }
+      case StartActionComplete(r) => isReady = r
+      case PressGoHomeKeyBoard    => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
+      case PressEnableBuffBoard   => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
+      case RoundAction =>
+        if (isReady) {
+          重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard
+          delayMillions(1000, () => Future(蓝药 ! SkillsRoundAction1.PressGoHomeKeyBoard))
+        }
+      case StopWebSystem => stopWebSystem
     }
     Behaviors.same
   }

@@ -8,16 +8,16 @@ import gd.robot.akka.utils.SystemRobot
 import java.awt.event.KeyEvent
 import scala.concurrent.Future
 
-object GoHomeKeyListener {
+object EnableBuffAction {
   trait GoHomeKey
   case object PressGoHomeKeyBoard extends GoHomeKey
   case object PressCanStart       extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new EnableBuffAction(s))
 }
 
-import GoHomeKeyListener._
-class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+import EnableBuffAction._
+class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -28,9 +28,9 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def deleyAction(a: => Unit): Unit = {
+  def deleyAction(a: => Unit, millions: Long): Unit = {
     appendAction(a)
-    actionQueue ! ActionInputDelay(100)
+    actionQueue ! ActionInputDelay(millions)
   }
   def appendAction(a: => Unit): Unit = actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
   def completeAction: Unit = {
@@ -39,17 +39,13 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   }
 
   def mouseRobot = {
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_M))
-    deleyAction(SystemRobot.mouseMove(956, 850))
-    deleyAction(SystemRobot.mouseClick)
-    for (_ <- 1 to 4) {
-      deleyAction(SystemRobot.mouseMove(1310, 736))
-      deleyAction(SystemRobot.mouseDown)
-      deleyAction(SystemRobot.mouseMove(587, 273))
-      deleyAction(SystemRobot.mouseUp)
-    }
-    deleyAction(SystemRobot.mouseMove(1176, 713))
-    appendAction(SystemRobot.mouseClick)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_Y), 100)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_1), 100)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_2), 500)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_3), 100)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_4), 500)
+    deleyAction(SystemRobot.keyPR(KeyEvent.VK_5), 100)
+    appendAction(SystemRobot.keyPR(KeyEvent.VK_Y))
     completeAction
   }
 

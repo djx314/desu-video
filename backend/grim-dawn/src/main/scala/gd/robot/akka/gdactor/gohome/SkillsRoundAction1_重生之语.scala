@@ -8,16 +8,18 @@ import gd.robot.akka.utils.SystemRobot
 import java.awt.event.KeyEvent
 import scala.concurrent.Future
 
-object GoHomeKeyListener {
+object SkillsRoundAction1 {
   trait GoHomeKey
   case object PressGoHomeKeyBoard extends GoHomeKey
-  case object PressCanStart       extends GoHomeKey
+  case object StartAction         extends GoHomeKey
+  case object EndAction           extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s))
+  def apply(keyCode: Int, delay: Long): Behavior[GoHomeKey] =
+    Behaviors.setup(s => new SkillsRoundAction1(s, keyCode = keyCode, delay = delay))
 }
 
-import GoHomeKeyListener._
-class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+import SkillsRoundAction1._
+class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: Int, delay: Long) extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -25,43 +27,41 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
 
   val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var isNowWorking: Boolean = false
+  var enabled: Boolean     = false
+  var currentRunCount: Int = 0
 
   import ActionQueue._
-  def deleyAction(a: => Unit): Unit = {
+  def deleyAction(a: => Unit, millions: Long): Unit = {
     appendAction(a)
-    actionQueue ! ActionInputDelay(100)
+    actionQueue ! ActionInputDelay(millions)
   }
   def appendAction(a: => Unit): Unit = actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
   def completeAction: Unit = {
-    def replyAction = Future(self ! PressCanStart)
+    def replyAction = Future(self ! EndAction)
     appendAction(replyAction)
   }
 
   def mouseRobot = {
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_M))
-    deleyAction(SystemRobot.mouseMove(956, 850))
-    deleyAction(SystemRobot.mouseClick)
-    for (_ <- 1 to 4) {
-      deleyAction(SystemRobot.mouseMove(1310, 736))
-      deleyAction(SystemRobot.mouseDown)
-      deleyAction(SystemRobot.mouseMove(587, 273))
-      deleyAction(SystemRobot.mouseUp)
-    }
-    deleyAction(SystemRobot.mouseMove(1176, 713))
-    appendAction(SystemRobot.mouseClick)
+    deleyAction(SystemRobot.keyPR(keyCode), delay)
     completeAction
   }
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case PressGoHomeKeyBoard =>
-        if (isNowWorking == false) {
-          isNowWorking = true
+        if (enabled == false) {
+          enabled = true
+          self ! StartAction
+        } else enabled = false
+      case StartAction =>
+        if (currentRunCount == 0 && enabled) {
+          currentRunCount = 1
           mouseRobot
         }
-      case PressCanStart =>
-        isNowWorking = false
+      case EndAction =>
+        if (currentRunCount > 1)
+          currentRunCount -= 1
+        else if (enabled) mouseRobot
     }
     Behaviors.same
   }
