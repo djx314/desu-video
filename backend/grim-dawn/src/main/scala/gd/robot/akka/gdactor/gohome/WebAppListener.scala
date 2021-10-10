@@ -30,7 +30,8 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
-  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
+  val actionQueue: ActorRef[ActionQueue.ActionStatus]           = context.spawnAnonymous(ActionQueue())
+  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener(actionQueue))
 
   val gdHotKeyListener       = new GDHotKeyListener(context.self)
   var readyToListen: Boolean = false
