@@ -28,6 +28,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], actionQueue: ActorRef[
     actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
     actionQueue ! ActionInputDelay(100)
   }
+  def completeAction: Unit = actionQueue ! ActionStop
 
   def mouseRobot = {
     deleyAction(SystemRobot.keyPR(KeyEvent.VK_M))
@@ -41,6 +42,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], actionQueue: ActorRef[
     }
     deleyAction(SystemRobot.mouseMove(1176, 713))
     deleyAction(SystemRobot.mouseClick)
+    completeAction
   }
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
