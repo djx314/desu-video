@@ -7,9 +7,17 @@ object SystemRobot {
 
   val robot = new Robot()
 
-  def keyPR(keyCode: Int): Unit = {
+  def keyPress(keyCode: Int): Unit = {
     robot.keyPress(keyCode)
+  }
+
+  def keyRelease(keyCode: Int): Unit = {
     robot.keyRelease(keyCode)
+  }
+
+  def keyPR(keyCode: Int): Unit = {
+    keyPress(keyCode)
+    keyRelease(keyCode)
   }
 
   def mouseClick: Unit = {

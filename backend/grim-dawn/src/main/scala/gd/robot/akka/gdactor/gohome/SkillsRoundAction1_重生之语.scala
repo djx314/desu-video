@@ -31,18 +31,17 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: Int, delay: 
   var currentRunCount: Int = 0
 
   import ActionQueue._
-  def deleyAction(a: => Unit, millions: Long): Unit = {
-    appendAction(a)
-    actionQueue ! ActionInputDelay(millions)
+  def keyPR(keyCode: Int): Unit = {
+    appendAction(KeyPressDown(keyCode))
+    appendAction(KeyPressUp(keyCode))
   }
-  def appendAction(a: => Unit): Unit = actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
-  def completeAction: Unit = {
-    def replyAction = Future(self ! EndAction)
-    appendAction(replyAction)
-  }
+  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
 
   def mouseRobot = {
-    deleyAction(SystemRobot.keyPR(keyCode), delay)
+    keyPR(keyCode)
+    delayAction(delay)
     completeAction
   }
 

@@ -3,10 +3,8 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.utils.SystemRobot
 
 import java.awt.event.KeyEvent
-import scala.concurrent.Future
 
 object EnableBuffAction {
   trait GoHomeKey
@@ -28,24 +26,28 @@ class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavio
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def deleyAction(a: => Unit, millions: Long): Unit = {
-    appendAction(a)
-    actionQueue ! ActionInputDelay(millions)
+  def keyPR(keyCode: Int): Unit = {
+    appendAction(KeyPressDown(keyCode))
+    appendAction(KeyPressUp(keyCode))
   }
-  def appendAction(a: => Unit): Unit = actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
-  def completeAction: Unit = {
-    def replyAction = Future(self ! PressCanStart)
-    appendAction(replyAction)
-  }
+  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   def mouseRobot = {
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_Y), 100)
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_1), 100)
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_2), 500)
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_3), 100)
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_4), 500)
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_5), 100)
-    appendAction(SystemRobot.keyPR(KeyEvent.VK_Y))
+    keyPR(KeyEvent.VK_Y)
+    delayAction(100)
+    keyPR(KeyEvent.VK_1)
+    delayAction(100)
+    keyPR(KeyEvent.VK_2)
+    delayAction(500)
+    keyPR(KeyEvent.VK_3)
+    delayAction(100)
+    keyPR(KeyEvent.VK_4)
+    delayAction(500)
+    keyPR(KeyEvent.VK_5)
+    delayAction(100)
+    keyPR(KeyEvent.VK_Y)
     completeAction
   }
 

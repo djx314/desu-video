@@ -28,28 +28,33 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def deleyAction(a: => Unit): Unit = {
-    appendAction(a)
-    actionQueue ! ActionInputDelay(100)
+  def keyPR(keyCode: Int): Unit = {
+    appendAction(KeyPressDown(keyCode))
+    appendAction(KeyPressUp(keyCode))
   }
-  def appendAction(a: => Unit): Unit = actionQueue ! ActionInputCommon(() => Future(a)(blockExecutionContext))
-  def completeAction: Unit = {
-    def replyAction = Future(self ! PressCanStart)
-    appendAction(replyAction)
-  }
+  def delayAction: Unit                   = appendAction(ActionInputDelay(100))
+  def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   def mouseRobot = {
-    deleyAction(SystemRobot.keyPR(KeyEvent.VK_M))
-    deleyAction(SystemRobot.mouseMove(956, 850))
-    deleyAction(SystemRobot.mouseClick)
+    keyPR(KeyEvent.VK_M)
+    delayAction
+    appendAction(MouseMove(956, 850))
+    delayAction
+    appendAction(MouseClick)
+    delayAction
     for (_ <- 1 to 4) {
-      deleyAction(SystemRobot.mouseMove(1310, 736))
-      deleyAction(SystemRobot.mouseDown)
-      deleyAction(SystemRobot.mouseMove(587, 273))
-      deleyAction(SystemRobot.mouseUp)
+      appendAction(MouseMove(1310, 736))
+      delayAction
+      appendAction(MouseDown)
+      delayAction
+      appendAction(MouseMove(587, 273))
+      delayAction
+      appendAction(MouseUp)
     }
-    deleyAction(SystemRobot.mouseMove(1176, 713))
-    appendAction(SystemRobot.mouseClick)
+    appendAction(MouseMove(1176, 713))
+    delayAction
+    appendAction(MouseClick)
     completeAction
   }
 
