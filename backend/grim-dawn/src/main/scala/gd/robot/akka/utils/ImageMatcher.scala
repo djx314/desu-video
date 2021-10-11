@@ -43,11 +43,6 @@ object ImageMatcher {
       val io = new ByteArrayOutputStream
       ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", io)
       val arr = io.toByteArray
-      ImageIO.write(
-        SwingFXUtils.fromFXImage(img, null),
-        "png",
-        java.nio.file.Paths.get(".", "target", "1111111111111111111111111111111111.jpg").toFile
-      )
       cvIplImage(loadMat(arr))
     }(blockingContext)
     for {
@@ -64,8 +59,8 @@ object ImageMatcher {
         cvMatchTemplate(source, 责难光环Img, result, CV_TM_CCORR_NORMED)
         val maxLoc: CvPoint = new CvPoint()
         val minLoc: CvPoint = new CvPoint()
-        val minVal          = new DoublePointer(ArrayGen.gen: _*)
-        val maxVal          = new DoublePointer(ArrayGen.gen: _*)
+        val minVal          = new DoublePointer(0d, 0d)
+        val maxVal          = new DoublePointer(0d, 0d)
 
         cvMinMaxLoc(result, minVal, maxVal, minLoc, maxLoc, null)
         maxVal.get() > 0.99f
