@@ -5,6 +5,7 @@ import akka.actor.typed._
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.utils.SystemRobot
+import javafx.scene.input.KeyCode
 
 import java.util.concurrent.Callable
 import scala.concurrent.{ExecutionContext, Future}
@@ -12,8 +13,8 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 object ActionQueue {
   trait ActionStatus
-  case class KeyPressDown(keyCode: Int)       extends ActionStatus
-  case class KeyPressUp(keyCode: Int)         extends ActionStatus
+  case class KeyPressDown(keyCode: KeyCode)   extends ActionStatus
+  case class KeyPressUp(keyCode: KeyCode)     extends ActionStatus
   case object MouseDown                       extends ActionStatus
   case object MouseUp                         extends ActionStatus
   case object MouseClick                      extends ActionStatus
@@ -55,22 +56,16 @@ class ActionQueue(context: ActorContext[ActionStatus]) extends AbstractBehavior[
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
       case KeyPressDown(keyCode) =>
-        def action = Future(SystemRobot.keyPress(keyCode))
+        def action = SystemRobot.keyPress(keyCode)
         appendAction(action)
       case KeyPressUp(keyCode) =>
-        def action = Future(SystemRobot.keyRelease(keyCode))
+        def action = SystemRobot.keyRelease(keyCode)
         appendAction(action)
-      case MouseDown =>
-        def action = Future(SystemRobot.mouseDown)
-        appendAction(action)
-      case MouseUp =>
-        def action = Future(SystemRobot.mouseUp)
-        appendAction(action)
-      case MouseClick =>
-        def action = Future(SystemRobot.mouseClick)
-        appendAction(action)
+      case MouseDown  => appendAction(SystemRobot.mouseDown)
+      case MouseUp    => appendAction(SystemRobot.mouseUp)
+      case MouseClick => appendAction(SystemRobot.mouseClick)
       case MouseMove(x, y) =>
-        def action = Future(SystemRobot.mouseMove(x = x, y = y))
+        def action = SystemRobot.mouseMove(x = x, y = y)
         appendAction(action)
       case ActionInputDelay(millions) => appendAction(delayMillions(millions))
       case s: ReplyToImpl =>

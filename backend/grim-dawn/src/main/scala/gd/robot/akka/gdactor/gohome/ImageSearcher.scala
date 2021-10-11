@@ -5,18 +5,18 @@ import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
 import javafx.scene.input.KeyCode
 
-object SkillsRoundAction1 {
+import java.awt.event.KeyEvent
+
+object ImageSearcher {
   trait GoHomeKey
   case object PressGoHomeKeyBoard extends GoHomeKey
-  case object StartAction         extends GoHomeKey
-  case object EndAction           extends GoHomeKey
+  case object PressCanStart       extends GoHomeKey
 
-  def apply(keyCode: KeyCode, delay: Long): Behavior[GoHomeKey] =
-    Behaviors.setup(s => new SkillsRoundAction1(s, keyCode = keyCode, delay = delay))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new ImageSearcher(s))
 }
 
-import SkillsRoundAction1._
-class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, delay: Long) extends AbstractBehavior[GoHomeKey](context) {
+import ImageSearcher._
+class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -24,8 +24,7 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
 
   val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var enabled: Boolean     = false
-  var currentRunCount: Int = 0
+  var isNowWorking: Boolean = false
 
   import ActionQueue._
   def keyPR(keyCode: KeyCode): Unit = {
@@ -34,30 +33,34 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
   }
   def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
   def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
+  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   def mouseRobot = {
-    keyPR(keyCode)
-    delayAction(delay)
+    keyPR(KeyCode.Y)
+    delayAction(100)
+    keyPR(KeyCode.DIGIT1)
+    delayAction(100)
+    keyPR(KeyCode.DIGIT2)
+    delayAction(500)
+    keyPR(KeyCode.DIGIT3)
+    delayAction(100)
+    keyPR(KeyCode.DIGIT4)
+    delayAction(500)
+    keyPR(KeyCode.DIGIT5)
+    delayAction(100)
+    keyPR(KeyCode.Y)
     completeAction
   }
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case PressGoHomeKeyBoard =>
-        if (enabled == false) {
-          enabled = true
-          self ! StartAction
-        } else enabled = false
-      case StartAction =>
-        if (currentRunCount == 0 && enabled) {
-          currentRunCount = 1
+        if (isNowWorking == false) {
+          isNowWorking = true
           mouseRobot
         }
-      case EndAction =>
-        if (currentRunCount > 1)
-          currentRunCount -= 1
-        else if (enabled) mouseRobot
+      case PressCanStart =>
+        isNowWorking = false
     }
     Behaviors.same
   }

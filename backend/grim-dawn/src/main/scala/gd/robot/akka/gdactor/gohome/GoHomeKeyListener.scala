@@ -3,10 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.utils.SystemRobot
-
-import java.awt.event.KeyEvent
-import scala.concurrent.Future
+import javafx.scene.input.KeyCode
 
 object GoHomeKeyListener {
   trait GoHomeKey
@@ -28,7 +25,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: Int): Unit = {
+  def keyPR(keyCode: KeyCode): Unit = {
     appendAction(KeyPressDown(keyCode))
     appendAction(KeyPressUp(keyCode))
   }
@@ -37,7 +34,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   def mouseRobot = {
-    keyPR(KeyEvent.VK_M)
+    keyPR(KeyCode.M)
     delayAction
     appendAction(MouseMove(956, 850))
     delayAction

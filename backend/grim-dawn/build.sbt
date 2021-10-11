@@ -10,5 +10,6 @@ libraryDependencies ++= org.scalax.sbt.Dependencies.scalatest
 libraryDependencies ++= org.scalax.sbt.Dependencies.simpleLogger
 libraryDependencies += org.scalax.sbt.Dependencies.jintellitype
 libraryDependencies += org.scalax.sbt.Dependencies.thumbnailator
+libraryDependencies += org.scalax.sbt.Dependencies.javacv
 
 run / fork := true

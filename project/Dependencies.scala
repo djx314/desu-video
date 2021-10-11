@@ -83,6 +83,7 @@ object Dependencies {
 
   val jintellitype = "com.melloware" % "jintellitype" % jintellitypeVersion
 
-  val thumbnailator = "net.coobird" % "thumbnailator" % "0.4.14"
+  val thumbnailator = "net.coobird"  % "thumbnailator"   % "0.4.14"
+  val javacv        = "org.bytedeco" % "javacv-platform" % "1.5.6"
 
 }

@@ -3,8 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-
-import java.awt.event.KeyEvent
+import javafx.scene.input.KeyCode
 
 object EnableBuffAction {
   trait GoHomeKey
@@ -26,7 +25,7 @@ class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavio
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: Int): Unit = {
+  def keyPR(keyCode: KeyCode): Unit = {
     appendAction(KeyPressDown(keyCode))
     appendAction(KeyPressUp(keyCode))
   }
@@ -35,19 +34,19 @@ class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavio
   def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   def mouseRobot = {
-    keyPR(KeyEvent.VK_Y)
+    keyPR(KeyCode.Y)
     delayAction(100)
-    keyPR(KeyEvent.VK_1)
+    keyPR(KeyCode.DIGIT1)
     delayAction(100)
-    keyPR(KeyEvent.VK_2)
+    keyPR(KeyCode.DIGIT2)
     delayAction(500)
-    keyPR(KeyEvent.VK_3)
+    keyPR(KeyCode.DIGIT3)
     delayAction(100)
-    keyPR(KeyEvent.VK_4)
+    keyPR(KeyCode.DIGIT4)
     delayAction(500)
-    keyPR(KeyEvent.VK_5)
+    keyPR(KeyCode.DIGIT5)
     delayAction(100)
-    keyPR(KeyEvent.VK_Y)
+    keyPR(KeyCode.Y)
     completeAction
   }
 

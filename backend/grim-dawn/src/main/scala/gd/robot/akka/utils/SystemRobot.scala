@@ -1,34 +1,39 @@
 package gd.robot.akka.utils
 
-import java.awt.Robot
-import java.awt.event.InputEvent
+import javafx.application.Platform
+import javafx.scene.input.{KeyCode, MouseButton}
+import javafx.scene.robot.Robot
+
+import scala.concurrent.{Future, Promise}
 
 object SystemRobot {
 
-  val robot = new Robot()
+  def robot = new Robot()
 
-  def keyPress(keyCode: Int): Unit = {
-    robot.keyPress(keyCode)
+  Platform.startup(() => {})
+
+  def runJavafx(n: => Unit): Future[Unit] = {
+    val promise = Promise[Unit]()
+    Platform.runLater(() => {
+      try {
+        n
+      } catch {
+        case e: Exception =>
+          e.printStackTrace()
+      } finally {
+        promise.trySuccess(())
+      }
+    })
+    promise.future
   }
+  def keyPress(keyCode: KeyCode): Future[Unit]   = runJavafx(robot.keyPress(keyCode))
+  def keyRelease(keyCode: KeyCode): Future[Unit] = runJavafx(robot.keyRelease(keyCode))
+  def keyPR(keyCode: KeyCode): Future[Unit]      = runJavafx(robot.keyType(keyCode))
 
-  def keyRelease(keyCode: Int): Unit = {
-    robot.keyRelease(keyCode)
-  }
+  def mouseClick: Future[Unit] = runJavafx(robot.mouseClick(MouseButton.PRIMARY))
+  def mouseDown: Future[Unit]  = runJavafx(robot.mousePress(MouseButton.PRIMARY))
+  def mouseUp: Future[Unit]    = runJavafx(robot.mouseRelease(MouseButton.PRIMARY))
 
-  def keyPR(keyCode: Int): Unit = {
-    keyPress(keyCode)
-    keyRelease(keyCode)
-  }
-
-  def mouseClick: Unit = {
-    mouseDown
-    mouseUp
-  }
-
-  def mouseDown: Unit = robot.mousePress(InputEvent.BUTTON1_DOWN_MASK)
-
-  def mouseUp: Unit = robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK)
-
-  def mouseMove(x: Int, y: Int): Unit = robot.mouseMove(x, y)
+  def mouseMove(x: Int, y: Int): Future[Unit] = runJavafx(robot.mouseMove(x, y))
 
 }

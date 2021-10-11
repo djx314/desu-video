@@ -5,10 +5,8 @@ import akka.actor.typed._
 import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
-import org.w3c.dom.events.MouseEvent
+import javafx.scene.input.KeyCode
 
-import java.awt.Robot
-import java.awt.event.{InputEvent, KeyEvent}
 import java.util.concurrent.Callable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.{Duration, MILLISECONDS}
@@ -20,6 +18,7 @@ object WebAppListener {
   case class StartActionComplete(isReady: Boolean) extends GoHomeKey
   case object PressGoHomeKeyBoard                  extends GoHomeKey
   case object PressEnableBuffBoard                 extends GoHomeKey
+  case object PressAutoEnableBuffBoard             extends GoHomeKey
   case object RoundAction                          extends GoHomeKey
   case object ReadyToListen                        extends GoHomeKey
   case object StopWebSystem                        extends GoHomeKey
@@ -36,8 +35,8 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
 
   val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
-  val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyEvent.VK_6, delay = 15000))
-  val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyEvent.VK_TAB, delay = 27000))
+  val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
+  val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
 
   var isReady: Boolean = false
 
@@ -73,7 +72,8 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
       case RoundAction =>
         if (isReady) {
           重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard
-          delayMillions(1000, () => Future(蓝药 ! SkillsRoundAction1.PressGoHomeKeyBoard))
+          def n = 蓝药 ! SkillsRoundAction1.PressGoHomeKeyBoard
+          delayMillions(1000, () => Future(n))
         }
       case StopWebSystem => stopWebSystem
     }
