@@ -9,7 +9,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.gdactor.gohome.{GoHomeKeyListener, WebAppListener}
 import gd.robot.akka.routes.HttpServerRoutingMinimal
-import gd.robot.akka.service.{FileFinder, FileService}
+import gd.robot.akka.service.FileFinder
 
 import scala.concurrent.Future
 import scala.io.StdIn
@@ -21,8 +21,7 @@ object MainApp {
   private lazy val appConfig    = wire[AppConfig]
   private lazy val desuDatabase = wire[DesuDatabase]
 
-  private lazy val fileService = wire[FileService]
-  private lazy val fileFinder  = wire[FileFinder]
+  private lazy val fileFinder = wire[FileFinder]
 
   lazy val routingMinimal = wire[HttpServerRoutingMinimal]
 
