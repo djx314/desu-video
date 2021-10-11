@@ -5,6 +5,7 @@ import akka.actor.typed._
 import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.utils.SystemRobot
 import javafx.scene.input.KeyCode
 
 import java.util.concurrent.Callable
@@ -35,19 +36,21 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
 
   val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
+  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
   val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
   val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
 
   var isReady: Boolean = false
 
   def stopWebSystem = {
-    def stopHotKey() = Future(GDHotKeyListener.stopListen)(blockExecutionContext)
-    val cloneAction = for {
-      _               <- stopHotKey()
+    def stopHotKey()         = Future(GDHotKeyListener.stopListen)(blockExecutionContext)
+    def stopJavaFXPlatform() = Future(SystemRobot.exit)(blockExecutionContext)
+    val unbindAction = for {
       bindingInstance <- binding
       _               <- bindingInstance.unbind()
     } yield {}
-    cloneAction.onComplete(_ => system.terminate())
+    val closeAction = stopHotKey().transformWith(_ => stopJavaFXPlatform()).transformWith(_ => unbindAction)
+    closeAction.onComplete(_ => system.terminate())
   }
 
   self ! StartGoHomeKeyListener
@@ -62,13 +65,20 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case StartGoHomeKeyListener =>
-        context.pipeToSelf(Future(GDHotKeyListener.startListen(self))(blockExecutionContext)) {
+        def action1 = Future(GDHotKeyListener.startListen(self))(blockExecutionContext)
+        def action2 = Future(SystemRobot.setup)(blockExecutionContext)
+        val startAction = for {
+          _ <- action1
+          _ <- action2
+        } yield {}
+        context.pipeToSelf(startAction) {
           case Success(value) => StartActionComplete(true)
           case Failure(err)   => StartActionComplete(false)
         }
-      case StartActionComplete(r) => isReady = r
-      case PressGoHomeKeyBoard    => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
-      case PressEnableBuffBoard   => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
+      case StartActionComplete(r)   => isReady = r
+      case PressGoHomeKeyBoard      => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
+      case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
+      case PressAutoEnableBuffBoard => if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
       case RoundAction =>
         if (isReady) {
           重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard

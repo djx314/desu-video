@@ -3,9 +3,12 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.utils.ImageMatcher
 import javafx.scene.input.KeyCode
+import org.bytedeco.opencv.opencv_core.IplImage
 
-import java.awt.event.KeyEvent
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object ImageSearcher {
   trait GoHomeKey
@@ -55,12 +58,17 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case PressGoHomeKeyBoard =>
-        if (isNowWorking == false) {
-          isNowWorking = true
-          mouseRobot
+        def matchImg(iplImg: IplImage) = Future(ImageMatcher.matchImg(iplImg))(blockExecutionContext)
+        val img = for {
+          img     <- ImageMatcher.screenshotF(blockExecutionContext)
+          ifMatch <- matchImg(img)
+        } yield ifMatch
+
+        img.onComplete {
+          case Success(value)     => println(value)
+          case Failure(exception) => exception.printStackTrace()
         }
       case PressCanStart =>
-        isNowWorking = false
     }
     Behaviors.same
   }

@@ -85,5 +85,6 @@ object Dependencies {
 
   val thumbnailator = "net.coobird"  % "thumbnailator"   % "0.4.14"
   val javacv        = "org.bytedeco" % "javacv-platform" % "1.5.6"
+  val javafx        = List("org.openjfx" % "javafx-swing" % "11")
 
 }

@@ -8,15 +8,14 @@ import scala.concurrent.{Future, Promise}
 
 object SystemRobot {
 
-  def robot = new Robot()
+  def setup: Unit = Platform.startup(() => {})
+  def exit: Unit  = Platform.exit()
 
-  Platform.startup(() => {})
-
-  def runJavafx(n: => Unit): Future[Unit] = {
+  def runJavafx(n: Robot => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     Platform.runLater(() => {
       try {
-        n
+        n(new Robot)
       } catch {
         case e: Exception =>
           e.printStackTrace()
@@ -26,14 +25,14 @@ object SystemRobot {
     })
     promise.future
   }
-  def keyPress(keyCode: KeyCode): Future[Unit]   = runJavafx(robot.keyPress(keyCode))
-  def keyRelease(keyCode: KeyCode): Future[Unit] = runJavafx(robot.keyRelease(keyCode))
-  def keyPR(keyCode: KeyCode): Future[Unit]      = runJavafx(robot.keyType(keyCode))
+  def keyPress(keyCode: KeyCode): Future[Unit]   = runJavafx(robot => robot.keyPress(keyCode))
+  def keyRelease(keyCode: KeyCode): Future[Unit] = runJavafx(robot => robot.keyRelease(keyCode))
+  def keyPR(keyCode: KeyCode): Future[Unit]      = runJavafx(robot => robot.keyType(keyCode))
 
-  def mouseClick: Future[Unit] = runJavafx(robot.mouseClick(MouseButton.PRIMARY))
-  def mouseDown: Future[Unit]  = runJavafx(robot.mousePress(MouseButton.PRIMARY))
-  def mouseUp: Future[Unit]    = runJavafx(robot.mouseRelease(MouseButton.PRIMARY))
+  def mouseClick: Future[Unit] = runJavafx(robot => robot.mouseClick(MouseButton.PRIMARY))
+  def mouseDown: Future[Unit]  = runJavafx(robot => robot.mousePress(MouseButton.PRIMARY))
+  def mouseUp: Future[Unit]    = runJavafx(robot => robot.mouseRelease(MouseButton.PRIMARY))
 
-  def mouseMove(x: Int, y: Int): Future[Unit] = runJavafx(robot.mouseMove(x, y))
+  def mouseMove(x: Int, y: Int): Future[Unit] = runJavafx(robot => robot.mouseMove(x, y))
 
 }
