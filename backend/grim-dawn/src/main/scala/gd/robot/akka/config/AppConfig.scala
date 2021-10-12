@@ -18,6 +18,8 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 阿兹拉格瑞安战术Byte = getBytesClasspath("/阿兹拉格瑞安战术.png")
   val 旋转刀刃Byte     = getBytesClasspath("/旋转刀刃.png")
 
+  val 技能栏2Byte = getBytesClasspath("/技能栏2.png")
+
   val listImg: List[CompareImg] = List(
     CompareImg(责难光环Byte, KeyCode.DIGIT1, 100),
     CompareImg(附身烈焰Byte, KeyCode.DIGIT2, 500),
@@ -26,7 +28,7 @@ class AppConfig(system: ActorSystem[Nothing]) {
     CompareImg(旋转刀刃Byte, KeyCode.DIGIT5, 0)
   )
 
-  val imgMatch = ImageMatcher.init(listImg)(blockingec = blockExecutionContext)
+  val imgMatch = ImageMatcher.init(listImg, 技能栏2Byte)(blockingec = blockExecutionContext)
 }
 
 object AppConfig {

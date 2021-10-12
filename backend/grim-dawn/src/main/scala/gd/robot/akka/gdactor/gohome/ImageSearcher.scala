@@ -42,6 +42,16 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
   def appendAction(a: ActionStatus): Unit = actionQueue ! a
   def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
+  def notMatchImages = for {
+    img     <- imgMatcher.screenshotF(x1 = 500, y1 = 800, x2 = 900, y2 = 900)(blockExecutionContext)
+    ifMatch <- Future(imgMatcher.matchImgs(img))
+  } yield ifMatch
+
+  def isConfirmJineng = for {
+    img     <- imgMatcher.screenshotF(x1 = 580, y1 = 920, x2 = 680, y2 = 1000)(blockExecutionContext)
+    ifMatch <- Future(imgMatcher.matchJineng2(img))
+  } yield ifMatch
+
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case PressGoHomeKeyBoard =>
@@ -56,12 +66,8 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
         }
 
       case ExecuteRunning =>
-        val img = for {
-          img     <- imgMatcher.screenshotF(blockExecutionContext)
-          ifMatch <- Future(imgMatcher.matchImgs(img))
-        } yield ifMatch
-
-        img.onComplete {
+        val notMatch = notMatchImages
+        notMatch.onComplete {
           case Success(value) =>
             val list = value.map(s => PressJineng(keyCode = s.keyCode, delay = s.delay))
             if (list.isEmpty) {
@@ -71,15 +77,24 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
           case Failure(exception) => exception.printStackTrace()
         }
       case PressStart(list) =>
-        keyPR(KeyCode.Y)
-        delayAction(100)
-        for (l <- list) {
-          keyPR(l.keyCode)
-          delayAction(l.delay)
+        def sendKeyBoardMessage = {
+          for (l <- list) {
+            keyPR(l.keyCode)
+            delayAction(l.delay)
+          }
+          keyPR(KeyCode.Y)
+          delayAction(2000)
+          completeAction
         }
-        keyPR(KeyCode.Y)
-        delayAction(2000)
-        completeAction
+
+        val ifConfigF = isConfirmJineng
+        ifConfigF.map { s =>
+          if (!s) {
+            keyPR(KeyCode.Y)
+            delayAction(100)
+          }
+          sendKeyBoardMessage
+        }
       case PressCanStart =>
         if (enabled) self ! ExecuteRunning
         else isNowWorking = false
