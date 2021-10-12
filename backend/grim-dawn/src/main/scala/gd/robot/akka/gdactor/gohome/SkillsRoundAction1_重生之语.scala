@@ -46,9 +46,13 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
     msg match {
       case PressGoHomeKeyBoard =>
         if (enabled == false) {
+          println("重生之语 open")
           enabled = true
-          self ! StartAction
-        } else enabled = false
+          if (currentRunCount == 0) self ! StartAction
+        } else {
+          println("重生之语 close")
+          enabled = false
+        }
       case StartAction =>
         if (currentRunCount == 0 && enabled) {
           currentRunCount = 1
@@ -57,7 +61,10 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
       case EndAction =>
         if (currentRunCount > 1)
           currentRunCount -= 1
-        else if (enabled) mouseRobot
+        else {
+          if (enabled) mouseRobot
+          else currentRunCount -= 1
+        }
     }
     Behaviors.same
   }
