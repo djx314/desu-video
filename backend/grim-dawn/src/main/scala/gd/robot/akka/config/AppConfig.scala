@@ -28,11 +28,11 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 是否战斗状态Byte = getBytesClasspath("/是否战斗状态.png")
 
   val listImg: List[CompareImg] = List(
-    CompareImg(责难光环Byte, KeyCode.DIGIT5, 100),
-    CompareImg(附身烈焰Byte, KeyCode.DIGIT6, 500),
-    CompareImg(复仇烈焰Byte, KeyCode.DIGIT7, 100),
-    CompareImg(阿兹拉格瑞安战术Byte, KeyCode.DIGIT8, 500),
-    CompareImg(旋转刀刃Byte, KeyCode.DIGIT9, 0)
+    CompareImg(责难光环Byte, KeyCode.DIGIT6, 100),
+    CompareImg(附身烈焰Byte, KeyCode.DIGIT7, 500),
+    CompareImg(复仇烈焰Byte, KeyCode.DIGIT8, 100),
+    CompareImg(阿兹拉格瑞安战术Byte, KeyCode.DIGIT9, 500),
+    CompareImg(旋转刀刃Byte, KeyCode.DIGIT0, 0)
   )
 
   val jinenglanImg = JinenglanImg(jineng1 = 技能栏1Byte, jineng2 = 技能栏2Byte, zhandou = 是否战斗状态Byte)
