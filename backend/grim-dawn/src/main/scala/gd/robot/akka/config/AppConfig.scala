@@ -37,9 +37,9 @@ class AppConfig(system: ActorSystem[Nothing]) {
 
   val jinenglanImg = JinenglanImg(jineng1 = 技能栏1Byte, jineng2 = 技能栏2Byte, zhandou = 是否战斗状态Byte)
 
-  val 德里格之创  = SkillsRoundAction2.Skill(德里格之创Byte, List(ActionQueue.MouseRightClick, ActionQueue.ActionInputDelay(200)))
-  val 手榴弹    = SkillsRoundAction2.Skill(手榴弹Byte, List(ActionQueue.KeyType(KeyCode.DIGIT1), ActionQueue.ActionInputDelay(200)))
-  val 强化盾牌猛击 = SkillsRoundAction2.Skill(强化盾牌猛击Byte, List(ActionQueue.MouseClick, ActionQueue.ActionInputDelay(200)))
+  val 德里格之创  = SkillsRoundAction2.Skill(德里格之创Byte, List(ActionQueue.MouseRightClick))
+  val 手榴弹    = SkillsRoundAction2.Skill(手榴弹Byte, List(ActionQueue.KeyType(KeyCode.DIGIT1)))
+  val 强化盾牌猛击 = SkillsRoundAction2.Skill(强化盾牌猛击Byte, List(ActionQueue.MouseClick))
 
   val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击))
 

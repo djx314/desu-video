@@ -111,6 +111,62 @@ class ImageMatcher(
     } yield result
   }
 
+  private def lantiaoPoint1(implicit ec: ExecutionContext): Future[Boolean] = {
+    val img    = new WritableImage(1, 1)
+    val action = SystemRobot.runJavafx(robot => robot.getScreenCapture(img, 1260, 915, 1, 1))
+    for (_ <- action) yield {
+      val color = img.getPixelReader.getColor(0, 0)
+      val r     = color.getRed * 256
+      val g     = color.getGreen * 256
+      val b     = color.getBlue * 256
+      r.toInt == 28 && g.toInt == 25 && b.toInt == 18
+    }
+  }
+
+  private def lantiaoPoint2(implicit ec: ExecutionContext): Future[Boolean] = {
+    val img    = new WritableImage(1, 1)
+    val action = SystemRobot.runJavafx(robot => robot.getScreenCapture(img, 1320, 915, 1, 1))
+    for (_ <- action) yield {
+      val color = img.getPixelReader.getColor(0, 0)
+      val r     = color.getRed * 256
+      val g     = color.getGreen * 256
+      val b     = color.getBlue * 256
+      r.toInt == 22 && g.toInt == 17 && b.toInt == 12
+    }
+  }
+
+  private def lantiaoPoint3(implicit ec: ExecutionContext): Future[Boolean] = {
+    val img    = new WritableImage(1, 1)
+    val action = SystemRobot.runJavafx(robot => robot.getScreenCapture(img, 1380, 915, 1, 1))
+    for (_ <- action) yield {
+      val color = img.getPixelReader.getColor(0, 0)
+      val r     = color.getRed * 256
+      val g     = color.getGreen * 256
+      val b     = color.getBlue * 256
+      r.toInt == 22 && g.toInt == 17 && b.toInt == 10
+    }
+  }
+
+  def lantiaoPoint(implicit ec: ExecutionContext): Future[Int] = {
+    def now1(is1: Boolean): Future[Int] = if (is1) Future.successful(1) else Future.successful(0)
+    def now2(is2: Boolean): Future[Int] = if (is2) Future.successful(2)
+    else
+      for {
+        is1 <- lantiaoPoint1
+        r   <- now1(is1)
+      } yield r
+    def now3(is3: Boolean): Future[Int] = if (is3) Future.successful(3)
+    else
+      for {
+        is2 <- lantiaoPoint2
+        r   <- now2(is2)
+      } yield r
+    for {
+      is3 <- lantiaoPoint3
+      r   <- now3(is3)
+    } yield r
+  }
+
 }
 
 object ImageMatcher {

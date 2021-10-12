@@ -35,13 +35,26 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey], imageMatcher: ImageMa
   def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
 
   def mouseRobot = {
-    val action = for (delayInfoOpt <- imageMatcher.matchDelay) yield {
+    val action = for {
+      level        <- imageMatcher.lantiaoPoint
+      delayInfoOpt <- imageMatcher.matchDelay
+    } yield {
       delayInfoOpt match {
         case Some(delayInfo) =>
+          level match {
+            case 0 =>
+            case 1 =>
+              delayAction(800)
+            case 2 =>
+              delayAction(1500)
+            case 3 =>
+              delayAction(2000)
+            case _ =>
+          }
           for (m <- delayInfo.message) {
             appendAction(m)
           }
-        case None => delayAction(100)
+        case None => delayAction(200)
       }
     }
     action.onComplete(_ => completeAction)
