@@ -24,11 +24,12 @@ object SystemRobot {
   }
   def keyPress(keyCode: KeyCode): Future[Unit]   = runJavafx(robot => robot.keyPress(keyCode))
   def keyRelease(keyCode: KeyCode): Future[Unit] = runJavafx(robot => robot.keyRelease(keyCode))
-  def keyPR(keyCode: KeyCode): Future[Unit]      = runJavafx(robot => robot.keyType(keyCode))
+  def keyType(keyCode: KeyCode): Future[Unit]    = runJavafx(robot => robot.keyType(keyCode))
 
-  def mouseClick: Future[Unit] = runJavafx(robot => robot.mouseClick(MouseButton.PRIMARY))
-  def mouseDown: Future[Unit]  = runJavafx(robot => robot.mousePress(MouseButton.PRIMARY))
-  def mouseUp: Future[Unit]    = runJavafx(robot => robot.mouseRelease(MouseButton.PRIMARY))
+  def mouseClick: Future[Unit]      = runJavafx(robot => robot.mouseClick(MouseButton.PRIMARY))
+  def mouseRightClick: Future[Unit] = runJavafx(robot => robot.mouseClick(MouseButton.SECONDARY))
+  def mouseDown: Future[Unit]       = runJavafx(robot => robot.mousePress(MouseButton.PRIMARY))
+  def mouseUp: Future[Unit]         = runJavafx(robot => robot.mouseRelease(MouseButton.PRIMARY))
 
   def mouseMove(x: Int, y: Int): Future[Unit] = runJavafx(robot => robot.mouseMove(x, y))
 

@@ -1,5 +1,6 @@
 package gd.robot.akka.utils
 
+import gd.robot.akka.gdactor.gohome.SkillsRoundAction2
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.WritableImage
 import javafx.scene.input.KeyCode
@@ -13,20 +14,24 @@ import org.bytedeco.opencv.global.opencv_imgproc._
 import org.bytedeco.opencv.global.opencv_imgcodecs._
 
 import java.io.ByteArrayOutputStream
-import java.nio.file.{Files, Paths}
 import javax.imageio.ImageIO
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.internal.util.FileUtils
 import scala.util.Using
 
 case class CompareImg(img: Array[Byte], keyCode: KeyCode, delay: Long)
 case class JinengMatch(is1: Boolean, is2: Boolean)
+case class SkillsImg(model: List[SkillsRoundAction2.Skill])
 
 case class JavacvException(message: String, cause: Throwable) extends Exception(message, cause)
 
 case class JinenglanImg(jineng1: Array[Byte], jineng2: Array[Byte], zhandou: Array[Byte])
 
-class ImageMatcher(val compareInfo: List[CompareImg], val jinengImg: JinenglanImg, blockingContext: ExecutionContext) {
+class ImageMatcher(
+  val compareInfo: List[CompareImg],
+  val jinengImg: JinenglanImg,
+  val skillsImg: SkillsImg,
+  blockingContext: ExecutionContext
+) {
 
   def screenshotF(x1: Int, y1: Int, x2: Int, y2: Int)(implicit ec: ExecutionContext): Future[Array[Byte]] = {
     val img = new WritableImage(x2 - x1, y2 - y1)
@@ -88,10 +93,28 @@ class ImageMatcher(val compareInfo: List[CompareImg], val jinengImg: JinenglanIm
     } yield JinengMatch(is1 = result1, is2 = result2)
   }
 
+  def matchDelay(implicit ec: ExecutionContext): Future[Option[SkillsRoundAction2.Skill]] = {
+    def findFirst(screenshot: Array[Byte], list: List[SkillsRoundAction2.Skill]): Future[Option[SkillsRoundAction2.Skill]] = {
+      list match {
+        case head :: tail =>
+          def compareNextImg(confirm: Boolean) = if (confirm) Future.successful(Option(head)) else findFirst(screenshot, tail)
+          for {
+            confirm <- compare(head.img, screenshot)
+            result  <- compareNextImg(confirm)
+          } yield result
+        case Nil => Future.successful(Option.empty)
+      }
+    }
+    for {
+      screenshot <- screenshotF(x1 = 650, y1 = 940, x2 = 1300, y2 = 1000)
+      result     <- findFirst(screenshot, skillsImg.model)
+    } yield result
+  }
+
 }
 
 object ImageMatcher {
   def loadMat(arr: Array[Byte]): Mat = imdecode(new Mat(new BytePointer(arr: _*), false), IMREAD_ANYDEPTH | IMREAD_ANYCOLOR)
-  def init(imgs: List[CompareImg], jinenglanImg: JinenglanImg)(blockingec: ExecutionContext): ImageMatcher =
-    new ImageMatcher(imgs, jinenglanImg, blockingec)
+  def init(imgs: List[CompareImg], jinenglanImg: JinenglanImg, skillsImg: SkillsImg)(blockingec: ExecutionContext): ImageMatcher =
+    new ImageMatcher(imgs, jinenglanImg, skillsImg, blockingec)
 }

@@ -34,10 +34,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
   var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: KeyCode): Unit = {
-    appendAction(KeyPressDown(keyCode))
-    appendAction(KeyPressUp(keyCode))
-  }
+  def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
   def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
   def appendAction(a: ActionStatus): Unit = actionQueue ! a
   def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))

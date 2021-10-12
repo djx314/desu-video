@@ -18,6 +18,8 @@ class GDHotKeyListener(actorRef: ActorRef[WebAppListener.GoHomeKey]) extends Hot
       actorRef ! WebAppListener.RoundAction
     case STARTKEY4 =>
       actorRef ! WebAppListener.PressAutoEnableBuffBoard
+    case STARTKEY5 =>
+      actorRef ! WebAppListener.PressSkillRound
     case STOPSYSTEM =>
       actorRef ! WebAppListener.StopWebSystem
       println("System terminate")
@@ -32,6 +34,7 @@ object GDHotKeyListener extends AutoCloseable {
   val STARTKEY2  = 90
   val STARTKEY3  = 91
   val STARTKEY4  = 92
+  val STARTKEY5  = 93
 
   def startListen(actorRef: ActorRef[WebAppListener.GoHomeKey]): Unit = {
     val instance = new GDHotKeyListener(actorRef)
@@ -39,6 +42,8 @@ object GDHotKeyListener extends AutoCloseable {
     JIntellitype.getInstance().registerHotKey(STARTKEY2, 0, KeyEvent.VK_NUMPAD2)
     JIntellitype.getInstance().registerHotKey(STARTKEY3, 0, KeyEvent.VK_NUMPAD3)
     JIntellitype.getInstance().registerHotKey(STARTKEY4, 0, KeyEvent.VK_NUMPAD4)
+    JIntellitype.getInstance().registerHotKey(STARTKEY5, 0, KeyEvent.VK_4)
+
     JIntellitype.getInstance().registerHotKey(STOPSYSTEM, 0, KeyEvent.VK_NUMPAD8)
     JIntellitype.getInstance().addHotKeyListener(instance)
   }
@@ -48,6 +53,7 @@ object GDHotKeyListener extends AutoCloseable {
     JIntellitype.getInstance().unregisterHotKey(STARTKEY2)
     JIntellitype.getInstance().unregisterHotKey(STARTKEY3)
     JIntellitype.getInstance().unregisterHotKey(STARTKEY4)
+    JIntellitype.getInstance().unregisterHotKey(STARTKEY5)
     JIntellitype.getInstance().unregisterHotKey(STOPSYSTEM)
     JIntellitype.getInstance().cleanUp()
   }

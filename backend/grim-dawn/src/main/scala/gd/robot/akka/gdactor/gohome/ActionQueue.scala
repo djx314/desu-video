@@ -13,11 +13,13 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 
 object ActionQueue {
   trait ActionStatus
+  case class KeyType(keyCode: KeyCode)        extends ActionStatus
   case class KeyPressDown(keyCode: KeyCode)   extends ActionStatus
   case class KeyPressUp(keyCode: KeyCode)     extends ActionStatus
   case object MouseDown                       extends ActionStatus
   case object MouseUp                         extends ActionStatus
   case object MouseClick                      extends ActionStatus
+  case object MouseRightClick                 extends ActionStatus
   case class MouseMove(x: Int, y: Int)        extends ActionStatus
   case class ActionInputDelay(millions: Long) extends ActionStatus
   trait ReplyToImpl extends ActionStatus {
@@ -55,15 +57,19 @@ class ActionQueue(context: ActorContext[ActionStatus]) extends AbstractBehavior[
 
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
+      case KeyType(keyCode) =>
+        def action = SystemRobot.keyType(keyCode)
+        appendAction(action)
       case KeyPressDown(keyCode) =>
         def action = SystemRobot.keyPress(keyCode)
         appendAction(action)
       case KeyPressUp(keyCode) =>
         def action = SystemRobot.keyRelease(keyCode)
         appendAction(action)
-      case MouseDown  => appendAction(SystemRobot.mouseDown)
-      case MouseUp    => appendAction(SystemRobot.mouseUp)
-      case MouseClick => appendAction(SystemRobot.mouseClick)
+      case MouseDown       => appendAction(SystemRobot.mouseDown)
+      case MouseUp         => appendAction(SystemRobot.mouseUp)
+      case MouseClick      => appendAction(SystemRobot.mouseClick)
+      case MouseRightClick => appendAction(SystemRobot.mouseRightClick)
       case MouseMove(x, y) =>
         def action = SystemRobot.mouseMove(x = x, y = y)
         appendAction(action)

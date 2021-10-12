@@ -23,6 +23,7 @@ object WebAppListener {
   case object RoundAction                          extends GoHomeKey
   case object ReadyToListen                        extends GoHomeKey
   case object StopWebSystem                        extends GoHomeKey
+  case object PressSkillRound                      extends GoHomeKey
 
   def apply(binding: Future[ServerBinding], appConfig: AppConfig): Behavior[GoHomeKey] =
     Behaviors.setup(s => new WebAppListener(s, binding, appConfig))
@@ -41,6 +42,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher(appConfig.imgMatch))
   val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
   val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
+  val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2(appConfig.imgMatch))
 
   var isReady: Boolean = false
 
@@ -85,6 +87,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
       case PressGoHomeKeyBoard      => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
       case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
       case PressAutoEnableBuffBoard => if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
+      case PressSkillRound          => skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
       case RoundAction =>
         if (isReady) {
           重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard
