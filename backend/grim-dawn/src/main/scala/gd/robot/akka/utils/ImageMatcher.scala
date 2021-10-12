@@ -2,6 +2,7 @@ package gd.robot.akka.utils
 
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.WritableImage
+import javafx.scene.input.KeyCode
 import org.bytedeco.javacpp._
 import org.bytedeco.opencv.opencv_core._
 import org.bytedeco.opencv.global.opencv_core._
@@ -16,23 +17,12 @@ import javax.imageio.ImageIO
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Using
 
-object ImageMatcher {
+case class CompareImg(img: Array[Byte], keyCode: KeyCode, delay: Long)
+case class CompareName(img: String, keyCode: KeyCode, delay: Long)
 
-  def loadMat(arr: Array[Byte]): Mat = imdecode(new Mat(new BytePointer(arr: _*), false), IMREAD_ANYDEPTH | IMREAD_ANYCOLOR)
+class ImageMatcher(val compareInfo: List[CompareImg]) {
 
-  lazy val 责难光环 = {
-    try {
-      getClass.getResourceAsStream("/责难光环.png").readAllBytes()
-    } catch {
-      case e: Exception =>
-        e.printStackTrace()
-        throw e
-    }
-  }
-
-  lazy val 责难光环Img: IplImage = cvIplImage(loadMat(责难光环))
-
-  def screenshotF(blockingContext: ExecutionContext)(implicit ec: ExecutionContext): Future[IplImage] = {
+  def screenshotF(blockingContext: ExecutionContext)(implicit ec: ExecutionContext): Future[Array[Byte]] = {
     val x1  = 500
     val y1  = 800
     val x2  = 900
@@ -42,8 +32,7 @@ object ImageMatcher {
     def write = Future {
       val io = new ByteArrayOutputStream
       ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", io)
-      val arr = io.toByteArray
-      cvIplImage(loadMat(arr))
+      io.toByteArray
     }(blockingContext)
     for {
       _   <- f
@@ -51,21 +40,40 @@ object ImageMatcher {
     } yield img
   }
 
-  def matchImg(screenshot: IplImage): Boolean = {
-    Using.resource(screenshot) { source =>
-      val i = cvCreateImage(cvSize(source.width() - 责难光环Img.width() + 1, source.height() - 责难光环Img.height() + 1), IPL_DEPTH_32F, 1)
-      Using.resource(i) { result =>
-        cvZero(result)
-        cvMatchTemplate(source, 责难光环Img, result, CV_TM_CCORR_NORMED)
-        val maxLoc: CvPoint = new CvPoint()
-        val minLoc: CvPoint = new CvPoint()
-        val minVal          = new DoublePointer(0d, 0d)
-        val maxVal          = new DoublePointer(0d, 0d)
+  def matchImg(compareImageByte: Array[Byte], screenshotByte: Array[Byte]): Boolean = {
+    Using.resource(cvIplImage(ImageMatcher.loadMat(screenshotByte))) { source =>
+      Using.resource(cvIplImage(ImageMatcher.loadMat(compareImageByte))) { compareImage =>
+        def i =
+          cvCreateImage(cvSize(source.width() - compareImage.width() + 1, source.height() - compareImage.height() + 1), IPL_DEPTH_32F, 1)
+        Using.resource(i) { result =>
+          cvZero(result)
+          cvMatchTemplate(source, compareImage, result, CV_TM_CCORR_NORMED)
+          val maxLoc: CvPoint = new CvPoint()
+          val minLoc: CvPoint = new CvPoint()
+          val minVal          = new DoublePointer(0d, 0d)
+          val maxVal          = new DoublePointer(0d, 0d)
 
-        cvMinMaxLoc(result, minVal, maxVal, minLoc, maxLoc, null)
-        maxVal.get() > 0.99f
-      }(cvReleaseImage)
+          cvMinMaxLoc(result, minVal, maxVal, minLoc, maxLoc, null)
+          maxVal.get() > 0.99f
+        }(cvReleaseImage)
+      }
     }
   }
 
+  def matchImgs(screenshot: Array[Byte]): List[CompareImg] = compareInfo.filter(s => !matchImg(compareImageByte = s.img, screenshot))
+
+}
+
+object ImageMatcher {
+  def loadMat(arr: Array[Byte]): Mat = imdecode(new Mat(new BytePointer(arr: _*), false), IMREAD_ANYDEPTH | IMREAD_ANYCOLOR)
+
+  def init(imgs: List[CompareName])(blockingec: ExecutionContext): Future[ImageMatcher] = {
+    Future {
+      val n = imgs.map { s =>
+        val byte = getClass.getResourceAsStream(s.img).readAllBytes()
+        CompareImg(byte, s.keyCode, s.delay)
+      }
+      new ImageMatcher(n)
+    }(blockingec)
+  }
 }

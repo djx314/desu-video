@@ -8,9 +8,6 @@ import scala.concurrent.{Future, Promise}
 
 object SystemRobot {
 
-  def setup: Unit = Platform.startup(() => {})
-  def exit: Unit  = Platform.exit()
-
   def runJavafx(n: Robot => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
     Platform.runLater(() => {

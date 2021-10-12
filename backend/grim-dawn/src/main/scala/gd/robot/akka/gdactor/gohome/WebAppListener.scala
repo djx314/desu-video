@@ -5,7 +5,8 @@ import akka.actor.typed._
 import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.utils.SystemRobot
+import gd.robot.akka.utils.{CompareName, ImageMatcher}
+import javafx.application.Platform
 import javafx.scene.input.KeyCode
 
 import java.util.concurrent.Callable
@@ -40,16 +41,28 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
   val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
 
+  val listImg: List[CompareName] = List(
+    CompareName("/责难光环.png", KeyCode.DIGIT1, 100),
+    CompareName("/附身烈焰.png", KeyCode.DIGIT2, 500),
+    CompareName("/复仇烈焰.png", KeyCode.DIGIT3, 100),
+    CompareName("/阿兹拉格瑞安战术.png", KeyCode.DIGIT4, 500),
+    CompareName("/旋转刀刃.png", KeyCode.DIGIT5, 0)
+  )
+
   var isReady: Boolean = false
 
   def stopWebSystem = {
-    def stopHotKey()         = Future(GDHotKeyListener.stopListen)(blockExecutionContext)
-    def stopJavaFXPlatform() = Future(SystemRobot.exit)(blockExecutionContext)
+    val stopHotKey         = Future(GDHotKeyListener.close())(blockExecutionContext)
+    val stopJavaFXPlatform = Future(Platform.exit())(blockExecutionContext)
     val unbindAction = for {
       bindingInstance <- binding
       _               <- bindingInstance.unbind()
     } yield {}
-    val closeAction = stopHotKey().transformWith(_ => stopJavaFXPlatform()).transformWith(_ => unbindAction)
+    val closeAction = for {
+      _ <- stopHotKey
+      _ <- stopJavaFXPlatform
+      _ <- unbindAction
+    } yield {}
     closeAction.onComplete(_ => system.terminate())
   }
 
@@ -66,7 +79,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
     msg match {
       case StartGoHomeKeyListener =>
         def action1 = Future(GDHotKeyListener.startListen(self))(blockExecutionContext)
-        def action2 = Future(SystemRobot.setup)(blockExecutionContext)
+        def action2 = Future(Platform.startup(() => {}))(blockExecutionContext)
         val startAction = for {
           _ <- action1
           _ <- action2
@@ -74,6 +87,11 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
         context.pipeToSelf(startAction) {
           case Success(value) => StartActionComplete(true)
           case Failure(err)   => StartActionComplete(false)
+        }
+        val imgMatch = ImageMatcher.init(listImg)(blockExecutionContext)
+        imgMatch.map(s => imageSearcher ! ImageSearcher.InitActor(s)).onComplete {
+          case Success(value)     =>
+          case Failure(exception) => exception.printStackTrace()
         }
       case StartActionComplete(r)   => isReady = r
       case PressGoHomeKeyBoard      => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard

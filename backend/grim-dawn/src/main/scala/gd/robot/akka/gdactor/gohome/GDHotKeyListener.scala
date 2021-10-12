@@ -26,7 +26,7 @@ class GDHotKeyListener(actorRef: ActorRef[WebAppListener.GoHomeKey]) extends Hot
 
 }
 
-object GDHotKeyListener {
+object GDHotKeyListener extends AutoCloseable {
   val STOPSYSTEM = 88
   val STARTKEY1  = 89
   val STARTKEY2  = 90
@@ -43,7 +43,7 @@ object GDHotKeyListener {
     JIntellitype.getInstance().addHotKeyListener(instance)
   }
 
-  def stopListen: Unit = {
+  override def close(): Unit = {
     JIntellitype.getInstance().unregisterHotKey(STARTKEY1)
     JIntellitype.getInstance().unregisterHotKey(STARTKEY2)
     JIntellitype.getInstance().unregisterHotKey(STARTKEY3)
