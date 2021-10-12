@@ -13,17 +13,16 @@ object ImageSearcher {
   case class PressJineng(keyCode: KeyCode, delay: Long)
 
   trait GoHomeKey
-  case class InitActor(matcher: ImageMatcher)    extends GoHomeKey
   case object PressGoHomeKeyBoard                extends GoHomeKey
   case object ExecuteRunning                     extends GoHomeKey
   case class PressStart(list: List[PressJineng]) extends GoHomeKey
   case object PressCanStart                      extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new ImageSearcher(s))
+  def apply(imgMatcher: ImageMatcher): Behavior[GoHomeKey] = Behaviors.setup(s => new ImageSearcher(s, imgMatcher))
 }
 
 import ImageSearcher._
-class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -33,8 +32,6 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
 
   var enabled: Boolean      = false
   var isNowWorking: Boolean = false
-
-  var imgMatcher: ImageMatcher = null
 
   import ActionQueue._
   def keyPR(keyCode: KeyCode): Unit = {
@@ -47,7 +44,6 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
-      case InitActor(matcher) => imgMatcher = matcher
       case PressGoHomeKeyBoard =>
         if (imgMatcher != null) {
           if (!enabled) {
@@ -68,8 +64,10 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
         img.onComplete {
           case Success(value) =>
             val list = value.map(s => PressJineng(keyCode = s.keyCode, delay = s.delay))
-            if (list.isEmpty) completeAction
-            else self ! PressStart(list)
+            if (list.isEmpty) {
+              delayAction(100)
+              completeAction
+            } else self ! PressStart(list)
           case Failure(exception) => exception.printStackTrace()
         }
       case PressStart(list) =>

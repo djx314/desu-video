@@ -5,7 +5,6 @@ import akka.actor.typed._
 import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.utils.{CompareName, ImageMatcher}
 import javafx.application.Platform
 import javafx.scene.input.KeyCode
 
@@ -25,11 +24,13 @@ object WebAppListener {
   case object ReadyToListen                        extends GoHomeKey
   case object StopWebSystem                        extends GoHomeKey
 
-  def apply(binding: Future[ServerBinding]): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s, binding))
+  def apply(binding: Future[ServerBinding], appConfig: AppConfig): Behavior[GoHomeKey] =
+    Behaviors.setup(s => new WebAppListener(s, binding, appConfig))
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding], appConfig: AppConfig)
+    extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -37,17 +38,9 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
 
   val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
-  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
+  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher(appConfig.imgMatch))
   val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
   val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
-
-  val listImg: List[CompareName] = List(
-    CompareName("/责难光环.png", KeyCode.DIGIT1, 100),
-    CompareName("/附身烈焰.png", KeyCode.DIGIT2, 500),
-    CompareName("/复仇烈焰.png", KeyCode.DIGIT3, 100),
-    CompareName("/阿兹拉格瑞安战术.png", KeyCode.DIGIT4, 500),
-    CompareName("/旋转刀刃.png", KeyCode.DIGIT5, 0)
-  )
 
   var isReady: Boolean = false
 
@@ -87,11 +80,6 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
         context.pipeToSelf(startAction) {
           case Success(value) => StartActionComplete(true)
           case Failure(err)   => StartActionComplete(false)
-        }
-        val imgMatch = ImageMatcher.init(listImg)(blockExecutionContext)
-        imgMatch.map(s => imageSearcher ! ImageSearcher.InitActor(s)).onComplete {
-          case Success(value)     =>
-          case Failure(exception) => exception.printStackTrace()
         }
       case StartActionComplete(r)   => isReady = r
       case PressGoHomeKeyBoard      => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard

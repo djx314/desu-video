@@ -24,8 +24,8 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
 
   val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var enabled: Boolean     = false
-  var currentRunCount: Int = 0
+  var enabled: Boolean        = false
+  var currentRunning: Boolean = false
 
   import ActionQueue._
   def keyPR(keyCode: KeyCode): Unit = {
@@ -48,23 +48,19 @@ class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
         if (enabled == false) {
           println("重生之语 open")
           enabled = true
-          if (currentRunCount == 0) self ! StartAction
+          if (!currentRunning) self ! StartAction
         } else {
           println("重生之语 close")
           enabled = false
         }
       case StartAction =>
-        if (currentRunCount == 0 && enabled) {
-          currentRunCount = 1
+        if (!currentRunning && enabled) {
+          currentRunning = true
           mouseRobot
         }
       case EndAction =>
-        if (currentRunCount > 1)
-          currentRunCount -= 1
-        else {
-          if (enabled) mouseRobot
-          else currentRunCount -= 1
-        }
+        if (currentRunning) currentRunning = false
+        if (enabled) self ! StartAction
     }
     Behaviors.same
   }
