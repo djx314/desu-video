@@ -77,7 +77,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
         }
 
         val action = for (isMatch <- imgMatcher.matchJineng) yield {
-          if (isMatch.is1 | isMatch.is2) {
+          if (isMatch.isZhandou) {
             if (isMatch.is1) {
               keyPR(KeyCode.Y)
               delayAction(100)
