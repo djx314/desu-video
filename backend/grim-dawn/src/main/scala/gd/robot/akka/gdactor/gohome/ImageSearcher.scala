@@ -56,16 +56,26 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
         }
 
       case ExecuteRunning =>
-        val notMatch = imgMatcher.matchImgs
-        notMatch.onComplete {
-          case Success(value) =>
-            val list = value.map(s => PressJineng(keyCode = s.keyCode, delay = s.delay))
-            if (list.isEmpty) {
-              delayAction(100)
-              completeAction
-            } else self ! PressStart(list)
-          case Failure(exception) => exception.printStackTrace()
+        def directNextRound = {
+          delayAction(100)
+          completeAction
         }
+
+        def execute(needRead: Boolean) =
+          if (needRead) {
+            val notMatch = imgMatcher.matchImgs
+            notMatch.onComplete {
+              case Success(value) =>
+                val list = value.map(s => PressJineng(keyCode = s.keyCode, delay = s.delay))
+                if (list.isEmpty) directNextRound
+                else self ! PressStart(list)
+              case Failure(exception) => exception.printStackTrace()
+            }
+          } else directNextRound
+
+        val enableF = imgMatcher.imgEnabled
+        enableF.map(execute)
+
       case PressStart(list) =>
         def sendKeyBoardMessage = {
           for (l <- list) {
@@ -76,8 +86,11 @@ class ImageSearcher(context: ActorContext[GoHomeKey], imgMatcher: ImageMatcher) 
           delayAction(2000)
         }
 
-        val action = for (isMatch <- imgMatcher.matchJineng) yield {
-          if (isMatch.isZhandou) {
+        val action = for {
+          e       <- imgMatcher.imgEnabled
+          isMatch <- imgMatcher.matchJineng
+        } yield {
+          if (e) {
             if (isMatch.is1) {
               keyPR(KeyCode.Y)
               delayAction(100)

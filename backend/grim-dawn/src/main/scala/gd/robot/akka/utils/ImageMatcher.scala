@@ -20,7 +20,7 @@ import scala.reflect.internal.util.FileUtils
 import scala.util.Using
 
 case class CompareImg(img: Array[Byte], keyCode: KeyCode, delay: Long)
-case class JinengMatch(is1: Boolean, is2: Boolean, isZhandou: Boolean)
+case class JinengMatch(is1: Boolean, is2: Boolean)
 
 case class JavacvException(message: String, cause: Throwable) extends Exception(message, cause)
 
@@ -72,16 +72,20 @@ class ImageMatcher(val compareInfo: List[CompareImg], val jinengImg: JinenglanIm
     } yield result
   }
 
+  private def compare(compareImageByte: Array[Byte], screenshot: Array[Byte]) =
+    Future(matchImg(compareImageByte = compareImageByte, screenshot))(blockingContext)
+
+  def imgEnabled(implicit ec: ExecutionContext): Future[Boolean] = for {
+    isZhandou <- screenshotF(x1 = 850, y1 = 850, x2 = 900, y2 = 900)
+    result    <- compare(jinengImg.zhandou, isZhandou)
+  } yield result
+
   def matchJineng(implicit ec: ExecutionContext): Future[JinengMatch] = {
-    def compare(compareImageByte: Array[Byte], screenshot: Array[Byte]) =
-      Future(matchImg(compareImageByte = compareImageByte, screenshot))(blockingContext)
     for {
       screenshot <- screenshotF(x1 = 580, y1 = 920, x2 = 680, y2 = 1000)
-      isZhandou  <- screenshotF(x1 = 850, y1 = 850, x2 = 900, y2 = 900)
       result1    <- compare(jinengImg.jineng1, screenshot)
       result2    <- compare(jinengImg.jineng2, screenshot)
-      result3    <- compare(jinengImg.zhandou, isZhandou)
-    } yield JinengMatch(is1 = result1, is2 = result2, isZhandou = result3)
+    } yield JinengMatch(is1 = result1, is2 = result2)
   }
 
 }
