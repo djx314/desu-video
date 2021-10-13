@@ -22,6 +22,7 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 德里格之创Byte  = getBytesClasspath("/德里格之创.png")
   val 手榴弹Byte    = getBytesClasspath("/手榴弹.png")
   val 强化盾牌猛击Byte = getBytesClasspath("/强化盾牌猛击.png")
+  val 粉碎大地Byte   = getBytesClasspath("/粉碎大地.png")
 
   val 技能栏1Byte   = getBytesClasspath("/技能栏1.png")
   val 技能栏2Byte   = getBytesClasspath("/技能栏2.png")
@@ -40,8 +41,9 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 德里格之创  = SkillsRoundAction2.Skill(德里格之创Byte, List(ActionQueue.MouseRightClick))
   val 手榴弹    = SkillsRoundAction2.Skill(手榴弹Byte, List(ActionQueue.KeyType(KeyCode.DIGIT1)))
   val 强化盾牌猛击 = SkillsRoundAction2.Skill(强化盾牌猛击Byte, List(ActionQueue.MouseClick))
+  val 粉碎大地   = SkillsRoundAction2.Skill(粉碎大地Byte, List(ActionQueue.KeyType(KeyCode.DIGIT8)))
 
-  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击))
+  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击, 粉碎大地))
 
   val imgMatch = ImageMatcher.init(listImg, jinenglanImg, skillsImg)(blockingec = blockExecutionContext)
 }

@@ -30,31 +30,42 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey], imageMatcher: ImageMa
   var currentRunning: Boolean = false
 
   import ActionQueue._
+  def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
   def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
   def appendAction(a: ActionStatus): Unit = actionQueue ! a
   def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
 
+  def lazyJineng(level: Int) = level match {
+    case 0 =>
+    case 1 =>
+      delayAction(800)
+    case 2 =>
+      delayAction(1500)
+    case 3 =>
+      delayAction(2000)
+    case _ =>
+  }
+
   def mouseRobot = {
     val action = for {
+      isMatch      <- imageMatcher.matchJineng
+      matchImgs    <- imageMatcher.matchImgs
       level        <- imageMatcher.lantiaoPoint
       delayInfoOpt <- imageMatcher.matchDelay
     } yield {
-      delayInfoOpt match {
-        case Some(delayInfo) =>
-          level match {
-            case 0 =>
-            case 1 =>
-              delayAction(800)
-            case 2 =>
-              delayAction(1500)
-            case 3 =>
-              delayAction(2000)
-            case _ =>
-          }
-          for (m <- delayInfo.message) {
-            appendAction(m)
-          }
-        case None => delayAction(200)
+      if (matchImgs.isEmpty) {
+        delayInfoOpt match {
+          case Some(delayInfo) =>
+            lazyJineng(level)
+            if (isMatch.is2) {
+              keyType(KeyCode.Y)
+              delayAction(100)
+            }
+            for (m <- delayInfo.message) {
+              appendAction(m)
+            }
+          case None => delayAction(100)
+        }
       }
     }
     action.onComplete(_ => completeAction)
