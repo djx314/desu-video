@@ -21,8 +21,8 @@ import scala.util.Using
 case class ColorRGB(red: Int, green: Int, blue: Int)
 
 class ImageUtils(system: ActorSystem[Nothing]) {
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
   def screenshotF(x1: Int, y1: Int, x2: Int, y2: Int): Future[Array[Byte]] = {
     val img = new WritableImage(x2 - x1, y2 - y1)
@@ -50,6 +50,9 @@ class ImageUtils(system: ActorSystem[Nothing]) {
       ColorRGB(r.toInt, g.toInt, b.toInt)
     }
   }
+
+  def matchImg(compareImageByte: Array[Byte], screenshotByte: Array[Byte]): Future[Option[(Int, Int)]] =
+    Future(ImageUtils.matchImg(compareImageByte, screenshotByte))(blockExecutionContext)
 }
 
 object ImageUtils {

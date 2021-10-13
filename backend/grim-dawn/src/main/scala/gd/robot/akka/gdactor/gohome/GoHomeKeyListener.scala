@@ -15,22 +15,22 @@ object GoHomeKeyListener {
 
 import GoHomeKeyListener._
 class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var isNowWorking: Boolean = false
+  private var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
-  def delayAction: Unit                   = appendAction(ActionInputDelay(100))
-  def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
+  private def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
+  private def delayAction: Unit                   = appendAction(ActionInputDelay(100))
+  private def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
-  def mouseRobot = {
+  private def mouseRobot = {
     keyPR(KeyCode.M)
     delayAction
     appendAction(MouseMove(956, 850))

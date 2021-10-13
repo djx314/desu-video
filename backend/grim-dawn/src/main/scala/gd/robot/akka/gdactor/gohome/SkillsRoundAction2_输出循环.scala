@@ -3,8 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.mainapp.MainApp
-import gd.robot.akka.utils.ImageMatcher
+import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 
 object SkillsRoundAction2 {
@@ -20,24 +19,25 @@ object SkillsRoundAction2 {
 
 import SkillsRoundAction2._
 class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
-  val imageMatcher              = MainApp.imageMatcher
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
+  private val imageMatcher              = GlobalVars.imageMatcher
+  private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var enabled: Boolean        = false
-  var currentRunning: Boolean = false
+  private var enabled: Boolean        = false
+  private var currentRunning: Boolean = false
 
   import ActionQueue._
-  def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
-  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
-  def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
+  private def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
+  private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  private def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  private def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
 
-  def lazyJineng(level: Int) = level match {
+  private def lazyJineng(level: Int) = level match {
     case 0 =>
     case 1 =>
       delayAction(800)
@@ -48,8 +48,9 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehav
     case _ =>
   }
 
-  def mouseRobot = {
+  private def mouseRobot = {
     val action = for {
+      _            <- gdSystemUtils.waitForFocus
       isMatch      <- imageMatcher.matchJineng
       matchImgs    <- imageMatcher.matchImgs
       level        <- imageMatcher.lantiaoPoint
@@ -59,6 +60,7 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehav
         delayInfoOpt match {
           case Some(delayInfo) =>
             lazyJineng(level)
+
             if (isMatch.is2) {
               keyType(KeyCode.Y)
               delayAction(100)

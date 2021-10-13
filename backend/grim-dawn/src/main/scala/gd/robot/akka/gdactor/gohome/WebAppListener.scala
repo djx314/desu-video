@@ -33,21 +33,22 @@ object WebAppListener {
 
 import WebAppListener._
 class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
 
-  val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
-  val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
-  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
-  val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT5, delay = 15000))
-  val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
-  val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
+  private val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
+  private val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
+  private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
+  private val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] =
+    context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT5, delay = 15000))
+  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
+  private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
 
-  var isReady: Boolean = false
+  private var isReady: Boolean = false
 
-  def stopWebSystem = {
+  private def stopWebSystem = {
     val stopHotKey         = Future(GDHotKeyListener.close())(blockExecutionContext)
     val stopJavaFXPlatform = Future(Platform.exit())(blockExecutionContext)
     val unbindAction = for {

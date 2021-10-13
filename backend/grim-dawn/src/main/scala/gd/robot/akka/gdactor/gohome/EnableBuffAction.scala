@@ -3,6 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 
 object EnableBuffAction {
@@ -15,22 +16,23 @@ object EnableBuffAction {
 
 import EnableBuffAction._
 class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
+  private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var isNowWorking: Boolean = false
+  private var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
-  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
-  def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
+  private def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
+  private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  private def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
-  def mouseRobot = {
+  private def mouseRobot = {
     keyPR(KeyCode.Y)
     delayAction(100)
     keyPR(KeyCode.DIGIT1)
@@ -53,6 +55,7 @@ class EnableBuffAction(context: ActorContext[GoHomeKey]) extends AbstractBehavio
         if (isNowWorking == false) {
           isNowWorking = true
           mouseRobot
+          gdSystemUtils.isNowOnFocus.map(println)
         }
       case PressCanStart =>
         isNowWorking = false

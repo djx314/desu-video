@@ -3,11 +3,9 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.mainapp.MainApp
-import gd.robot.akka.utils.ImageMatcher
+import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object ImageSearcher {
@@ -24,22 +22,23 @@ object ImageSearcher {
 
 import ImageSearcher._
 class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
-  val imgMatcher                = MainApp.imageMatcher
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
+  private val imgMatcher                = GlobalVars.imageMatcher
+  private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var enabled: Boolean      = false
-  var isNowWorking: Boolean = false
+  private var enabled: Boolean      = false
+  private var isNowWorking: Boolean = false
 
   import ActionQueue._
-  def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
-  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
-  def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
+  private def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
+  private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  private def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
@@ -72,7 +71,11 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
             }
           } else directNextRound
 
-        val enableF = imgMatcher.imgEnabled
+        val enableF = for {
+          _      <- gdSystemUtils.waitForFocus
+          result <- imgMatcher.imgEnabled
+        } yield result
+
         enableF.map(execute)
 
       case PressStart(list) =>
@@ -85,17 +88,12 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
           delayAction(2000)
         }
 
-        val action = for {
-          e       <- imgMatcher.imgEnabled
-          isMatch <- imgMatcher.matchJineng
-        } yield {
-          if (e) {
-            if (isMatch.is1) {
-              keyType(KeyCode.Y)
-              delayAction(100)
-            }
-            sendKeyBoardMessage
+        val action = for (isMatch <- imgMatcher.matchJineng) yield {
+          if (isMatch.is1) {
+            keyType(KeyCode.Y)
+            delayAction(100)
           }
+          sendKeyBoardMessage
         }
 
         action.onComplete(_ => completeAction)

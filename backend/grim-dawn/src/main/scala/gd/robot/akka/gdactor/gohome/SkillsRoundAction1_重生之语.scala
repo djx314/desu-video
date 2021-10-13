@@ -3,6 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 
 object SkillsRoundAction1 {
@@ -17,23 +18,24 @@ object SkillsRoundAction1 {
 
 import SkillsRoundAction1._
 class SkillsRoundAction1(context: ActorContext[GoHomeKey], keyCode: KeyCode, delay: Long) extends AbstractBehavior[GoHomeKey](context) {
-  val system                    = context.system
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
-  implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  val self                      = context.self
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val self                      = context.self
+  private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
-  var enabled: Boolean        = false
-  var currentRunning: Boolean = false
+  private var enabled: Boolean        = false
+  private var currentRunning: Boolean = false
 
   import ActionQueue._
-  def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
-  def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
-  def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
+  private def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
+  private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
+  private def appendAction(a: ActionStatus): Unit = actionQueue ! a
+  private def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
 
-  def mouseRobot = {
+  private def mouseRobot = for (_ <- gdSystemUtils.waitForFocus) {
     keyPR(keyCode)
     delayAction(delay)
     completeAction
