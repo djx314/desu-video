@@ -61,9 +61,7 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey], imageMatcher: ImageMa
               keyType(KeyCode.Y)
               delayAction(100)
             }
-            for (m <- delayInfo.message) {
-              appendAction(m)
-            }
+            for (m <- delayInfo.message) appendAction(m)
           case None => delayAction(100)
         }
       }
