@@ -5,6 +5,7 @@ import akka.actor.typed._
 import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.mainapp.MainApp
 import gd.robot.akka.utils.ImageMatcher
 import javafx.application.Platform
 import javafx.scene.input.KeyCode
@@ -26,13 +27,12 @@ object WebAppListener {
   case object StopWebSystem                        extends GoHomeKey
   case object PressSkillRound                      extends GoHomeKey
 
-  def apply(binding: Future[ServerBinding], imageMatcher: ImageMatcher): Behavior[GoHomeKey] =
-    Behaviors.setup(s => new WebAppListener(s, binding, imageMatcher))
+  def apply(binding: Future[ServerBinding]): Behavior[GoHomeKey] =
+    Behaviors.setup(s => new WebAppListener(s, binding))
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding], imageMatcher: ImageMatcher)
-    extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
   val system                    = context.system
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -40,10 +40,10 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
 
   val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
-  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher(imageMatcher))
+  val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
   val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT5, delay = 15000))
   val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey]   = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
-  val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2(imageMatcher))
+  val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
 
   var isReady: Boolean = false
 

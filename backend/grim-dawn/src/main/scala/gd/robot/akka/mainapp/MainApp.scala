@@ -39,7 +39,7 @@ object HttpServerRoutingMinimal {
 
     val bindingFuture: Future[ServerBinding] = Http().newServerAt("localhost", 8080).bind(MainApp.routingMinimal.route)
 
-    system.systemActorOf(WebAppListener(bindingFuture, MainApp.imageMatcher), "web-app-listener")
+    system.systemActorOf(WebAppListener(bindingFuture), "web-app-listener")
 
     println(s"Server online at http://localhost:8080/\nPress Number8 to stop...")
     /*StdIn.readLine() // let it run until user presses return
