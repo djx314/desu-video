@@ -23,6 +23,7 @@ class WaitForGDFocus(context: ActorContext[ActionStatus]) extends AbstractBehavi
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private val gdSystemUtils             = GlobalVars.gdSystemUtils
+  private val self                      = context.self
 
   private var promiseList: List[Promise[Boolean]] = List.empty
 
@@ -32,6 +33,8 @@ class WaitForGDFocus(context: ActorContext[ActionStatus]) extends AbstractBehavi
     implicitly[ExecutionContext],
     () => for (focus <- gdSystemUtils.isNowOnFocus) yield CheckGDFocus(focus)
   )
+
+  self ! CheckGDFocus(false)
 
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
