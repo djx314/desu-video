@@ -37,18 +37,20 @@ class ImageMatcher(
     } yield result
   }
 
+  // 是否处于技能栏没有被遮挡状态（可以释放技能）
   def imgEnabled: Future[Boolean] = for {
     isZhandou <- imageUtils.screenshotF(x1 = 850, y1 = 850, x2 = 900, y2 = 900)
     result    <- imageUtils.matchImg(env.jinengImg.zhandou, isZhandou)
   } yield result.isDefined
 
+  // 判定当前技能栏是技能栏 1 还是技能栏 2
   def matchJineng: Future[JinengMatch] = for {
     screenshot <- imageUtils.screenshotF(x1 = 580, y1 = 920, x2 = 680, y2 = 1000)
     result1    <- imageUtils.matchImg(env.jinengImg.jineng1, screenshot)
     result2    <- imageUtils.matchImg(env.jinengImg.jineng2, screenshot)
   } yield JinengMatch(is1 = result1.isDefined, is2 = result2.isDefined)
 
-  // 从屏幕中找到第一个匹配可以输出的技能
+  // 从屏幕中匹配第一个可以输出的技能
   def matchDelay: Future[Option[SkillsRoundAction2.Skill]] = {
     def findFirst(screenshot: Array[Byte], list: List[SkillsRoundAction2.Skill]): Future[Option[SkillsRoundAction2.Skill]] = {
       list match {
@@ -68,15 +70,19 @@ class ImageMatcher(
     } yield result
   }
 
+  // 蓝已经低于左手起第一个记录点
   private def lantiaoPoint1: Future[Boolean] =
     for (color <- imageUtils.getColor(x = 1260, y = 915)) yield color.red == 28 && color.green == 25 && color.blue == 18
 
+  // 蓝已经低于左手起第二个记录点
   private def lantiaoPoint2: Future[Boolean] =
     for (color <- imageUtils.getColor(x = 1320, y = 915)) yield color.red == 22 && color.green == 17 && color.blue == 12
 
+  // 蓝已经低于左手起第三个记录点
   private def lantiaoPoint3: Future[Boolean] =
     for (color <- imageUtils.getColor(x = 1380, y = 915)) yield color.red == 22 && color.green == 17 && color.blue == 10
 
+  // 计算蓝消耗等级
   def lantiaoPoint: Future[Int] = {
     def action = for {
       is3 <- lantiaoPoint3
