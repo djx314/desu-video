@@ -45,6 +45,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
     context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT5, delay = 15000))
   private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
+  private val logger                                                     = context.log
 
   private var isReady: Boolean = false
 
@@ -54,16 +55,20 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
     val unbindAction = for {
       bindingInstance <- binding
       _               <- bindingInstance.unbind()
-    } yield {}
+    } yield {
+      logger.info("Unbinded web app.")
+    }
     val closeAction = for {
       _ <- stopHotKey
       _ <- stopJavaFXPlatform
       _ <- unbindAction
-    } yield {}
+    } yield {
+      logger.info("Close app source.")
+    }
     closeAction.onComplete(_ => system.terminate())
   }
 
-  self ! StartGoHomeKeyListener
+  // self ! StartGoHomeKeyListener
 
   private def delayMillions[T](million: Long, callable: Callable[Future[T]]): Future[T] = Patterns.after(
     Duration(million, MILLISECONDS),
@@ -82,14 +87,18 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
           _ <- action2
         } yield {}
         context.pipeToSelf(startAction) {
-          case Success(value) => StartActionComplete(true)
-          case Failure(err)   => StartActionComplete(false)
+          case Success(value) =>
+            logger.info(s"Init project success.")
+            StartActionComplete(true)
+          case Failure(err) =>
+            logger.error(s"Init project error.", err)
+            StartActionComplete(false)
         }
       case StartActionComplete(r)   => isReady = r
       case PressGoHomeKeyBoard      => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
       case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
       case PressAutoEnableBuffBoard => if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
-      case PressSkillRound          => skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
+      case PressSkillRound          => if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
       case RoundAction =>
         if (isReady) {
           重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard

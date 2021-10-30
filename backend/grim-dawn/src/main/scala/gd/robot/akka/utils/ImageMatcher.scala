@@ -48,12 +48,14 @@ class ImageMatcher(
     result2    <- imageUtils.matchImg(env.jinengImg.jineng2, screenshot)
   } yield JinengMatch(is1 = result1.isDefined, is2 = result2.isDefined)
 
+  // 从屏幕中找到第一个匹配可以输出的技能
   def matchDelay: Future[Option[SkillsRoundAction2.Skill]] = {
     def findFirst(screenshot: Array[Byte], list: List[SkillsRoundAction2.Skill]): Future[Option[SkillsRoundAction2.Skill]] = {
       list match {
         case head :: tail =>
           def compareNextImg(confirm: Boolean) = if (confirm) Future.successful(Option(head)) else findFirst(screenshot, tail)
           for {
+            // 在屏幕截图中寻找合法的技能截图（冷却时间为 0）
             confirm <- imageUtils.matchImg(head.img, screenshot)
             result  <- compareNextImg(confirm.isDefined)
           } yield result

@@ -6,6 +6,8 @@ import gd.robot.akka.config.AppConfig
 import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 
+/** 技能输出循环 Actor
+  */
 object SkillsRoundAction2 {
   case class Skill(img: Array[Byte], message: List[ActionQueue.ActionStatus])
 
