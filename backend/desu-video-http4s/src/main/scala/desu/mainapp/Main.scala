@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 object Main extends IOApp {
 
   val builder = BlazeServerBuilder[IO]
-    .bindHttp(8080, "192.168.1.105")
+    .bindHttp(8080, "localhost")
     .withHttpApp(AppRoutes.routes.orNotFound)
     .withIdleTimeout(10.minutes)
     .withResponseHeaderTimeout(10.minutes)
