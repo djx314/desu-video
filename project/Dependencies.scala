@@ -13,11 +13,12 @@ object Dependencies {
   val scalatestVersion      = "3.2.9"
   val macwireVersion        = "2.4.1"
   val circeVersion          = "0.15.0-M1"
-  val http4sVersion         = "0.23.3"
+  val http4sVersion         = "0.23.6"
   val slickVersion          = "3.3.3"
   val mysqlVersion          = "8.0.26"
   val tapirVersion          = "0.19.0-M9"
   val jintellitypeVersion   = "1.4.0"
+  val catsEffectVersion     = "3.2.9"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -38,7 +39,7 @@ object Dependencies {
     "org.http4s" %% "http4s-blaze-client" % http4sVersion
   )
 
-  val cats = Seq("org.typelevel" %% "cats-effect" % "3.2.8")
+  val cats = Seq("org.typelevel" %% "cats-effect" % catsEffectVersion)
 
   val circe = Seq(
     "io.circe" %% "circe-core"    % circeVersion,

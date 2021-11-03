@@ -1,26 +1,20 @@
 package desu.routes
 
+import cats.effect._
 import cats.implicits._
-import desu.mainapp.common._
+import com.softwaremill.macwire._
 import org.http4s.server.staticcontent._
-import org.http4s.HttpRoutes
-import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
-import sttp.tapir.ztapir._
-import sttp.tapir.server.http4s.ztapir._
-import sttp.tapir.swagger.SwaggerUI
-import zio.interop.catz._
+import org.http4s._
+import org.http4s.dsl.io._
 
 object AppRoutes {
-  import sttp.tapir.openapi.circe.yaml._
 
-  val sumRoutes: List[ZServerEndpoint[AppContext, _, _, _]] = List.empty
-  val docsAsYaml: String = OpenAPIDocsInterpreter().serverEndpointsToOpenAPI(sumRoutes, "My App", "1.0").toYaml
-  val tapirRoutes        = ZHttp4sServerInterpreter[AppContext]().from(SwaggerUI[ZLayerTask](docsAsYaml)).toRoutes
+  private val fileRoutes = fileService[IO](FileService.Config("D:/xlxz", pathPrefix = "eeff"))
 
-  // val http4sSwaggerRoutes = new SwaggerHttp4s(MainEndpoint.docs.toYaml)
-  def routes: HttpRoutes[ZIOEnvTask] = {
-    val fileRoutes = fileService[ZIOEnvTask](FileService.Config("D:/xlxz", pathPrefix = "eeff"))
-    tapirRoutes <+> /*http4sSwaggerRoutes.routes <+>*/ fileRoutes
+  private lazy val filePageRoute: FilePageRoute = wire[FilePageRoute]
+
+  val routes: HttpRoutes[IO] = {
+    filePageRoute.firstRoute <+> fileRoutes
   }
 
 }

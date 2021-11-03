@@ -1,10 +1,12 @@
-org.scalax.sbt.CustomSettings.scalaConfig
-org.scalax.sbt.CustomSettings.fmtConfig
+import org.scalax.sbt._
+
+CustomSettings.scalaConfig
+CustomSettings.fmtConfig
 
 name := "desu-video-http4s"
 
-libraryDependencies ++= org.scalax.sbt.Dependencies.config
-libraryDependencies ++= org.scalax.sbt.Dependencies.simpleLogger
-libraryDependencies ++= org.scalax.sbt.Dependencies.http4s
-libraryDependencies ++= org.scalax.sbt.Dependencies.cats
-libraryDependencies ++= org.scalax.sbt.Dependencies.tapir
+libraryDependencies ++= Dependencies.config
+libraryDependencies ++= Dependencies.simpleLogger
+libraryDependencies ++= Dependencies.http4s
+libraryDependencies ++= Dependencies.cats
+libraryDependencies ++= Dependencies.macwire
