@@ -10,3 +10,6 @@ libraryDependencies ++= Dependencies.simpleLogger
 libraryDependencies ++= Dependencies.http4s
 libraryDependencies ++= Dependencies.cats
 libraryDependencies ++= Dependencies.macwire
+libraryDependencies ++= Dependencies.sttp
+
+addCompilerPlugin(Dependencies.kindProjector)

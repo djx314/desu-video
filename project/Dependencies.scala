@@ -19,6 +19,8 @@ object Dependencies {
   val tapirVersion          = "0.19.0-M9"
   val jintellitypeVersion   = "1.4.0"
   val catsEffectVersion     = "3.2.9"
+  val sttpVersion           = "3.3.16"
+  val kindProjectorVersion  = "0.13.2"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -37,7 +39,7 @@ object Dependencies {
     "org.http4s" %% "http4s-dsl"          % http4sVersion,
     "org.http4s" %% "http4s-blaze-server" % http4sVersion,
     "org.http4s" %% "http4s-blaze-client" % http4sVersion,
-    "org.http4s" %% "http4s-circe"     % http4sVersion
+    "org.http4s" %% "http4s-circe"        % http4sVersion
   )
 
   val cats = Seq("org.typelevel" %% "cats-effect" % catsEffectVersion)
@@ -68,7 +70,10 @@ object Dependencies {
     "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
   )
 
-  val sttp = List("com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.3.14")
+  val sttp = List(
+    "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio"  % sttpVersion,
+    "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % sttpVersion
+  )
 
   val zioLogging = "dev.zio" %% "zio-logging" % "0.5.12"
 
@@ -88,5 +93,7 @@ object Dependencies {
   val thumbnailator = "net.coobird"  % "thumbnailator"   % "0.4.14"
   val javacv        = "org.bytedeco" % "javacv-platform" % "1.5.6"
   val javafx        = List("org.openjfx" % "javafx-swing" % "11")
+
+  val kindProjector = "org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.full
 
 }
