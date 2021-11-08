@@ -5,62 +5,55 @@ import cats.implicits._
 import cats.effect._
 import cats.effect.kernel.MonadCancel
 
+trait NFlatMap[F[_], A] {
+  def f[T](fun: A => F[T]): F[T]
+}
+
 trait Number1[Context[_], T] {
-  def method1(number2: Number2): Context[T]
+  def run(number2: Number2): Context[T]
 }
-case class Number1S[Context[_]: FlatMap, T, U](tail: U => Number1[Context, T], head: Context[U]) extends Number1[Context, T] {
-  def method1(number2: Number2): Context[T] = head.flatMap(s => number2.method2(tail(s)))
+case class Number1S[Context[_], T, U](tail: U => Number1[Context, T], flatMap: NFlatMap[Context, U]) extends Number1[Context, T] {
+  def run(number2: Number2): Context[T] = flatMap.f(u => tail(u).run(number2))
 }
-case class Number1T[Context[_]: Sync, T](head: () => T) extends Number1[Context, T] {
-  def method1(number2: Number2): Context[T] = Sync[Context].delay(head())
-}
-case class Number1Resource[Context[_], T, U](tail: U => Number1[Context, T], head: Resource[Context, U])(implicit
-  v: MonadCancel[Context, Throwable]
-) extends Number1[Context, T] {
-  def method1(number2: Number2): Context[T] = head.use(s => number2.method2(tail(s)))
+case class Number1T[Context[_], T](head: Context[T]) extends Number1[Context, T] {
+  def run(number2: Number2): Context[T] = head
 }
 
-trait Number2 {
-  def method2[Context[_], T](number1: Number1[Context, T]): Context[T]
-}
-case class Number2S(tail: () => Number2) extends Number2 {
-  def method2[Context[_], T](number1: Number1[Context, T]): Context[T] = number1.method1(tail())
-}
+trait Number2
+case object Number2S extends Number2
 
-object NContext {
-  trait Number1FlatMap[Context[_], U] {
-    def flatMap[T](u: U => Number1[Context, T]): Number1[Context, T]
+class NContext[F[_]] {
+  trait Number1FlatMap[F[_], U] {
+    def flatMap[T](u: U => Number1[F, T]): Number1[F, T]
   }
-  trait Number1Map[Context[_], U] {
-    def map[T](u: U => T): Number1[Context, T]
+  trait Number1Map[F[_], U] {
+    def map[T](u: U => T): Number1[F, T]
   }
 
-  val runner: Number2 = {
-    lazy val number2s: Number2 = Number2S(() => number2s)
-    number2s
-  }
+  val runner: Number2 = Number2S
 
-  abstract class PureFlatMap[F[_]] {
-    def apply[U](a: => U)(implicit i1: Sync[F], i2: FlatMap[F]): Number1FlatMap[F, U]
+  def flatMap[U](a: F[U])(implicit i: FlatMap[F]): Number1FlatMap[F, U] = new Number1FlatMap[F, U] {
+    override def flatMap[T](u: U => Number1[F, T]): Number1[F, T] = Number1S(
+      u,
+      new NFlatMap[F, U] {
+        override def f[T](fun: U => F[T]): F[T] = a.flatMap(fun)
+      }
+    )
   }
-  abstract class PureMap[F[_]] {
-    def apply[U](a: => U)(implicit i1: Sync[F], i2: FlatMap[F]): Number1Map[F, U]
+  def map[U](a: F[U])(implicit i1: Applicative[F], i2: FlatMap[F]): Number1Map[F, U] = new Number1Map[F, U] {
+    override def map[T](fun: U => T): Number1[F, T] = Number1S(
+      (u: U) => Number1T(Applicative[F].pure(fun(u))),
+      new NFlatMap[F, U] {
+        override def f[T](fun: U => F[T]): F[T] = a.flatMap(fun)
+      }
+    )
   }
-
-  def pureFlatMap[F[_]]: PureFlatMap[F] = new PureFlatMap[F] {
-    override def apply[U](a: => U)(implicit i1: Sync[F], i2: FlatMap[F]): Number1FlatMap[F, U] = flatMap(Sync[F].delay(a))
-  }
-  def pureMap[F[_]]: PureMap[F] = new PureMap[F] {
-    override def apply[U](a: => U)(implicit i1: Sync[F], i2: FlatMap[F]): Number1Map[F, U] = map(Sync[F].delay(a))
-  }
-
-  def flatMap[F[_]: FlatMap, U](a: F[U]): Number1FlatMap[F, U] = new Number1FlatMap[F, U] {
-    override def flatMap[T](u: U => Number1[F, T]): Number1[F, T] = Number1S(u, a)
-  }
-  def map[F[_]: Sync: FlatMap, U](a: F[U]): Number1Map[F, U] = new Number1Map[F, U] {
-    override def map[T](fun: U => T): Number1[F, T] = Number1S((u: U) => Number1T(() => fun(u)), a)
-  }
-  def resource[F[_], U](a: Resource[F, U])(implicit v: MonadCancel[F, Throwable]): Number1FlatMap[F, U] = new Number1FlatMap[F, U] {
-    override def flatMap[T](u: U => Number1[F, T]): Number1[F, T] = Number1Resource(u, a)
+  def resource_use[F[_], U](a: Resource[F, U])(implicit v: MonadCancel[F, Throwable]): Number1FlatMap[F, U] = new Number1FlatMap[F, U] {
+    override def flatMap[T](u: U => Number1[F, T]): Number1[F, T] = Number1S(
+      u,
+      new NFlatMap[F, U] {
+        override def f[T](fun: U => F[T]): F[T] = a.use(fun)
+      }
+    )
   }
 }

@@ -2,7 +2,6 @@ package desu.routes
 
 import cats.effect._
 import desu.config.AppConfig
-import desu.models.{ResultSet, RootFilePaths}
 import desu.number.NContext
 import org.http4s._
 import org.http4s.dsl.io._
@@ -16,16 +15,19 @@ class FilePageRoute(appConfig: AppConfig) {
 
   val FilePageRoot = appConfig.FilePageRoot
 
+  object NContext1 extends NContext[IO]
+  import NContext1._
+
   val firstRoute = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
     val action = for {
-      uri      <- NContext.pureFlatMap[IO](uri"http://www.baidu.com")
-      backend  <- NContext.resource(AsyncHttpClientCatsBackend.resource[IO]())
-      request  <- NContext.pureFlatMap[IO](basicRequest.get(uri))
-      response <- NContext.flatMap(request.send(backend))
-      l4       <- NContext.pureFlatMap[IO](response.body.merge)
-      l5       <- NContext.map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
+      uri      <- flatMap(IO(uri"http://www.baidu.com"))
+      backend  <- resource_use(AsyncHttpClientCatsBackend.resource[IO]())
+      request  <- flatMap(IO(basicRequest.get(uri)))
+      response <- flatMap(request.send(backend))
+      l4       <- flatMap(IO(response.body.merge))
+      l5       <- map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
     } yield l5
-    action.method1(NContext.runner)
+    action.run(runner)
   }
 
 }
