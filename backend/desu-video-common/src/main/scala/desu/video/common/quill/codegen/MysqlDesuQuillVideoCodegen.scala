@@ -5,6 +5,7 @@ import io.getquill.codegen.model.{NameParser, SnakeCaseCustomTable}
 
 import java.nio.file.Paths
 import java.sql._
+import io.getquill.codegen.util.StringUtil._
 
 object MysqlDesuQuillVideoCodegen extends App {
   val url = "jdbc:mysql://localhost:3306/desu_video?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf8";
@@ -16,7 +17,7 @@ object MysqlDesuQuillVideoCodegen extends App {
   val sourcePath  = "desu/video/common/quill/model"
 
   val gen = new ComposeableTraitsJdbcCodegen(snakecaseConfig, packageName) {
-    override def nameParser: NameParser = SnakeCaseCustomTable(s => s.tableName.toLowerCase.replace("_name", ""))
+    override def nameParser: NameParser = SnakeCaseCustomTable(s => s.tableName.snakeToLowerCamel)
     override val renderMembers: Boolean = true
   }
 
