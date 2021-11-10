@@ -16,5 +16,7 @@ val gd       = (project in backendPath / "grim-dawn").dependsOn(common)
 addCommandAlias("prun", "http4s/reStart")
 addCommandAlias("krun", "akkaHttp/run")
 addCommandAlias("grun", "gd/run")
+addCommandAlias("flyway", "common/flywayMigrate")
 
 addCommandAlias("slickCodegen", s"common/runMain desu.video.common.slick.codegen.MysqlDesuVideoCodegen ${commonPath.getAbsolutePath}")
+addCommandAlias("quillCodegen", s"common/runMain desu.video.common.quill.codegen.MysqlDesuQuillVideoCodegen ${commonPath.getAbsolutePath}")

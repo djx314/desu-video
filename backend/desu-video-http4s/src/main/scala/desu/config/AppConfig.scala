@@ -6,6 +6,6 @@ import org.http4s.dsl.io._
 
 class AppConfig {
 
-  val FilePageRoot: Path = Path(Vector(Segment("api"), Segment("desu")), absolute = true)
+  val FilePageRoot: Path = Root / Segment("api") / Segment("desu")
 
 }

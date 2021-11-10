@@ -1,3 +1,5 @@
+import org.scalax.sbt.Dependencies
+
 org.scalax.sbt.CustomSettings.scalaConfig
 org.scalax.sbt.CustomSettings.fmtConfig
 
@@ -10,7 +12,9 @@ flywayUser     := "root"
 flywayPassword := "root"
 flywayLocations += "db/migration"
 
-libraryDependencies ++= org.scalax.sbt.Dependencies.mysql
-libraryDependencies ++= org.scalax.sbt.Dependencies.slick
-libraryDependencies ++= org.scalax.sbt.Dependencies.circe
-libraryDependencies ++= org.scalax.sbt.Dependencies.tapir
+libraryDependencies ++= Dependencies.mysql
+libraryDependencies ++= Dependencies.slick
+libraryDependencies ++= Dependencies.circe
+libraryDependencies ++= Dependencies.tapir
+libraryDependencies ++= Dependencies.quill
+libraryDependencies += Dependencies.scalaReflect(scalaVersion.value)

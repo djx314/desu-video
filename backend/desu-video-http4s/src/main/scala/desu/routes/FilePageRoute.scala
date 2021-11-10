@@ -18,7 +18,19 @@ class FilePageRoute(appConfig: AppConfig) {
   object NContext1 extends NContext[IO]
   import NContext1._
 
-  val firstRoute = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
+  val baiduPage = HttpRoutes.of[IO] { case GET -> FilePageRoot / "baiduPage" =>
+    val action = for {
+      uri      <- flatMap(IO(uri"http://www.baidu.com"))
+      backend  <- resource_use(AsyncHttpClientCatsBackend.resource[IO]())
+      request  <- flatMap(IO(basicRequest.get(uri)))
+      response <- flatMap(request.send(backend))
+      l4       <- flatMap(IO(response.body.merge))
+      l5       <- map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
+    } yield l5
+    action.run(runner)
+  }
+
+  val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
     val action = for {
       uri      <- flatMap(IO(uri"http://www.baidu.com"))
       backend  <- resource_use(AsyncHttpClientCatsBackend.resource[IO]())

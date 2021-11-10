@@ -21,6 +21,7 @@ object Dependencies {
   val catsEffectVersion     = "3.2.9"
   val sttpVersion           = "3.3.16"
   val kindProjectorVersion  = "0.13.2"
+  val quillVersion          = "3.8.0"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -95,5 +96,8 @@ object Dependencies {
   val javafx        = List("org.openjfx" % "javafx-swing" % "11")
 
   val kindProjector = "org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.full
+
+  val quill = List("io.getquill" %% "quill-codegen-jdbc" % quillVersion, "io.getquill" %% "quill-async-mysql" % quillVersion)
+  def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
 
 }
