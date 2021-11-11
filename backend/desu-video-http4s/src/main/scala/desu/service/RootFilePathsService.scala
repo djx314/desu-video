@@ -20,16 +20,18 @@ class RootFilePathsService(appConfig: AppConfig) {
     dirMappingDao.query.insert(dirMapping(id = 0, filePath = lift(name), parentId = -1)).returningGenerated(_.id)
   }
 
-  def rootPathFile(dirName: String): IO[dirMapping, Effect.Write with Effect.Read] = {
+  def rootPathFile(dirName: String) = {
     def getOrSave(dir: Option[dirMapping]) = dir match {
       case Some(s) => IO(s)
       case None    => for (id <- ctx.runIO(insertRootPathFileToId(dirName))) yield dirMapping(id = id, filePath = dirName, parentId = -1)
     }
 
-    for {
+    val dirIO = for {
       findPaths <- ctx.runIO(rootPathFileToId(dirName))
       dir       <- getOrSave(findPaths.headOption)
     } yield dir
+
+    dirIO.transactional
   }
 
 }
