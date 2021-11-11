@@ -26,10 +26,8 @@ class RootFilePathsService(appConfig: AppConfig) {
       case None    => for (id <- ctx.runIO(insertRootPathFileToId(dirName))) yield dirMapping(id = id, filePath = dirName, parentId = -1)
     }
 
-    val findPathsIO = ctx.runIO(rootPathFileToId(dirName))
-
     for {
-      findPaths <- findPathsIO
+      findPaths <- ctx.runIO(rootPathFileToId(dirName))
       dir       <- getOrSave(findPaths.headOption)
     } yield dir
   }

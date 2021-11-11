@@ -10,11 +10,10 @@ import io.getquill.codegen.util.StringUtil._
 object MysqlDesuQuillVideoCodegen extends App {
   val url = "jdbc:mysql://localhost:3306/desu_video?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=utf8";
   Class.forName("com.mysql.cj.jdbc.Driver")
-  def conn            = DriverManager.getConnection(url, "root", "root")
-  val snakecaseConfig = () => conn
+  val snakecaseConfig = () => DriverManager.getConnection(url, "root", "root")
 
   val packageName = "desu.video.common.quill.model"
-  val sourcePath  = "desu/video/common/quill/model"
+  val sourcePath  = Paths.get("desu", "video", "common", "quill", "model")
 
   val gen = new ComposeableTraitsJdbcCodegen(snakecaseConfig, packageName) {
     override def nameParser: NameParser = SnakeCaseCustomTable(s => s.tableName.snakeToLowerCamel)
