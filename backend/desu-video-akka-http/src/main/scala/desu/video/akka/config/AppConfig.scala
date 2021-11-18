@@ -13,7 +13,7 @@ import scala.concurrent.Future
 
 class AppConfig(system: ActorSystem[Nothing]) {
   val defaultDispatcherName = "desu-dispatcher"
-  val desuSelector           = DispatcherSelector.fromConfig(defaultDispatcherName)
+  val desuSelector          = DispatcherSelector.fromConfig(defaultDispatcherName)
 
   implicit val executionContext = system.dispatchers.lookup(desuSelector)
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
