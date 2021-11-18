@@ -40,13 +40,8 @@ class NContext[F[_]] {
       }
     )
   }
-  def map[U](a: F[U])(implicit i1: Applicative[F], i2: FlatMap[F]): Number1Map[F, U] = new Number1Map[F, U] {
-    override def map[T](fun: U => T): Number1[F, T] = Number1S(
-      (u: U) => Number1T(Applicative[F].pure(fun(u))),
-      new NFlatMap[F, U] {
-        override def f[T](fun: U => F[T]): F[T] = a.flatMap(fun)
-      }
-    )
+  def map[U](a: F[U])(implicit i1: Functor[F]): Number1Map[F, U] = new Number1Map[F, U] {
+    override def map[T](fun: U => T): Number1[F, T] = Number1T(Functor[F].map(a)(fun))
   }
   def resource_use[F[_], U](a: Resource[F, U])(implicit v: MonadCancel[F, Throwable]): Number1FlatMap[F, U] = new Number1FlatMap[F, U] {
     override def flatMap[T](u: U => Number1[F, T]): Number1[F, T] = Number1S(
