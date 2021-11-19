@@ -50,11 +50,11 @@ class RootFilePathsService(appConfig: AppConfig) {
   def rootPathDirInfo(dirName: String): CIO[Option[DirInfo]] = {
     // 文件不存在返回空，存在则下一步
     def getInfo(exist: Boolean, path: Path) = if (exist) {
-      CIO(Option.empty)
+      liftToN(CIO(Option.empty))
     } else
       for {
-        isDir <- CIO.blocking(Files.isDirectory(path))
-        dir   <- idDirDo(isDir, path)
+        isDir <- flatMap(CIO.blocking(Files.isDirectory(path)))
+        dir   <- plusM(idDirDo(isDir, path))
       } yield Option(dir)
 
     def listFileNames(path: Path): List[String] = {
@@ -65,11 +65,11 @@ class RootFilePathsService(appConfig: AppConfig) {
     // 文件是文件夹则列出文件夹，如果是普通文件则返回文件信息
     def idDirDo(isDir: Boolean, path: Path) = if (isDir) {
       for {
-        mapping <- rootPathFile(dirName)
-        files   <- CIO.blocking(listFileNames(path))
+        mapping <- flatMap(rootPathFile(dirName))
+        files   <- map(CIO.blocking(listFileNames(path)))
       } yield DirInfo(dirInfo = mapping, files, isDir = isDir)
     } else {
-      for (mapping <- rootPathFile(dirName)) yield DirInfo(dirInfo = mapping, List.empty, isDir = isDir)
+      for (mapping <- map(rootPathFile(dirName))) yield DirInfo(dirInfo = mapping, List.empty, isDir = isDir)
     }
 
     def currentDir = appConfig.rootFilePath.resolve(dirName)
@@ -77,7 +77,7 @@ class RootFilePathsService(appConfig: AppConfig) {
     val action = for {
       cDir  <- flatMap(CIO.blocking(currentDir))
       exist <- flatMap(CIO.blocking(Files.exists(cDir)))
-      dir   <- map(getInfo(exist, cDir))
+      dir   <- plusM(getInfo(exist, cDir))
     } yield dir
     runF(action)
   }
