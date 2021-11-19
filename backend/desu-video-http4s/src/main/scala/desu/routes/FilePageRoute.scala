@@ -2,7 +2,7 @@ package desu.routes
 
 import cats.effect._
 import desu.config.AppConfig
-import desu.number.NContext
+import desu.number.CollectContext
 import org.http4s._
 import org.http4s.dsl.io._
 import org.http4s.circe._
@@ -15,8 +15,8 @@ class FilePageRoute(appConfig: AppConfig) {
 
   val FilePageRoot = appConfig.FilePageRoot
 
-  object NContext1 extends NContext[IO]
-  import NContext1._
+  object nctx extends CollectContext[IO]
+  import nctx._
 
   val baiduPage = HttpRoutes.of[IO] { case GET -> FilePageRoot / "baiduPage" =>
     val action = for {
@@ -27,7 +27,7 @@ class FilePageRoute(appConfig: AppConfig) {
       l4       <- flatMap(IO(response.body.merge))
       l5       <- map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
     } yield l5
-    action.run(runner)
+    runF(action)
   }
 
   val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
@@ -39,7 +39,7 @@ class FilePageRoute(appConfig: AppConfig) {
       l4       <- flatMap(IO(response.body.merge))
       l5       <- map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
     } yield l5
-    action.run(runner)
+    runF(action)
   }
 
 }

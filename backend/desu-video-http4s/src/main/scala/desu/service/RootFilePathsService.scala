@@ -9,11 +9,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.effect.{IO => CIO, _}
 import cats.implicits._
 import desu.models.DirInfo
-import desu.number.NContext
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
+import desu.number.CollectContext
 
 class RootFilePathsService(appConfig: AppConfig) {
 
@@ -22,7 +22,7 @@ class RootFilePathsService(appConfig: AppConfig) {
   val ctx = MysqlContext
   import ctx._
 
-  object nctx extends NContext[CIO]
+  object nctx extends CollectContext[CIO]
   import nctx._
 
   private def rootPathFileToId(name: String) = quote {
@@ -79,7 +79,7 @@ class RootFilePathsService(appConfig: AppConfig) {
       exist <- flatMap(CIO.blocking(Files.exists(cDir)))
       dir   <- map(getInfo(exist, cDir))
     } yield dir
-    action.run(runner)
+    runF(action)
   }
 
 }
