@@ -36,11 +36,11 @@ class RootFilePathsService(appConfig: AppConfig) {
   private def rootPathFile(dirName: String): CIO[dirMapping] = {
     def getOrSave(dir: Option[dirMapping]) = dir match {
       case Some(s) => IO(s)
-      case None    => for (id <- ctx.runIO(insertRootPathFileToId(dirName))) yield dirMapping(id = id, filePath = dirName, parentId = -1)
+      case None    => for (id <- runIO(insertRootPathFileToId(dirName))) yield dirMapping(id = id, filePath = dirName, parentId = -1)
     }
 
     val dirIO = for {
-      findPaths <- ctx.runIO(rootPathFileToId(dirName))
+      findPaths <- runIO(rootPathFileToId(dirName))
       dir       <- getOrSave(findPaths.headOption)
     } yield dir
 
