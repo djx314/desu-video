@@ -4,7 +4,6 @@ import cats._
 import cats.implicits._
 import cats.effect._
 import cats.effect.kernel.MonadCancel
-import cats.parse.Numbers
 
 trait CollectFlatMap[F[_], A] {
   def f[T](fun: A => F[T]): F[T]
