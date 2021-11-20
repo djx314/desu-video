@@ -62,7 +62,10 @@ class CollectContext[F[+_]] {
     override def map[T](fun: U => T): Number[F, T] = NumberS(a.map(u => numberT(fun(u))))
   }
   def resource_use[U](a: Resource[F, U])(implicit v: MonadCancel[F, Throwable]): NumberFlatMap[U] = new NumberFlatMap[U] {
-    override def flatMap[T](u: U => Number[F, T]): Number[F, T] = NumberS(a.use(u.andThen(t => runF(t).map(numberT))))
+    override def flatMap[T](u: U => Number[F, T]): Number[F, T] = {
+      val action = for (allocated <- a.allocated) yield u(allocated._1).execute(Plus.resrouceAllocated)((), allocated._2)
+      NumberS(action)
+    }
   }
 
   def runF[Data](number: Number[F, Data])(implicit f: FlatMap[F], a: Applicative[F]): F[Data] = number.execute(Runner.runner)((), ())
@@ -132,6 +135,27 @@ class CollectContext[F[+_]] {
           parameter: Unit
         ): Number[F, Data] = NumberS(number._2.map(num => num.execute(this)((), number._1)))
         override def bindT(number: (B => Data, () => Number[F, B]), parameter: Unit, head: B): Number[F, Data] = numberT(number._1(head))
+      }
+
+    class ResourceAllocated[Data, B] extends TypeContext {
+      override type toDataType = F[Unit]
+      override type Parameter  = Unit
+      override type Result     = Number[F, B]
+    }
+
+    def resrouceAllocated[Data, B](implicit i: Functor[F]): Context[ResourceAllocated[Data, B], F, B] =
+      new Context[ResourceAllocated[Data, B], F, B] {
+        override type DataCtxS = (F[Unit], F[Number[F, B]])
+        override type DataCtxT = (F[Unit], () => Number[F, B])
+        override def convertS(t: F[Unit], current: F[Number[F, B]]): (F[Unit], F[Number[F, B]])       = (t, current)
+        override def convertT(t: F[Unit], current: () => Number[F, B]): (F[Unit], () => Number[F, B]) = (t, current)
+        override def bindS(
+          number: (F[Unit], F[Number[F, B]]),
+          parameter: Unit
+        ): Number[F, B] = NumberS(number._2.map(num => num.execute(this)((), number._1)))
+        override def bindT(number: (F[Unit], () => Number[F, B]), parameter: Unit, head: B): Number[F, B] = NumberS(
+          number._1.map(_ => numberT(head))
+        )
       }
   }
 

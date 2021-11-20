@@ -50,12 +50,11 @@ class RootFilePathsService(appConfig: AppConfig) {
   def rootPathDirInfo(dirName: String): CIO[Option[DirInfo]] = {
     // 文件不存在返回空，存在则下一步
     def getInfo(exist: Boolean, path: Path) = if (exist) {
-      liftToN(CIO(Option.empty))
-    } else
       for {
         isDir <- flatMap(CIO.blocking(Files.isDirectory(path)))
         dir   <- plusM(idDirDo(isDir, path))
       } yield Option(dir)
+    } else liftToN(CIO(Option.empty))
 
     def listFileNames(path: Path): List[String] = {
       val files = Files.list(path).collect(Collectors.toList[Path])

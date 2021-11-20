@@ -10,8 +10,9 @@ import io.circe.syntax._
 import org.http4s.headers.`Content-Type`
 import sttp.client3._
 import sttp.client3.asynchttpclient.cats.AsyncHttpClientCatsBackend
+import desu.service.RootFilePathsService
 
-class FilePageRoute(appConfig: AppConfig) {
+class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsService) {
 
   val FilePageRoot = appConfig.FilePageRoot
 
@@ -30,15 +31,11 @@ class FilePageRoute(appConfig: AppConfig) {
     runF(action)
   }
 
-  val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
+  val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" / dirName =>
     val action = for {
-      uri      <- flatMap(IO(uri"http://www.baidu.com"))
-      backend  <- resource_use(AsyncHttpClientCatsBackend.resource[IO]())
-      request  <- flatMap(IO(basicRequest.get(uri)))
-      response <- flatMap(request.send(backend))
-      l4       <- flatMap(IO(response.body.merge))
-      l5       <- map(Ok(l4, `Content-Type`(MediaType.text.`html`, Charset.`UTF-8`)))
-    } yield l5
+      dirInfo <- flatMap(rootFilePathsService.rootPathDirInfo(dirName))
+      result  <- map(Ok(dirInfo.asJson))
+    } yield result
     runF(action)
   }
 
