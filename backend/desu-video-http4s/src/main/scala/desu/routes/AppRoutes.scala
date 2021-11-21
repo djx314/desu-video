@@ -21,7 +21,7 @@ object AppRoutes {
   private lazy val appConfig: AppConfig = wire[AppConfig]
 
   val routes: HttpRoutes[IO] = {
-    filePageRoute.rootPathFiles <+> filePageRoute.baiduPage <+> fileRoutes
+    filePageRoute.rootPathFiles <+> filePageRoute.rootDirName <+> filePageRoute.baiduPage <+> fileRoutes
   }
 
 }

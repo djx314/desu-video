@@ -31,9 +31,17 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
     runF(action)
   }
 
-  val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" / dirName =>
+  val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFile" / dirName =>
     val action = for {
       dirInfo <- flatMap(rootFilePathsService.rootPathDirInfo(dirName))
+      result  <- map(Ok(dirInfo.asJson))
+    } yield result
+    runF(action)
+  }
+
+  val rootDirName = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
+    val action = for {
+      dirInfo <- flatMap(rootFilePathsService.rootPathDirName)
       result  <- map(Ok(dirInfo.asJson))
     } yield result
     runF(action)

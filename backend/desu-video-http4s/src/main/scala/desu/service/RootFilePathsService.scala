@@ -81,4 +81,26 @@ class RootFilePathsService(appConfig: AppConfig) {
     runF(action)
   }
 
+  def rootPathDirName: CIO[Option[DirInfo]] = {
+    val currentDir = appConfig.rootFilePath
+
+    def listFileNames: List[String] = {
+      val files = Files.list(currentDir).collect(Collectors.toList[Path])
+      for (item <- files.asScala.to(List)) yield item.getFileName.toString
+    }
+
+    def getInfo(exist: Boolean, isDir: Boolean) = if (exist && isDir) {
+      for (dir <- map(CIO.blocking(listFileNames)))
+        yield Option(DirInfo(dirInfo = dirMapping(id = -1, filePath = "", parentId = -1), dir, isDir = isDir))
+    } else liftToN(CIO(Option.empty))
+
+    val action = for {
+      cDir  <- flatMap(CIO.blocking(currentDir))
+      exist <- flatMap(CIO.blocking(Files.exists(cDir)))
+      isDir <- flatMap(CIO.blocking(Files.isDirectory(cDir)))
+      info  <- plusM(getInfo(exist, isDir))
+    } yield info
+    runF(action)
+  }
+
 }
