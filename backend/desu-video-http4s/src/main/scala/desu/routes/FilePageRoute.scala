@@ -2,6 +2,7 @@ package desu.routes
 
 import cats.effect._
 import desu.config.AppConfig
+import desu.models.ResultSet
 import desu.number.CollectContext
 import org.http4s._
 import org.http4s.dsl.io._
@@ -34,7 +35,7 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
   val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFile" / dirName =>
     val action = for {
       dirInfo <- flatMap(rootFilePathsService.rootPathDirInfo(dirName))
-      result  <- map(Ok(dirInfo.asJson))
+      result  <- map(Ok(ResultSet(dirInfo).asJson))
     } yield result
     runF(action)
   }
@@ -42,7 +43,7 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
   val rootDirName = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
     val action = for {
       dirInfo <- flatMap(rootFilePathsService.rootPathDirName)
-      result  <- map(Ok(dirInfo.asJson))
+      result  <- map(Ok(ResultSet(dirInfo).asJson))
     } yield result
     runF(action)
   }
