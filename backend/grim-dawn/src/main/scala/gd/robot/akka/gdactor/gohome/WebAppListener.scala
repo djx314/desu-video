@@ -43,7 +43,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]          = context.spawnAnonymous(ImageSearcher())
   private val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] =
     context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT5, delay = 15000))
-  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.TAB, delay = 27000))
+  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.R, delay = 27000))
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
 

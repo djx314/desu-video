@@ -9,21 +9,21 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
-  val 责难光环Byte     = ImageUtils.getBytesFromClasspath("/buff类技能/责难光环.png")
-  val 附身烈焰Byte     = ImageUtils.getBytesFromClasspath("/buff类技能/附身烈焰.png")
-  val 复仇烈焰Byte     = ImageUtils.getBytesFromClasspath("/buff类技能/复仇烈焰.png")
-  val 阿兹拉格瑞安战术Byte = ImageUtils.getBytesFromClasspath("/buff类技能/阿兹拉格瑞安战术.png")
-  val 旋转刀刃Byte     = ImageUtils.getBytesFromClasspath("/buff类技能/旋转刀刃.png")
+  val 责难光环Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/责难光环.png")
+  val 附身烈焰Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/附身烈焰.png")
+  val 复仇烈焰Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/复仇烈焰.png")
+  val 阿兹拉格瑞安战术Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/buff类技能/阿兹拉格瑞安战术.png")
+  val 旋转刀刃Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/旋转刀刃.png")
 
-  val 德里格之创Byte  = ImageUtils.getBytesFromClasspath("/攻击类技能/德里格之创.png")
-  val 手榴弹Byte    = ImageUtils.getBytesFromClasspath("/攻击类技能/手榴弹.png")
-  val 强化盾牌猛击Byte = ImageUtils.getBytesFromClasspath("/攻击类技能/强化盾牌猛击.png")
-  val 粉碎大地Byte   = ImageUtils.getBytesFromClasspath("/攻击类技能/粉碎大地.png")
-  val 审判官秘印Byte  = ImageUtils.getBytesFromClasspath("/攻击类技能/审判官秘印.png")
+  val 德里格之创Byte: Array[Byte]  = ImageUtils.getBytesFromClasspath("/攻击类技能/德里格之创.png")
+  val 手榴弹Byte: Array[Byte]    = ImageUtils.getBytesFromClasspath("/攻击类技能/手榴弹.png")
+  val 强化盾牌猛击Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/攻击类技能/强化盾牌猛击.png")
+  val 粉碎大地Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/攻击类技能/粉碎大地.png")
+  val 审判官秘印Byte: Array[Byte]  = ImageUtils.getBytesFromClasspath("/攻击类技能/审判官秘印.png")
 
-  val 技能栏1Byte   = ImageUtils.getBytesFromClasspath("/技能栏1.png")
-  val 技能栏2Byte   = ImageUtils.getBytesFromClasspath("/技能栏2.png")
-  val 是否战斗状态Byte = ImageUtils.getBytesFromClasspath("/是否战斗状态.png")
+  val 技能栏1Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/技能栏1.png")
+  val 技能栏2Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/技能栏2.png")
+  val 是否战斗状态Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/是否战斗状态.png")
 
   val listImg: List[CompareImg] = List(
     CompareImg(责难光环Byte, KeyCode.DIGIT6, 100),
@@ -41,7 +41,7 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 粉碎大地   = SkillsRoundAction2.Skill(粉碎大地Byte, List(ActionQueue.KeyType(KeyCode.DIGIT8)))
   val 审判官秘印  = SkillsRoundAction2.Skill(审判官秘印Byte, List(ActionQueue.KeyType(KeyCode.DIGIT2)))
 
-  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击, 审判官秘印))
+  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击, 审判官秘印, 粉碎大地))
 
   val imgMatch = ImageMatcherEnv(listImg, jinenglanImg, skillsImg)
 }
