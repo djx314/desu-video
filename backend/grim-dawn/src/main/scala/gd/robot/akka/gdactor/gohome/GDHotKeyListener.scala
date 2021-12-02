@@ -42,7 +42,7 @@ object GDHotKeyListener extends AutoCloseable {
     JIntellitype.getInstance().registerHotKey(STARTKEY2, 0, KeyEvent.VK_NUMPAD2)
     JIntellitype.getInstance().registerHotKey(STARTKEY3, 0, KeyEvent.VK_NUMPAD3)
     JIntellitype.getInstance().registerHotKey(STARTKEY4, 0, KeyEvent.VK_NUMPAD4)
-    JIntellitype.getInstance().registerHotKey(STARTKEY5, 0, KeyEvent.VK_4)
+    JIntellitype.getInstance().registerHotKey(STARTKEY5, 0, KeyEvent.VK_BACK_QUOTE)
 
     JIntellitype.getInstance().registerHotKey(STOPSYSTEM, 0, KeyEvent.VK_NUMPAD8)
     JIntellitype.getInstance().addHotKeyListener(instance)

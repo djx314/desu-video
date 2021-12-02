@@ -12,9 +12,9 @@ object CirceImplicit {
 @JsonCodec
 case class ResultSet[T](data: T)
 @JsonCodec
-case class RootFilePaths(files: List[String])
-@JsonCodec
-case class DirInfo(dirInfo: dirMapping, subFiles: List[String], isDir: Boolean)
+case class DirInfo(dirInfo: dirMapping, subFiles: List[FileItem], isDir: Boolean)
 object DirInfo {
   import CirceImplicit._
 }
+@JsonCodec
+case class FileItem(fileName: String, isDir: Boolean)

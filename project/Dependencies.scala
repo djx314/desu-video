@@ -16,7 +16,7 @@ object Dependencies {
   val http4sVersion         = "0.23.6"
   val slickVersion          = "3.3.3"
   val mysqlVersion          = "8.0.26"
-  val tapirVersion          = "0.19.0-M9"
+  val tapirVersion          = "0.19.1"
   val jintellitypeVersion   = "1.4.0"
   val catsEffectVersion     = "3.2.9"
   val sttpVersion           = "3.3.16"
@@ -76,7 +76,7 @@ object Dependencies {
     "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % sttpVersion
   )
 
-  val zioLogging = "dev.zio" %% "zio-logging" % "0.5.12"
+  val zioLogging = "dev.zio" %% "zio-logging" % "0.5.14"
 
   val tapir = List(
     "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVersion,

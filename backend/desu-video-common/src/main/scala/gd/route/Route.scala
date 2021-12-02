@@ -8,7 +8,7 @@ object Route {
 
   val prefix = endpoint.in("api" / "desu")
 
-  def toUri[I, E, O, R, T](e: Endpoint[I, E, O, R])(value: I)(implicit wsToPipe: WebSocketToPipe[R]): Uri = {
+  def toUri[I, E, O, R, T](e: PublicEndpoint[I, E, O, R])(value: I)(implicit wsToPipe: WebSocketToPipe[R]): Uri = {
     val r = SttpClientInterpreter().toRequestThrowDecodeFailures(e, Option.empty)
     r(value).uri
   }

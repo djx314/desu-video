@@ -11,5 +11,6 @@ libraryDependencies ++= Dependencies.http4s
 libraryDependencies ++= Dependencies.cats
 libraryDependencies ++= Dependencies.macwire
 libraryDependencies ++= Dependencies.sttp
+libraryDependencies ++= Dependencies.tapir
 
 addCompilerPlugin(Dependencies.kindProjector)
