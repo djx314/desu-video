@@ -43,7 +43,7 @@ class RootFilePathsService(appConfig: AppConfig) {
     effectIO(dirIO.transactional)
   }
 
-  private def listFileNames(dir: Path): List[FileItem] = {
+  private def listFileNames(dir: Path): RIO[Blocking, List[FileItem]] = effectBlocking {
     val files = Files.list(dir).collect(Collectors.toList[Path])
     for (item <- files.asScala.to(List)) yield {
       val fileName = item.getFileName.toString
@@ -54,19 +54,22 @@ class RootFilePathsService(appConfig: AppConfig) {
 
   def rootPathDirInfo(dirName: String): RIO[ZEnv, Option[DirInfo]] = {
     // 文件不存在返回空，存在则下一步
-    def getInfo(exist: Boolean, path: Path) = if (exist) {
-      for {
-        isDir <- effectBlocking(Files.isDirectory(path))
-        dir   <- idDirDo(isDir, path)
-      } yield Option(dir)
-    } else ZIO.succeed(Option.empty)
+    def getInfo(exist: Boolean, path: Path) = {
+      if (exist)
+        for {
+          isDir <- effectBlocking(Files.isDirectory(path))
+          dir   <- idDirDo(isDir, path)
+        } yield Option(dir)
+      else
+        ZIO.succeed(Option.empty)
+    }
 
     // 文件是文件夹则列出文件夹，如果是普通文件则返回文件信息
     def idDirDo(isDir: Boolean, path: Path) = {
       if (isDir)
         for {
           mapping <- rootPathFile(dirName)
-          files   <- effectBlocking(listFileNames(path))
+          files   <- listFileNames(path)
         } yield DirInfo(dirInfo = mapping, files, isDir = isDir)
       else
         for (mapping <- rootPathFile(dirName)) yield DirInfo(dirInfo = mapping, List.empty, isDir = isDir)
@@ -86,7 +89,7 @@ class RootFilePathsService(appConfig: AppConfig) {
 
     def getInfo(exist: Boolean, isDir: Boolean) = {
       if (exist && isDir)
-        for (dir <- effectBlocking(listFileNames(currentDir)))
+        for (dir <- listFileNames(currentDir))
           yield Option(DirInfo(dirInfo = dirMapping(id = -1, filePath = "", parentId = -1), dir, isDir = isDir))
       else
         ZIO.succeed(Option.empty)

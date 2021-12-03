@@ -16,7 +16,7 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
 
   val FilePageRoot = appConfig.FilePageRoot
 
-  val baiduPage = DesuEndpoint.baiduPageEndpoint.zServerLogic { (_: Unit) =>
+  val baiduPage = DesuEndpoint.baiduPageEndpoint.zServerLogic { _ =>
     val backendResource = AsyncHttpClientZioBackend.managed()
     def requestUri(uri: SUri) = backendResource.use(backend =>
       for {
@@ -28,21 +28,20 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
     requestUri(uri"http://www.baidu.com").mapError(e => "请求错误")
   }
 
-  /*val rootPathFiles = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFile" / dirName =>
-    for {
-      dirInfo <- rootFilePathsService.rootPathDirInfo(dirName)
-      result  <- Ok(ResultSet(dirInfo).asJson)
-    } yield result
+  val rootPathFile = DesuEndpoint.rootPathFileEndpoint.zServerLogic { dirName =>
+    val result = for (dirInfo <- rootFilePathsService.rootPathDirInfo(dirName.fileName)) yield ResultSet(dirInfo)
+    result.mapError(e => {
+      e.printStackTrace()
+      ResultSet("意外结果")
+    })
   }
 
-  val rootDirName = HttpRoutes.of[IO] { case GET -> FilePageRoot / "rootPathFiles" =>
-    for {
-      dirInfo <- rootFilePathsService.rootPathDirName
-      result  <- Ok(ResultSet(dirInfo).asJson)
-    } yield result
-  }*/
+  val rootPathFiles = DesuEndpoint.rootPathFilesEndpoint.zServerLogic { _ =>
+    val result = for (dirInfo <- rootFilePathsService.rootPathDirName) yield ResultSet(dirInfo)
+    result.mapError(e => ResultSet("意外结果"))
+  }
 
-  val routes = List(baiduPage.widen[ZEnv])
-  val docs   = List(DesuEndpoint.baiduPageEndpoint)
+  val routes = List(baiduPage.widen[ZEnv], rootPathFile.widen[ZEnv], rootPathFiles.widen[ZEnv])
+  val docs   = List(DesuEndpoint.baiduPageEndpoint, DesuEndpoint.rootPathFileEndpoint, DesuEndpoint.rootPathFilesEndpoint)
 
 }
