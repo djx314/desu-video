@@ -47,7 +47,7 @@ object HttpServerRoutingMinimal {
 
     val bindingFuture: Future[ServerBinding] = Http().newServerAt("localhost", 8080).bind(GlobalVars.routingMinimal.route)
 
-    val webappListener = system.systemActorOf(WebAppListener(bindingFuture), "web-app-listener")
+    val webappListener = system.systemActorOf(WebAppListener(), "web-app-listener")
     webappListener ! WebAppListener.StartGoHomeKeyListener
 
     println(s"Server online at http://localhost:8080/\nPress Number8 to stop...")

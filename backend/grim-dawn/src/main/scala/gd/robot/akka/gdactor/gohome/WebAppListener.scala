@@ -27,12 +27,11 @@ object WebAppListener {
   case object StopWebSystem                        extends GoHomeKey
   case object PressSkillRound                      extends GoHomeKey
 
-  def apply(binding: Future[ServerBinding]): Behavior[GoHomeKey] =
-    Behaviors.setup(s => new WebAppListener(s, binding))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s /*, binding*/ ))
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBinding]) extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey] /*, binding: Future[ServerBinding]*/ ) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -50,21 +49,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   private var isReady: Boolean = false
 
   private def stopWebSystem = {
-    val stopHotKey         = Future(GDHotKeyListener.close())(blockExecutionContext)
-    val stopJavaFXPlatform = Future(Platform.exit())(blockExecutionContext)
-    val unbindAction = for {
-      bindingInstance <- binding
-      _               <- bindingInstance.unbind()
-    } yield {
-      logger.info("Unbinded web app.")
-    }
-    val closeAction = for {
-      _ <- stopHotKey
-      _ <- stopJavaFXPlatform
-      _ <- unbindAction
-    } yield {
-      logger.info("Close app source.")
-    }
+    val closeAction = Future(GDHotKeyListener.close())(blockExecutionContext)
     closeAction.onComplete(_ => system.terminate())
   }
 
@@ -80,12 +65,8 @@ class WebAppListener(context: ActorContext[GoHomeKey], binding: Future[ServerBin
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case StartGoHomeKeyListener =>
-        def action1 = Future(GDHotKeyListener.startListen(self))(blockExecutionContext)
-        def action2 = Future(Platform.startup(() => {}))(blockExecutionContext)
-        val startAction = for {
-          _ <- action1
-          _ <- action2
-        } yield {}
+        def startAction = Future(GDHotKeyListener.startListen(self))(blockExecutionContext)
+        // def action2 = Future(Platform.startup(() => {}))(blockExecutionContext)
         context.pipeToSelf(startAction) {
           case Success(value) =>
             logger.info(s"Init project success.")

@@ -11,6 +11,6 @@ libraryDependencies ++= org.scalax.sbt.Dependencies.simpleLogger
 libraryDependencies += org.scalax.sbt.Dependencies.jintellitype
 libraryDependencies += org.scalax.sbt.Dependencies.thumbnailator
 libraryDependencies += org.scalax.sbt.Dependencies.javacv
-libraryDependencies ++= org.scalax.sbt.Dependencies.javafx
+libraryDependencies ++= org.scalax.sbt.Dependencies.scalafx
 
 run / fork := true

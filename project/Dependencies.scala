@@ -93,11 +93,29 @@ object Dependencies {
 
   val thumbnailator = "net.coobird"  % "thumbnailator"   % "0.4.14"
   val javacv        = "org.bytedeco" % "javacv-platform" % "1.5.6"
-  val javafx        = List("org.openjfx" % "javafx-swing" % "11")
 
   val kindProjector = "org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.full
 
   val quill = List("io.getquill" %% "quill-codegen-jdbc" % quillVersion, "io.getquill" %% "quill-async-mysql" % quillVersion)
   def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
+
+  lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
+
+  val scalafx = {
+    // Add dependency on ScalaFX library
+    val fx = "org.scalafx" %% "scalafx" % "16.0.0-R25"
+
+    // Determine OS version of JavaFX binaries
+    lazy val osName = System.getProperty("os.name") match {
+      case n if n.startsWith("Linux")   => "linux"
+      case n if n.startsWith("Mac")     => "mac"
+      case n if n.startsWith("Windows") => "win"
+      case _                            => throw new Exception("Unknown platform!")
+    }
+
+    // Add dependency on JavaFX libraries, OS dependent
+    val javafx = javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
+    fx :: javafx
+  }
 
 }
