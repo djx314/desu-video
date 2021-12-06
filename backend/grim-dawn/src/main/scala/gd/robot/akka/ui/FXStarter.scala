@@ -15,6 +15,7 @@ object HelloStageDemo extends JFXApp3 {
   implicit val system           = MainApp.system
   implicit val executionContext = system.executionContext
   val webappListener            = system.systemActorOf(WebAppListener(), "web-app-listener")
+  webappListener ! WebAppListener.StartGoHomeKeyListener
 
   override def start(): Unit = {
     val screenBounds = Screen.primary.bounds
@@ -29,28 +30,32 @@ object HelloStageDemo extends JFXApp3 {
       scene = new Scene {
         fill = LightBlue
 
-        val startButton = new Button("启动监听") {
-          onMouseClicked = { e =>
-            webappListener ! WebAppListener.StartGoHomeKeyListener
-            innerVBox.children = stopButton
-          }
-        }
-
-        val stopButton = new Button("关闭监听") {
-          onMouseClicked = { e =>
-            stage.close()
-          }
-        }
-
-        val innerVBox = new VBox
-
-        content = new VBox {
+        val showVBox = new VBox {
           children = List(
-            startButton,
-            innerVBox
+            new Button("回城") {
+              onMouseClicked = { e =>
+                webappListener ! WebAppListener.PressGoHomeKeyBoard
+              }
+            },
+            new Button("启动或关闭重生之语") {
+              onMouseClicked = { e =>
+                webappListener ! WebAppListener.RoundAction
+              }
+            },
+            new Button("启动或关闭 buff 监控") {
+              onMouseClicked = { e =>
+                webappListener ! WebAppListener.PressAutoEnableBuffBoard
+              }
+            },
+            new Button("关闭监听") {
+              onMouseClicked = { e =>
+                stage.close()
+              }
+            }
           )
-          fill = Red
         }
+
+        content = showVBox
       }
     }
   }

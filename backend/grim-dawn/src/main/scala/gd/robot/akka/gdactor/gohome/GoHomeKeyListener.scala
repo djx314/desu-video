@@ -4,6 +4,7 @@ import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
 import javafx.scene.input.KeyCode
+import scalafx.stage.Screen
 
 object GoHomeKeyListener {
   trait GoHomeKey
@@ -31,6 +32,11 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
   private def mouseRobot = {
+    val bounds = Screen.primary.bounds
+    appendAction(MouseMove((bounds.width / 2).toInt, (bounds.height / 2).toInt))
+    delayAction
+    appendAction(MouseClick)
+    delayAction
     keyPR(KeyCode.M)
     delayAction
     appendAction(MouseMove(956, 850))

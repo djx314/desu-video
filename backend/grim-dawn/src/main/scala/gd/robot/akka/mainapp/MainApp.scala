@@ -4,15 +4,9 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import com.softwaremill.macwire._
 import desu.video.common.slick.DesuDatabase
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.gdactor.gohome.WebAppListener
-import gd.robot.akka.routes.HttpServerRoutingMinimal
 import gd.robot.akka.service.FileFinder
 import gd.robot.akka.utils.{GDSystemUtils, ImageMatcher, ImageMatcherEnv, ImageUtils}
-
-import scala.concurrent.Future
 
 object MainApp {
 
@@ -28,17 +22,14 @@ object MainApp {
 
   private lazy val fileFinder = wire[FileFinder]
 
-  lazy val routingMinimal = wire[HttpServerRoutingMinimal]
-
 }
 
 object GlobalVars {
-  lazy val imageMatcher: ImageMatcher               = MainApp.imageMatcher
-  lazy val routingMinimal: HttpServerRoutingMinimal = MainApp.routingMinimal
-  lazy val gdSystemUtils: GDSystemUtils             = MainApp.gdSystemUtils
+  lazy val imageMatcher: ImageMatcher   = MainApp.imageMatcher
+  lazy val gdSystemUtils: GDSystemUtils = MainApp.gdSystemUtils
 }
 
-object HttpServerRoutingMinimal {
+/*object HttpServerRoutingMinimal {
 
   def main(args: Array[String]): Unit = {
     implicit val system = MainApp.system
@@ -51,10 +42,10 @@ object HttpServerRoutingMinimal {
     webappListener ! WebAppListener.StartGoHomeKeyListener
 
     println(s"Server online at http://localhost:8080/\nPress Number8 to stop...")
-    /*StdIn.readLine() // let it run until user presses return
+    StdIn.readLine() // let it run until user presses return
     bindingFuture
       .flatMap(_.unbind())                 // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done*/
+      .onComplete(_ => system.terminate()) // and shutdown when done
   }
 
-}
+}*/
