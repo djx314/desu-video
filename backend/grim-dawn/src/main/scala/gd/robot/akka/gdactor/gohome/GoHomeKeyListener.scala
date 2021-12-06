@@ -36,7 +36,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
     appendAction(MouseMove((bounds.width / 2).toInt, (bounds.height / 2).toInt))
     delayAction
     appendAction(MouseClick)
-    delayAction
+    appendAction(ActionInputDelay(300))
     keyPR(KeyCode.M)
     delayAction
     appendAction(MouseMove(956, 850))
