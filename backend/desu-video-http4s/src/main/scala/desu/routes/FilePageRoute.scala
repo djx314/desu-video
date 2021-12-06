@@ -2,13 +2,10 @@ package desu.routes
 
 import desu.config.AppConfig
 import desu.endpoint.DesuEndpoint
-import desu.models.ResultSet
-import io.circe.syntax._
 import sttp.client3._
 import desu.service.RootFilePathsService
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
-import sttp.model.{Uri => SUri}
-import sttp.tapir._
+import sttp.model.{StatusCode, Uri => SUri}
 import sttp.tapir.ztapir._
 import zio._
 
@@ -29,16 +26,26 @@ class FilePageRoute(appConfig: AppConfig, rootFilePathsService: RootFilePathsSer
   }
 
   val rootPathFile = DesuEndpoint.rootPathFileEndpoint.zServerLogic { dirName =>
-    val result = for (dirInfo <- rootFilePathsService.rootPathDirInfo(dirName.fileName)) yield ResultSet(dirInfo)
-    result.mapError(e => {
+    val result1 = for (dirInfo <- rootFilePathsService.rootPathDirInfo(dirName.fileName)) yield dirInfo
+    val result2 = result1.mapError(e => {
       e.printStackTrace()
-      ResultSet("意外结果")
+      ("意外结果", StatusCode.InternalServerError)
     })
+    val result3 = for {
+      d       <- result2
+      dirInfo <- ZIO.fromOption(d)
+    } yield dirInfo
+    result3.mapError(_ => ("找不到文件", StatusCode.NotFound))
   }
 
   val rootPathFiles = DesuEndpoint.rootPathFilesEndpoint.zServerLogic { _ =>
-    val result = for (dirInfo <- rootFilePathsService.rootPathDirName) yield ResultSet(dirInfo)
-    result.mapError(e => ResultSet("意外结果"))
+    val result1 = for (dirInfo <- rootFilePathsService.rootPathDirName) yield dirInfo
+    val result2 = result1.mapError(e => ("意外结果", StatusCode.InternalServerError))
+    val result3 = for {
+      d       <- result2
+      dirInfo <- ZIO.fromOption(d)
+    } yield dirInfo
+    result3.mapError(_ => ("找不到文件", StatusCode.NotFound))
   }
 
   val routes = List(baiduPage.widen[ZEnv], rootPathFile.widen[ZEnv], rootPathFiles.widen[ZEnv])

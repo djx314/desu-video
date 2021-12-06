@@ -10,7 +10,7 @@ object CirceImplicit {
 }
 
 @JsonCodec
-case class ResultSet[T](data: T)
+case class ResultSet[T](data: T, code: Int)
 @JsonCodec
 case class DirInfo(dirInfo: dirMapping, subFiles: List[FileItem], isDir: Boolean)
 object DirInfo {
