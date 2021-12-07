@@ -28,6 +28,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
   import ActionQueue._
   private def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
   private def delayAction: Unit                   = appendAction(ActionInputDelay(100))
+  private def delayMouseAction: Unit              = appendAction(ActionInputDelay(300))
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
   private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
@@ -36,13 +37,13 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
     appendAction(MouseMove((bounds.width / 2).toInt, (bounds.height / 2).toInt))
     delayAction
     appendAction(MouseClick)
-    appendAction(ActionInputDelay(300))
+    delayMouseAction
     keyPR(KeyCode.M)
     delayAction
     appendAction(MouseMove(956, 850))
     delayAction
     appendAction(MouseClick)
-    delayAction
+    delayMouseAction
     for (_ <- 1 to 4) {
       appendAction(MouseMove(1310, 736))
       delayAction
