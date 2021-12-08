@@ -74,8 +74,7 @@ object HelloStageDemo extends JFXApp3 {
               new Button {
                 text <== when(delayBuff.isOn) choose s"关闭第${index + 1}个 buff 监控" otherwise s"启动第${index + 1}个 buff 监控"
                 onMouseClicked = { e =>
-                  delayBuff.keyCodePro.value = KeyCode.DIGIT7
-                  delayBuff.isOn.value = !button2.isOn.value
+                  delayBuff.isOn.value = !delayBuff.isOn.value
                   delayBuff.tick()
                 }
               },
