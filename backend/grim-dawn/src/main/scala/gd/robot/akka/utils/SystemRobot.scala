@@ -14,8 +14,8 @@ object SystemRobot {
       try {
         n(new Robot)
       } catch {
-        case e: Exception =>
-          e.printStackTrace()
+        case e: Throwable =>
+          promise.tryFailure(e)
       } finally {
         promise.trySuccess(())
       }

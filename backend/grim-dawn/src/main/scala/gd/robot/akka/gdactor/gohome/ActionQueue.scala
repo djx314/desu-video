@@ -31,18 +31,15 @@ object ActionQueue {
     override type Message = T
   }
 
-  def apply(): Behavior[ActionStatus] = Behaviors.setup(s => new ActionQueue(s))
+  def apply(): Behavior[ActionStatus]                    = Behaviors.setup(s => new ActionQueue(s, Future.successful(())))
+  def apply(future: Future[Any]): Behavior[ActionStatus] = Behaviors.setup(s => new ActionQueue(s, future))
 }
 
 import ActionQueue._
-class ActionQueue(context: ActorContext[ActionStatus]) extends AbstractBehavior[ActionStatus](context) {
+class ActionQueue(context: ActorContext[ActionStatus], action: Future[Any]) extends AbstractBehavior[ActionStatus](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-
-  private var currentAction: Future[Any] = Future.successful(())
-
-  private def appendAction(n: => Future[Any]): Unit = currentAction = currentAction.transformWith(_ => n)
 
   private val delayCall: Callable[Future[Any]] = {
     val f = Future.successful(())
@@ -58,26 +55,35 @@ class ActionQueue(context: ActorContext[ActionStatus]) extends AbstractBehavior[
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
       case KeyType(keyCode) =>
-        def action = SystemRobot.keyType(keyCode)
-        appendAction(action)
+        val newAction = action.transformWith(_ => SystemRobot.keyType(keyCode))
+        ActionQueue(newAction)
       case KeyPressDown(keyCode) =>
-        def action = SystemRobot.keyPress(keyCode)
-        appendAction(action)
+        val newAction = action.transformWith(_ => SystemRobot.keyPress(keyCode))
+        ActionQueue(newAction)
       case KeyPressUp(keyCode) =>
-        def action = SystemRobot.keyRelease(keyCode)
-        appendAction(action)
-      case MouseDown       => appendAction(SystemRobot.mouseDown)
-      case MouseUp         => appendAction(SystemRobot.mouseUp)
-      case MouseClick      => appendAction(SystemRobot.mouseClick)
-      case MouseRightClick => appendAction(SystemRobot.mouseRightClick)
+        val newAction = action.transformWith(_ => SystemRobot.keyRelease(keyCode))
+        ActionQueue(newAction)
+      case MouseDown =>
+        val newAction = action.transformWith(_ => SystemRobot.mouseDown)
+        ActionQueue(newAction)
+      case MouseUp =>
+        val newAction = action.transformWith(_ => SystemRobot.mouseUp)
+        ActionQueue(newAction)
+      case MouseClick =>
+        val newAction = action.transformWith(_ => SystemRobot.mouseClick)
+        ActionQueue(newAction)
+      case MouseRightClick =>
+        val newAction = action.transformWith(_ => SystemRobot.mouseRightClick)
+        ActionQueue(newAction)
       case MouseMove(x, y) =>
-        def action = SystemRobot.mouseMove(x = x, y = y)
-        appendAction(action)
-      case ActionInputDelay(millions) => appendAction(delayMillions(millions))
+        val newAction = action.transformWith(_ => SystemRobot.mouseMove(x = x, y = y))
+        ActionQueue(newAction)
+      case ActionInputDelay(millions) =>
+        val newAction = action.transformWith(_ => delayMillions(millions))
+        ActionQueue(newAction)
       case s: ReplyToImpl =>
-        def action = Future(s.actor ! s.message)
-        appendAction(action)
+        val newAction = action.transformWith(_ => Future(s.actor ! s.message))
+        ActionQueue(newAction)
     }
-    Behaviors.same
   }
 }
