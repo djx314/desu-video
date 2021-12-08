@@ -37,8 +37,10 @@ object HelloStageDemo extends JFXApp3 {
 
         val button1 = MainApp.delayBuff("name1")
         button1.delayTime.value = 24
+        button1.keyCodePro.value = KeyCode.DIGIT6
         val button2 = MainApp.delayBuff("name2")
         button2.delayTime.value = 31
+        button1.keyCodePro.value = KeyCode.DIGIT7
         val bufferBind = BufferProperty(List.empty[DelayBuff])
         bufferBind.onChange { (bind, old, newInstance) =>
           val needClose = old.filter(s => !newInstance.exists(t => s == t))
