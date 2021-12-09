@@ -29,7 +29,7 @@ class DelayBuffUI(gen: () => DelayBuff) {
     buff2.keyCodePro.value = KeyCode.R
     List(buff1, buff2)
   }
-  val initBuff = 战争领主Buff监控
+  val initBuff = 净化Buff监控
 
   val bufferBind = BufferProperty(List.empty[DelayBuff])
   bufferBind.onChange { (bind, old, newInstance) =>
