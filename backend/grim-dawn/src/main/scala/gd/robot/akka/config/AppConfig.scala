@@ -43,7 +43,7 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 审判官秘印  = SkillsRoundAction2.Skill(审判官秘印Byte, List(ActionQueue.KeyType(KeyCode.DIGIT5)))
   val 贝若纳斯之怒 = SkillsRoundAction2.Skill(贝若纳斯之怒Byte, List(ActionQueue.MouseClick))
 
-  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 贝若纳斯之怒))
+  val skillsImg = SkillsImg(List(德里格之创, 手榴弹 /*, 贝若纳斯之怒*/ ))
 
   val imgMatch = ImageMatcherEnv(listImg, jinenglanImg, skillsImg)
 }
