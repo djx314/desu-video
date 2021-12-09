@@ -14,7 +14,7 @@ object SystemRobot {
     val promise = Promise[Unit]()
     Platform.runLater(
       try {
-        n(new Robot)
+        promise.trySuccess(n(new Robot))
       } catch {
         case e: Throwable =>
           promise.tryFailure(e)

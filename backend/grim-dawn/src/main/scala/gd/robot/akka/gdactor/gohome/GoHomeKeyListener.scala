@@ -3,37 +3,35 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.utils.SystemRobot
 import javafx.scene.input.KeyCode
-import scalafx.stage.Screen
+import scalafx.geometry.Rectangle2D
 
 object GoHomeKeyListener {
   trait GoHomeKey
   case object PressGoHomeKeyBoard extends GoHomeKey
   case object PressCanStart       extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s, isNowWorking = false, s.spawnAnonymous(ActionQueue())))
 }
 
 import GoHomeKeyListener._
-class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+class GoHomeKeyListener(context: ActorContext[GoHomeKey], isNowWorking: Boolean, actionQueue: ActorRef[ActionQueue.ActionStatus])
+    extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private val self                      = context.self
 
-  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
-
-  private var isNowWorking: Boolean = false
-
   import ActionQueue._
-  private def keyPR(keyCode: KeyCode): Unit       = appendAction(KeyType(keyCode))
-  private def delayAction: Unit                   = appendAction(ActionInputDelay(100))
-  private def delayMouseAction: Unit              = appendAction(ActionInputDelay(300))
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
 
-  private def mouseRobot = {
-    val bounds = Screen.primary.bounds
+  private def keyPR(keyCode: KeyCode): Unit = appendAction(KeyType(keyCode))
+  private def delayAction: Unit             = appendAction(ActionInputDelay(100))
+  private def delayMouseAction: Unit        = appendAction(ActionInputDelay(300))
+  private def completeAction: Unit          = appendAction(ReplyTo(self, PressCanStart))
+
+  private def mouseRobot(bounds: Rectangle2D) = {
     appendAction(MouseMove((bounds.width / 2).toInt, (bounds.height / 2).toInt))
     delayAction
     appendAction(MouseClick)
@@ -63,11 +61,11 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey]) extends AbstractBehavi
     msg match {
       case PressGoHomeKeyBoard =>
         if (isNowWorking == false) {
-          isNowWorking = true
-          mouseRobot
+          for (bounds <- SystemRobot.screenSize) mouseRobot(bounds)
         }
+        new GoHomeKeyListener(context, !isNowWorking, actionQueue)
       case PressCanStart =>
-        isNowWorking = false
+        new GoHomeKeyListener(context, false, actionQueue)
     }
     Behaviors.same
   }

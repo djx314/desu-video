@@ -27,7 +27,7 @@ object WebAppListener {
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -41,8 +41,6 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
   private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.R, delay = 27000))*/
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
-
-  private var isReady: Boolean = false
 
   private def stopWebSystem = {
     val closeAction = Future(GDHotKeyListener.close())(blockExecutionContext)
@@ -68,16 +66,26 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
             logger.error(s"Init project error.", err)
             StartActionComplete(false)
         }
-      case StartActionComplete(r) => isReady = r
-      case PressGoHomeKeyBoard    => if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
+        Behaviors.same
+      case StartActionComplete(r) =>
+        new WebAppListener(context, r)
+      case PressGoHomeKeyBoard =>
+        if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
+        Behaviors.same
       // case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
-      case PressAutoEnableBuffBoard => if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
-      case PressSkillRound          => if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
+      case PressAutoEnableBuffBoard =>
+        if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
+        Behaviors.same
+      case PressSkillRound =>
+        if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
+        Behaviors.same
       case RoundAction(replyTo) =>
-        val actor = context.spawnAnonymous(SkillsRoundAction3.apply2())
+        val actor = context.spawnAnonymous(SkillsRoundAction3())
         replyTo ! actor
-      case StopWebSystem => stopWebSystem
+        Behaviors.same
+      case StopWebSystem =>
+        stopWebSystem
+        Behaviors.same
     }
-    Behaviors.same
   }
 }

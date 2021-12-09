@@ -50,13 +50,20 @@ object SkillsRoundAction3 {
   case object EndAction                                   extends GoHomeKey
   case object ReleaseAction                               extends GoHomeKey
 
-  def apply(keyCode: KeyCode, delay: Long): Behavior[GoHomeKey] =
-    Behaviors.setup(s => new SkillsRoundAction3(s, keyCode = keyCode, delay = delay))
-
-  def apply2(): Behavior[GoHomeKey] = {
+  def apply(): Behavior[GoHomeKey] = {
     Behaviors.receive((context, message) =>
       message match {
-        case ReStartAction(keyCode, delay) => SkillsRoundAction3(keyCode, delay)
+        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, context.spawnAnonymous(ActionQueue()))
+        case ReleaseAction                 => Behaviors.stopped
+        case _                             => Behaviors.same
+      }
+    )
+  }
+
+  def apply2(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] = {
+    Behaviors.receive((context, message) =>
+      message match {
+        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, actionQueue)
         case ReleaseAction                 => Behaviors.stopped
         case _                             => Behaviors.same
       }
@@ -65,14 +72,13 @@ object SkillsRoundAction3 {
 }
 
 import SkillsRoundAction3._
-class SkillsRoundAction3(context: ActorContext[GoHomeKey], keyCode: KeyCode, delay: Long) extends AbstractBehavior[GoHomeKey](context) {
+class SkillsRoundAction3(context: ActorContext[GoHomeKey], keyCode: KeyCode, delay: Long, actionQueue: ActorRef[ActionQueue.ActionStatus])
+    extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private val self                      = context.self
   private val gdSystemUtils             = GlobalVars.gdSystemUtils
-
-  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
 
   import ActionQueue._
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
@@ -93,9 +99,9 @@ class SkillsRoundAction3(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
         mouseRobot
         Behaviors.same
       case ReStartAction(keyCode1, delay1) =>
-        SkillsRoundAction3(keyCode1, delay1)
+        new SkillsRoundAction3(context, keyCode1, delay1, actionQueue)
       case EndAction =>
-        SkillsRoundAction3.apply2()
+        SkillsRoundAction3.apply2(actionQueue)
       case ReleaseAction =>
         Behaviors.stopped
     }

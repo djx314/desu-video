@@ -4,12 +4,8 @@ import akka.actor.typed.{ActorRef, ActorSystem, DispatcherSelector}
 import akka.util.Timeout
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.gdactor.gohome.systemactor.WaitForGDFocus
-import scalafx.application.Platform
-import scalafx.geometry.Rectangle2D
-import scalafx.stage.Screen
 
-import java.awt.Toolkit
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Future
 
 class GDSystemUtils(system: ActorSystem[Nothing], imageUtils: ImageUtils) {
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())

@@ -27,23 +27,26 @@ class WaitForGDFocus(context: ActorContext[ActionStatus], promiseList: List[Acto
   private val gdSystemUtils             = GlobalVars.gdSystemUtils
   private val self                      = context.self
 
-  private def delayCheck[T](million: Long): Future[CheckGDFocus] = Patterns.after(
-    Duration(million, MILLISECONDS),
-    system.classicSystem.scheduler,
-    implicitly[ExecutionContext],
-    () => for (focus <- gdSystemUtils.isNowOnFocus) yield CheckGDFocus(focus)
-  )
+  private def delayCheck[T](million: Long): Future[Boolean] = {
+    Patterns.after(
+      Duration(million, MILLISECONDS),
+      system.classicSystem.scheduler,
+      implicitly[ExecutionContext],
+      () => for (focus <- gdSystemUtils.isNowOnFocus) yield focus
+    )
+  }
 
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
-      case InputPromise(keyCode) =>
-        WaitForGDFocus.apply2(keyCode :: promiseList)
+      case InputPromise(promise) =>
+        WaitForGDFocus.apply2(promise :: promiseList)
       case CheckGDFocus(focus) =>
-        context.pipeToSelf(delayCheck(500))(_.getOrElse(CheckGDFocus(false)))
+        context.pipeToSelf(delayCheck(500))(s => CheckGDFocus(s.getOrElse(false)))
         if (focus) {
           for (p <- promiseList) yield p ! focus
           WaitForGDFocus()
-        } else Behaviors.same
+        } else
+          Behaviors.same
     }
   }
 }
