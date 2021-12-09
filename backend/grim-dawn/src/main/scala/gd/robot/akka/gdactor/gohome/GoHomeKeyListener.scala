@@ -12,7 +12,8 @@ object GoHomeKeyListener {
   case object PressGoHomeKeyBoard extends GoHomeKey
   case object PressCanStart       extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new GoHomeKeyListener(s, isNowWorking = false, s.spawnAnonymous(ActionQueue())))
+  def apply(): Behavior[GoHomeKey] =
+    Behaviors.setup(s => new GoHomeKeyListener(s, isNowWorking = false, s.spawnAnonymous(ActionQueue.init())))
 }
 
 import GoHomeKeyListener._
@@ -28,7 +29,7 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], isNowWorking: Boolean,
 
   private def keyPR(keyCode: KeyCode): Unit = appendAction(KeyType(keyCode))
   private def delayAction: Unit             = appendAction(ActionInputDelay(100))
-  private def delayMouseAction: Unit        = appendAction(ActionInputDelay(300))
+  private def delayMouseAction: Unit        = appendAction(ActionInputDelay(500))
   private def completeAction: Unit          = appendAction(ReplyTo(self, PressCanStart))
 
   private def mouseRobot(bounds: Rectangle2D) = {

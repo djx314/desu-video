@@ -20,6 +20,7 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 强化盾牌猛击Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/攻击类技能/强化盾牌猛击.png")
   val 粉碎大地Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/攻击类技能/粉碎大地.png")
   val 审判官秘印Byte: Array[Byte]  = ImageUtils.getBytesFromClasspath("/攻击类技能/审判官秘印.png")
+  val 贝若纳斯之怒Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/攻击类技能/贝若纳斯之怒.png")
 
   val 技能栏1Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/技能栏1.png")
   val 技能栏2Byte: Array[Byte]   = ImageUtils.getBytesFromClasspath("/技能栏2.png")
@@ -40,8 +41,9 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 强化盾牌猛击 = SkillsRoundAction2.Skill(强化盾牌猛击Byte, List(ActionQueue.MouseClick))
   val 粉碎大地   = SkillsRoundAction2.Skill(粉碎大地Byte, List(ActionQueue.KeyType(KeyCode.DIGIT8)))
   val 审判官秘印  = SkillsRoundAction2.Skill(审判官秘印Byte, List(ActionQueue.KeyType(KeyCode.DIGIT5)))
+  val 贝若纳斯之怒 = SkillsRoundAction2.Skill(贝若纳斯之怒Byte, List(ActionQueue.MouseClick))
 
-  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 强化盾牌猛击))
+  val skillsImg = SkillsImg(List(德里格之创, 手榴弹, 贝若纳斯之怒))
 
   val imgMatch = ImageMatcherEnv(listImg, jinenglanImg, skillsImg)
 }

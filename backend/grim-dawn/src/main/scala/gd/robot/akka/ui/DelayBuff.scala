@@ -53,7 +53,7 @@ object SkillsRoundAction3 {
   def apply(): Behavior[GoHomeKey] = {
     Behaviors.receive((context, message) =>
       message match {
-        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, context.spawnAnonymous(ActionQueue()))
+        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, context.spawnAnonymous(ActionQueue.init()))
         case ReleaseAction                 => Behaviors.stopped
         case _                             => Behaviors.same
       }

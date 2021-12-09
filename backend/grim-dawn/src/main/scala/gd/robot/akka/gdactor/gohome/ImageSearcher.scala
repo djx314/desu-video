@@ -29,7 +29,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
   private val imgMatcher                = GlobalVars.imageMatcher
   private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue.init())
 
   private var enabled: Boolean      = false
   private var isNowWorking: Boolean = false

@@ -31,7 +31,8 @@ object ActionQueue {
     override type Message = T
   }
 
-  def apply(): Behavior[ActionStatus] = Behaviors.setup(s => new ActionQueue(s, Future.successful(())))
+  def init(): Behavior[ActionStatus]                     = Behaviors.setup(s => new ActionQueue(s, Future.successful(())))
+  def apply(future: Future[Any]): Behavior[ActionStatus] = Behaviors.setup(s => new ActionQueue(s, future))
 }
 
 import ActionQueue._
@@ -55,34 +56,34 @@ class ActionQueue(context: ActorContext[ActionStatus], action: Future[Any]) exte
     msg match {
       case KeyType(keyCode) =>
         val newAction = action.transformWith(_ => SystemRobot.keyType(keyCode))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case KeyPressDown(keyCode) =>
         val newAction = action.transformWith(_ => SystemRobot.keyPress(keyCode))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case KeyPressUp(keyCode) =>
         val newAction = action.transformWith(_ => SystemRobot.keyRelease(keyCode))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case MouseDown =>
         val newAction = action.transformWith(_ => SystemRobot.mouseDown)
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case MouseUp =>
         val newAction = action.transformWith(_ => SystemRobot.mouseUp)
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case MouseClick =>
         val newAction = action.transformWith(_ => SystemRobot.mouseClick)
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case MouseRightClick =>
         val newAction = action.transformWith(_ => SystemRobot.mouseRightClick)
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case MouseMove(x, y) =>
         val newAction = action.transformWith(_ => SystemRobot.mouseMove(x = x, y = y))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case ActionInputDelay(millions) =>
         val newAction = action.transformWith(_ => delayMillions(millions))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
       case s: ReplyToImpl =>
         val newAction = action.transformWith(_ => Future(s.actor ! s.message))
-        new ActionQueue(context, newAction)
+        ActionQueue(newAction)
     }
   }
 }

@@ -28,7 +28,7 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehav
   private val imageMatcher              = GlobalVars.imageMatcher
   private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue())
+  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue.init())
 
   private var enabled: Boolean        = false
   private var currentRunning: Boolean = false
