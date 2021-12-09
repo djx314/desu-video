@@ -38,15 +38,6 @@ object HelloStageDemo extends JFXApp3 {
                 webappListener ! WebAppListener.PressGoHomeKeyBoard
               }
             },
-            /*new Button {
-              val isOn = BooleanProperty(false)
-              text <== when(isOn) choose "关闭重生之语" otherwise "启动重生之语"
-
-              onMouseClicked = { e =>
-                isOn.value = !isOn.value
-                webappListener ! WebAppListener.RoundAction
-              }
-            },*/
             new Button {
               val isOn = BooleanProperty(false)
               text <== when(isOn) choose "关闭 buff 监控" otherwise "启动 buff 监控"

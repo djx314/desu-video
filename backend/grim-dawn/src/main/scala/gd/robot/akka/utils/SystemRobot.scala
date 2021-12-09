@@ -1,8 +1,10 @@
 package gd.robot.akka.utils
 
-import javafx.application.Platform
 import javafx.scene.input.{KeyCode, MouseButton}
 import javafx.scene.robot.Robot
+import scalafx.application.Platform
+import scalafx.geometry.Rectangle2D
+import scalafx.stage.Screen
 
 import scala.concurrent.{Future, Promise}
 
@@ -10,16 +12,14 @@ object SystemRobot {
 
   def runJavafx(n: Robot => Unit): Future[Unit] = {
     val promise = Promise[Unit]()
-    Platform.runLater(() => {
+    Platform.runLater(
       try {
         n(new Robot)
       } catch {
         case e: Throwable =>
           promise.tryFailure(e)
-      } finally {
-        promise.trySuccess(())
       }
-    })
+    )
     promise.future
   }
   def keyPress(keyCode: KeyCode): Future[Unit]   = runJavafx(robot => robot.keyPress(keyCode))
@@ -32,5 +32,16 @@ object SystemRobot {
   def mouseUp: Future[Unit]         = runJavafx(robot => robot.mouseRelease(MouseButton.PRIMARY))
 
   def mouseMove(x: Int, y: Int): Future[Unit] = runJavafx(robot => robot.mouseMove(x, y))
+
+  def screenSize: Future[Rectangle2D] = {
+    val promise = Promise[Rectangle2D]()
+    def laterSize = try {
+      promise.trySuccess(Screen.primary.bounds)
+    } catch {
+      case e: Throwable => promise.tryFailure(e)
+    }
+    Platform.runLater(laterSize)
+    promise.future
+  }
 
 }

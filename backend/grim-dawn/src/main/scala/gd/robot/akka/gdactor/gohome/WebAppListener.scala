@@ -17,11 +17,11 @@ object WebAppListener {
   case class StartActionComplete(isReady: Boolean) extends GoHomeKey
   case object PressGoHomeKeyBoard                  extends GoHomeKey
   // case object PressEnableBuffBoard                 extends GoHomeKey
-  case object PressAutoEnableBuffBoard                                            extends GoHomeKey
-  case class RoundAction(replyTo: ActorRef[SkillsRoundAction3.GoHomeKey => Unit]) extends GoHomeKey
-  case object ReadyToListen                                                       extends GoHomeKey
-  case object StopWebSystem                                                       extends GoHomeKey
-  case object PressSkillRound                                                     extends GoHomeKey
+  case object PressAutoEnableBuffBoard                                              extends GoHomeKey
+  case class RoundAction(replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) extends GoHomeKey
+  case object ReadyToListen                                                         extends GoHomeKey
+  case object StopWebSystem                                                         extends GoHomeKey
+  case object PressSkillRound                                                       extends GoHomeKey
 
   def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s))
 }
@@ -75,7 +75,7 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
       case PressSkillRound          => if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
       case RoundAction(replyTo) =>
         val actor = context.spawnAnonymous(SkillsRoundAction3.apply2())
-        replyTo ! (message => actor ! message)
+        replyTo ! actor
       case StopWebSystem => stopWebSystem
     }
     Behaviors.same

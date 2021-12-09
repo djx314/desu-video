@@ -19,13 +19,11 @@ object MainApp {
   lazy val delayBuffUI    = wire[DelayBuffUI]
   lazy val webappListener = system.systemActorOf(WebAppListener(), "web-app-listener")
 
-  private def delayBuff(name: String)            = wire[DelayBuff]
-  private val delayBuffFunc: String => DelayBuff = delayBuff _
-
   private lazy val appConfig                        = wire[AppConfig]
   private lazy val imageMatcherEnv: ImageMatcherEnv = appConfig.imgMatch
   private lazy val imageUtils                       = wire[ImageUtils]
   private lazy val desuDatabase                     = wire[DesuDatabase]
+  private lazy val delayBuff                        = () => wire[DelayBuff]
 
   private lazy val fileFinder = wire[FileFinder]
 

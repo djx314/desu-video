@@ -9,7 +9,7 @@ import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 import scalafx.beans.property.{BooleanProperty, DoubleProperty, ObjectProperty}
 
-class DelayBuff(system: ActorSystem[Nothing], name: String, webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
+class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
 
   val isOn       = BooleanProperty(false)
   val delayTime  = DoubleProperty(0.05)
@@ -20,24 +20,24 @@ class DelayBuff(system: ActorSystem[Nothing], name: String, webAppListener: Acto
   implicit val scheduler        = system.scheduler
   implicit val timeout          = Timeout(3.seconds)
   implicit val executionContext = system.executionContext
-  private val roundF = webAppListener ? ((replyTo: ActorRef[SkillsRoundAction3.GoHomeKey => Unit]) => WebAppListener.RoundAction(replyTo))
+  private val roundF = webAppListener ? ((replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) => WebAppListener.RoundAction(replyTo))
 
   def tick() = {
     if (isOn.value) {
-      for (roundFunc <- roundF) {
-        roundFunc(SkillsRoundAction3.ReStartAction(keyCodePro.value, (delayTime.value * 1000).toInt))
-        roundFunc(SkillsRoundAction3.StartAction)
+      for (roundActor <- roundF) {
+        roundActor ! SkillsRoundAction3.ReStartAction(keyCodePro.value, (delayTime.value * 1000).toInt)
+        roundActor ! SkillsRoundAction3.StartAction
       }
     } else {
-      for (roundFunc <- roundF) {
-        roundFunc(SkillsRoundAction3.EndAction)
+      for (roundActor <- roundF) {
+        roundActor ! SkillsRoundAction3.EndAction
       }
     }
   }
 
   override def close(): Unit = {
-    for (roundFunc <- roundF) {
-      roundFunc(SkillsRoundAction3.ReleaseAction)
+    for (roundActor <- roundF) {
+      roundActor ! SkillsRoundAction3.ReleaseAction
     }
   }
 

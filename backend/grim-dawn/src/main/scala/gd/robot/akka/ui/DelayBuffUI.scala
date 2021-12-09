@@ -9,27 +9,27 @@ import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.{Border, BorderStroke, BorderStrokeStyle, BorderWidths, CornerRadii, HBox, VBox}
 import scalafx.scene.paint.Paint
 
-class DelayBuffUI(gen: String => DelayBuff) {
+class DelayBuffUI(gen: () => DelayBuff) {
 
   lazy val 战争领主Buff监控 = {
-    val buff1 = gen("name1")
-    buff1.delayTime.value = 24
+    val buff1 = gen()
+    buff1.delayTime.value = 25
     buff1.keyCodePro.value = KeyCode.DIGIT6
-    val buff2 = gen("name2")
-    buff2.delayTime.value = 31
+    val buff2 = gen()
+    buff2.delayTime.value = 25
     buff2.keyCodePro.value = KeyCode.DIGIT7
     List(buff1, buff2)
   }
   lazy val 净化Buff监控 = {
-    val buff1 = gen("name1")
+    val buff1 = gen()
     buff1.delayTime.value = 15
     buff1.keyCodePro.value = KeyCode.DIGIT6
-    val buff2 = gen("name2")
+    val buff2 = gen()
     buff2.delayTime.value = 27
     buff2.keyCodePro.value = KeyCode.R
     List(buff1, buff2)
   }
-  val initBuff = 净化Buff监控
+  val initBuff = 战争领主Buff监控
 
   val bufferBind = BufferProperty(List.empty[DelayBuff])
   bufferBind.onChange { (bind, old, newInstance) =>
@@ -125,7 +125,7 @@ class DelayBuffUI(gen: String => DelayBuff) {
         children = List(
           new Button("+") {
             onMouseClicked = { e =>
-              val buttonRandom = gen(s"name${util.Random.nextInt()}")
+              val buttonRandom = gen()
               buttonRandom.delayTime.value = 31
               bufferBind.value = bufferBind.value.appended(buttonRandom)
             }
