@@ -2,13 +2,9 @@ package gd.robot.akka.gdactor.gohome
 
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
-import akka.http.scaladsl.Http.ServerBinding
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.mainapp.MainApp
-import gd.robot.akka.utils.ImageMatcher
-import javafx.application.Platform
-import javafx.scene.input.KeyCode
+import gd.robot.akka.ui.SkillsRoundAction3
 
 import java.util.concurrent.Callable
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,11 +17,11 @@ object WebAppListener {
   case class StartActionComplete(isReady: Boolean) extends GoHomeKey
   case object PressGoHomeKeyBoard                  extends GoHomeKey
   // case object PressEnableBuffBoard                 extends GoHomeKey
-  case object PressAutoEnableBuffBoard extends GoHomeKey
-  case object RoundAction              extends GoHomeKey
-  case object ReadyToListen            extends GoHomeKey
-  case object StopWebSystem            extends GoHomeKey
-  case object PressSkillRound          extends GoHomeKey
+  case object PressAutoEnableBuffBoard                                            extends GoHomeKey
+  case class RoundAction(replyTo: ActorRef[SkillsRoundAction3.GoHomeKey => Unit]) extends GoHomeKey
+  case object ReadyToListen                                                       extends GoHomeKey
+  case object StopWebSystem                                                       extends GoHomeKey
+  case object PressSkillRound                                                     extends GoHomeKey
 
   def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s))
 }
@@ -40,9 +36,9 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
   private val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   // private val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
   private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey] = context.spawnAnonymous(ImageSearcher())
-  private val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] =
+  /*private val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] =
     context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
-  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.R, delay = 27000))
+  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.R, delay = 27000))*/
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
 
@@ -77,12 +73,9 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
       // case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
       case PressAutoEnableBuffBoard => if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
       case PressSkillRound          => if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
-      case RoundAction =>
-        if (isReady) {
-          重生之语 ! SkillsRoundAction1.PressGoHomeKeyBoard
-          def n = 蓝药 ! SkillsRoundAction1.PressGoHomeKeyBoard
-          delayMillions(1000, () => Future(n))
-        }
+      case RoundAction(replyTo) =>
+        val actor = context.spawnAnonymous(SkillsRoundAction3.apply2())
+        replyTo ! (message => actor ! message)
       case StopWebSystem => stopWebSystem
     }
     Behaviors.same

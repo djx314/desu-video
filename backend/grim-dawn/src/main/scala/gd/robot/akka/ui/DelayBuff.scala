@@ -1,32 +1,44 @@
 package gd.robot.akka.ui
 
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, AskPattern, Behaviors}
+import akka.util.Timeout
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.gdactor.gohome.ActionQueue
+import gd.robot.akka.gdactor.gohome.{ActionQueue, WebAppListener}
 import gd.robot.akka.mainapp.GlobalVars
 import javafx.scene.input.KeyCode
 import scalafx.beans.property.{BooleanProperty, DoubleProperty, ObjectProperty}
 
-class DelayBuff(val system: ActorSystem[Nothing], name: String) extends AutoCloseable {
+class DelayBuff(system: ActorSystem[Nothing], name: String, webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
 
   val isOn       = BooleanProperty(false)
   val delayTime  = DoubleProperty(0.05)
   val keyCodePro = ObjectProperty(KeyCode.DIGIT1)
 
-  private val roundActor = system.systemActorOf(SkillsRoundAction3.apply2(), name)
+  import AskPattern._
+  import scala.concurrent.duration._
+  implicit val scheduler        = system.scheduler
+  implicit val timeout          = Timeout(3.seconds)
+  implicit val executionContext = system.executionContext
+  private val roundF = webAppListener ? ((replyTo: ActorRef[SkillsRoundAction3.GoHomeKey => Unit]) => WebAppListener.RoundAction(replyTo))
 
   def tick() = {
     if (isOn.value) {
-      roundActor ! SkillsRoundAction3.ReStartAction(keyCodePro.value, (delayTime.value * 1000).toInt)
-      roundActor ! SkillsRoundAction3.StartAction
+      for (roundFunc <- roundF) {
+        roundFunc(SkillsRoundAction3.ReStartAction(keyCodePro.value, (delayTime.value * 1000).toInt))
+        roundFunc(SkillsRoundAction3.StartAction)
+      }
     } else {
-      roundActor ! SkillsRoundAction3.EndAction
+      for (roundFunc <- roundF) {
+        roundFunc(SkillsRoundAction3.EndAction)
+      }
     }
   }
 
   override def close(): Unit = {
-    roundActor ! SkillsRoundAction3.ReleaseAction
+    for (roundFunc <- roundF) {
+      roundFunc(SkillsRoundAction3.ReleaseAction)
+    }
   }
 
 }
