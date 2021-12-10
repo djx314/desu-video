@@ -10,11 +10,13 @@ class AppConfig(system: ActorSystem[Nothing]) {
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
   val 责难光环Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/责难光环.png")
+  val 信念光环Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/信念光环.png")
   val 附身烈焰Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/附身烈焰.png")
   val 复仇烈焰Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/复仇烈焰.png")
   val 阿兹拉格瑞安战术Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/buff类技能/阿兹拉格瑞安战术.png")
   val 旋转刀刃Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/旋转刀刃.png")
   val 神灵之力Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/神灵之力.png")
+  val 神圣护佑Byte: Array[Byte]     = ImageUtils.getBytesFromClasspath("/buff类技能/神圣护佑.png")
 
   val 德里格之创Byte: Array[Byte]  = ImageUtils.getBytesFromClasspath("/攻击类技能/德里格之创.png")
   val 手榴弹Byte: Array[Byte]    = ImageUtils.getBytesFromClasspath("/攻击类技能/手榴弹.png")
@@ -30,10 +32,10 @@ class AppConfig(system: ActorSystem[Nothing]) {
 
   val listImg: List[CompareImg] = List(
     CompareImg(神灵之力Byte, KeyCode.DIGIT5, 100),
-    CompareImg(责难光环Byte, KeyCode.DIGIT6, 100),
-    CompareImg(附身烈焰Byte, KeyCode.DIGIT7, 500),
+    CompareImg(信念光环Byte, KeyCode.DIGIT6, 100),
+    CompareImg(附身烈焰Byte, KeyCode.DIGIT7, 100),
     CompareImg(复仇烈焰Byte, KeyCode.DIGIT8, 100),
-    CompareImg(阿兹拉格瑞安战术Byte, KeyCode.DIGIT9, 500),
+    CompareImg(神圣护佑Byte, KeyCode.DIGIT9, 100),
     CompareImg(旋转刀刃Byte, KeyCode.DIGIT0, 0)
   )
 

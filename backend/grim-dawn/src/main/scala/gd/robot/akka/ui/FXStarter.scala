@@ -12,7 +12,7 @@ import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color._
 import scalafx.stage.Screen
 
-object HelloStageDemo extends JFXApp3 {
+object GdStage extends JFXApp3 {
 
   val webappListener = GlobalVars[ActorRef[WebAppListener.GoHomeKey]]
   def delayBuffUI    = GlobalVars[DelayBuffUI]
