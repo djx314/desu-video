@@ -2,6 +2,7 @@ package gd.robot.akka.gdactor.gohome
 
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
+import akka.actor.{Scheduler => CScheduler}
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.ui.SkillsRoundAction3
@@ -23,7 +24,8 @@ object WebAppListener {
   case object StopWebSystem                                                         extends GoHomeKey
   case object PressSkillRound                                                       extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s))
+  def apply(): Behavior[GoHomeKey]                 = Behaviors.setup(s => new WebAppListener(s))
+  def apply(isReady: Boolean): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s, isReady = isReady))
 }
 
 import WebAppListener._
@@ -31,14 +33,12 @@ class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false)
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private implicit val scheduler        = system.classicSystem.scheduler
   private val self                      = context.self
 
   private val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
   // private val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
-  private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey] = context.spawnAnonymous(ImageSearcher())
-  /*private val 重生之语: ActorRef[SkillsRoundAction1.GoHomeKey] =
-    context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.DIGIT6, delay = 15000))
-  private val 蓝药: ActorRef[SkillsRoundAction1.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction1(keyCode = KeyCode.R, delay = 27000))*/
+  private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]           = context.spawnAnonymous(ImageSearcher())
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
 
@@ -49,7 +49,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false)
 
   private def delayMillions[T](million: Long, callable: Callable[Future[T]]): Future[T] = Patterns.after(
     Duration(million, MILLISECONDS),
-    system.classicSystem.scheduler,
+    implicitly[CScheduler],
     implicitly[ExecutionContext],
     callable
   )
@@ -68,7 +68,7 @@ class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false)
         }
         Behaviors.same
       case StartActionComplete(r) =>
-        new WebAppListener(context, r)
+        WebAppListener(r)
       case PressGoHomeKeyBoard =>
         if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
         Behaviors.same

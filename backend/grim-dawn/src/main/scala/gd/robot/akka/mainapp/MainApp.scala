@@ -12,11 +12,11 @@ import gd.robot.akka.utils.{GDSystemUtils, ImageMatcher, ImageMatcherEnv, ImageU
 
 object MainApp {
 
-  implicit val system: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "my-system")
+  private implicit val system: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "gd-system")
 
   lazy val imageMatcher   = wire[ImageMatcher]
   lazy val gdSystemUtils  = wire[GDSystemUtils]
-  lazy val delayBuffUI    = wire[DelayBuffUI]
+  def delayBuffUI         = wire[DelayBuffUI]
   lazy val webappListener = system.systemActorOf(WebAppListener(), "web-app-listener")
 
   private lazy val appConfig                        = wire[AppConfig]
@@ -30,8 +30,18 @@ object MainApp {
 }
 
 object GlobalVars {
-  lazy val imageMatcher: ImageMatcher                         = MainApp.imageMatcher
-  lazy val gdSystemUtils: GDSystemUtils                       = MainApp.gdSystemUtils
-  lazy val delayBuffUI: DelayBuffUI                           = MainApp.delayBuffUI
-  lazy val webappListener: ActorRef[WebAppListener.GoHomeKey] = MainApp.webappListener
+  import GlobalVarsInject._
+  def apply[T](implicit f: GF[T]): T = f.value
 }
+
+object GlobalVarsInject {
+  type GF[T] = GlobalVarsFetch[T, GlobalVarsInject.type]
+  def GF[T](t: T): GF[T] = new GlobalVarsFetch(t)
+
+  implicit val imageMatcherImplicit: GF[ImageMatcher]                         = GF(MainApp.imageMatcher)
+  implicit val gdSystemUtilsImplicit: GF[GDSystemUtils]                       = GF(MainApp.gdSystemUtils)
+  implicit val webappListenerImplicit: GF[ActorRef[WebAppListener.GoHomeKey]] = GF(MainApp.webappListener)
+  implicit def delayBuffUIImplicit: GF[DelayBuffUI]                           = GF(MainApp.delayBuffUI)
+}
+
+class GlobalVarsFetch[T, Poly](val value: T)

@@ -2,6 +2,7 @@ package gd.robot.akka.gdactor.gohome
 
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
+import akka.actor.{Scheduler => CScheduler}
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.utils.SystemRobot
@@ -40,6 +41,7 @@ class ActionQueue(context: ActorContext[ActionStatus], action: Future[Any]) exte
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private implicit val scheduler        = system.classicSystem.scheduler
 
   private def delayCall: Callable[Future[Any]] = {
     val f = Future.successful(())
@@ -47,7 +49,7 @@ class ActionQueue(context: ActorContext[ActionStatus], action: Future[Any]) exte
   }
   private def delayMillions[T](million: Long): Future[Any] = Patterns.after(
     Duration(million, MILLISECONDS),
-    system.classicSystem.scheduler,
+    implicitly[CScheduler],
     implicitly[ExecutionContext],
     delayCall
   )

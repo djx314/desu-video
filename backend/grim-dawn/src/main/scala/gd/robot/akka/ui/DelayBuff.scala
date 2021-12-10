@@ -6,6 +6,7 @@ import akka.util.Timeout
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.gdactor.gohome.{ActionQueue, WebAppListener}
 import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.utils.GDSystemUtils
 import javafx.scene.input.KeyCode
 import scalafx.beans.property.{BooleanProperty, DoubleProperty, ObjectProperty}
 
@@ -29,16 +30,14 @@ class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebAppLis
         roundActor ! SkillsRoundAction3.StartAction
       }
     } else {
-      for (roundActor <- roundF) {
+      for (roundActor <- roundF)
         roundActor ! SkillsRoundAction3.EndAction
-      }
     }
   }
 
   override def close(): Unit = {
-    for (roundActor <- roundF) {
+    for (roundActor <- roundF)
       roundActor ! SkillsRoundAction3.ReleaseAction
-    }
   }
 
 }
@@ -50,42 +49,49 @@ object SkillsRoundAction3 {
   case object EndAction                                   extends GoHomeKey
   case object ReleaseAction                               extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = {
-    Behaviors.receive((context, message) =>
-      message match {
-        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, context.spawnAnonymous(ActionQueue.init()))
-        case ReleaseAction                 => Behaviors.stopped
-        case _                             => Behaviors.same
-      }
-    )
-  }
-
-  def apply2(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] = {
-    Behaviors.receive((context, message) =>
-      message match {
-        case ReStartAction(keyCode, delay) => new SkillsRoundAction3(context, keyCode, delay, actionQueue)
-        case ReleaseAction                 => Behaviors.stopped
-        case _                             => Behaviors.same
-      }
-    )
-  }
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(c => new SkillsRoundAction3(c, c.spawnAnonymous(ActionQueue.init())))
+  def apply(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
+    Behaviors.setup(c => new SkillsRoundAction3(c, actionQueue))
 }
 
 import SkillsRoundAction3._
-class SkillsRoundAction3(context: ActorContext[GoHomeKey], keyCode: KeyCode, delay: Long, actionQueue: ActorRef[ActionQueue.ActionStatus])
+class SkillsRoundAction3(context: ActorContext[GoHomeKey], actionQueue: ActorRef[ActionQueue.ActionStatus])
     extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  private val self                      = context.self
-  private val gdSystemUtils             = GlobalVars.gdSystemUtils
+
+  override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
+    msg match {
+      case ReStartAction(keyCode, delay) => SkillsRoundAction3Impl(keyCode, delay, actionQueue)
+      case ReleaseAction                 => Behaviors.stopped
+      case _                             => Behaviors.same
+    }
+  }
+}
+
+object SkillsRoundAction3Impl {
+  def apply(keyCode: KeyCode, delay: Long, actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
+    Behaviors.setup(c => new SkillsRoundAction3Impl(c, keyCode, delay, actionQueue))
+}
+
+class SkillsRoundAction3Impl(
+  context: ActorContext[GoHomeKey],
+  keyCode: KeyCode,
+  delay: Long,
+  actionQueue: ActorRef[ActionQueue.ActionStatus]
+) extends AbstractBehavior[GoHomeKey](context) {
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val gdSystemUtils             = GlobalVars[GDSystemUtils]
 
   import ActionQueue._
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
 
   private def keyPR(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
   private def delayAction(millions: Long): Unit = appendAction(ActionInputDelay(millions))
-  private def completeAction: Unit              = appendAction(ReplyTo(self, StartAction))
+  private def completeAction: Unit              = appendAction(ReplyTo(context.self, StartAction))
 
   private def mouseRobot = for (_ <- gdSystemUtils.waitForFocus) {
     keyPR(keyCode)
@@ -99,9 +105,9 @@ class SkillsRoundAction3(context: ActorContext[GoHomeKey], keyCode: KeyCode, del
         mouseRobot
         Behaviors.same
       case ReStartAction(keyCode1, delay1) =>
-        new SkillsRoundAction3(context, keyCode1, delay1, actionQueue)
+        SkillsRoundAction3Impl(keyCode1, delay1, actionQueue)
       case EndAction =>
-        SkillsRoundAction3.apply2(actionQueue)
+        SkillsRoundAction3(actionQueue)
       case ReleaseAction =>
         Behaviors.stopped
     }

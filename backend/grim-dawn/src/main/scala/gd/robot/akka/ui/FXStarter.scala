@@ -1,7 +1,8 @@
 package gd.robot.akka.ui
 
+import akka.actor.typed.ActorRef
 import gd.robot.akka.gdactor.gohome.WebAppListener
-import gd.robot.akka.mainapp.MainApp
+import gd.robot.akka.mainapp.GlobalVars
 import scalafx.Includes._
 import scalafx.application.JFXApp3
 import scalafx.beans.property.BooleanProperty
@@ -13,9 +14,8 @@ import scalafx.stage.Screen
 
 object HelloStageDemo extends JFXApp3 {
 
-  implicit val system           = MainApp.system
-  implicit val executionContext = system.executionContext
-  val webappListener            = MainApp.webappListener
+  val webappListener = GlobalVars[ActorRef[WebAppListener.GoHomeKey]]
+  def delayBuffUI    = GlobalVars[DelayBuffUI]
   webappListener ! WebAppListener.StartGoHomeKeyListener
 
   override def start(): Unit = {
@@ -47,7 +47,7 @@ object HelloStageDemo extends JFXApp3 {
                 webappListener ! WebAppListener.PressAutoEnableBuffBoard
               }
             },
-            MainApp.delayBuffUI.ui,
+            delayBuffUI.ui,
             new Button("关闭监听") {
               onMouseClicked = { e =>
                 stage.close()

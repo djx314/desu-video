@@ -4,6 +4,7 @@ import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.utils.{GDSystemUtils, ImageMatcher}
 import javafx.scene.input.KeyCode
 
 /** 技能输出循环 Actor
@@ -16,28 +17,47 @@ object SkillsRoundAction2 {
   case object StartAction         extends GoHomeKey
   case object EndAction           extends GoHomeKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new SkillsRoundAction2(_))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(c => new SkillsRoundAction2(c, c.spawnAnonymous(ActionQueue.init())))
+  def apply2(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
+    Behaviors.setup(c => new SkillsRoundAction2(c, actionQueue))
 }
 
 import SkillsRoundAction2._
-class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+class SkillsRoundAction2(context: ActorContext[GoHomeKey], actionQueue: ActorRef[ActionQueue.ActionStatus])
+    extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  private val self                      = context.self
-  private val imageMatcher              = GlobalVars.imageMatcher
-  private val gdSystemUtils             = GlobalVars.gdSystemUtils
 
-  private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue.init())
+  override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
+    msg match {
+      case PressGoHomeKeyBoard =>
+        context.self ! StartAction
+        SkillsRoundAction2Inner(actionQueue)
+      case _ =>
+        Behaviors.same
+    }
+  }
+}
 
-  private var enabled: Boolean        = false
-  private var currentRunning: Boolean = false
+object SkillsRoundAction2Inner {
+  def apply(actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
+    Behaviors.setup(new SkillsRoundAction2Inner(_, actionQueue))
+}
+
+class SkillsRoundAction2Inner(context: ActorContext[GoHomeKey], actionQueue: ActorRef[ActionQueue.ActionStatus])
+    extends AbstractBehavior[GoHomeKey](context) {
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private val imageMatcher              = GlobalVars[ImageMatcher]
+  private val gdSystemUtils             = GlobalVars[GDSystemUtils]
 
   import ActionQueue._
   private def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
   private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  private def completeAction: Unit                = appendAction(ReplyTo(self, EndAction))
+  private def completeAction: Unit                = appendAction(ReplyTo(context.self, EndAction))
 
   private def lazyJineng(level: Int) = level match {
     case 0 =>
@@ -78,23 +98,14 @@ class SkillsRoundAction2(context: ActorContext[GoHomeKey]) extends AbstractBehav
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
       case PressGoHomeKeyBoard =>
-        if (enabled == false) {
-          println("open")
-          enabled = true
-          if (!currentRunning) self ! StartAction
-        } else {
-          println("close")
-          enabled = false
-        }
+        SkillsRoundAction2.apply2(actionQueue)
       case StartAction =>
-        if (!currentRunning && enabled) {
-          currentRunning = true
-          mouseRobot
-        }
+        mouseRobot
+        Behaviors.same
       case EndAction =>
-        if (currentRunning) currentRunning = false
-        if (enabled) self ! StartAction
+        context.self ! StartAction
+        Behaviors.same
     }
-    Behaviors.same
+
   }
 }

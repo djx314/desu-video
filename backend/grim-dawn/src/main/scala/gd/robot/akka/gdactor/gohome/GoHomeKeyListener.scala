@@ -14,6 +14,8 @@ object GoHomeKeyListener {
 
   def apply(): Behavior[GoHomeKey] =
     Behaviors.setup(s => new GoHomeKeyListener(s, isNowWorking = false, s.spawnAnonymous(ActionQueue.init())))
+  def apply(isNowWorking: Boolean, actionQueue: ActorRef[ActionQueue.ActionStatus]): Behavior[GoHomeKey] =
+    Behaviors.setup(s => new GoHomeKeyListener(s, isNowWorking, actionQueue))
 }
 
 import GoHomeKeyListener._
@@ -64,9 +66,9 @@ class GoHomeKeyListener(context: ActorContext[GoHomeKey], isNowWorking: Boolean,
         if (isNowWorking == false) {
           for (bounds <- SystemRobot.screenSize) mouseRobot(bounds)
         }
-        new GoHomeKeyListener(context, !isNowWorking, actionQueue)
+        GoHomeKeyListener(!isNowWorking, actionQueue)
       case PressCanStart =>
-        new GoHomeKeyListener(context, false, actionQueue)
+        GoHomeKeyListener(false, actionQueue)
     }
     Behaviors.same
   }

@@ -4,6 +4,7 @@ import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.utils.{GDSystemUtils, ImageMatcher}
 import javafx.scene.input.KeyCode
 
 import scala.util.{Failure, Success}
@@ -26,8 +27,8 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private val self                      = context.self
-  private val imgMatcher                = GlobalVars.imageMatcher
-  private val gdSystemUtils             = GlobalVars.gdSystemUtils
+  private val imgMatcher                = GlobalVars[ImageMatcher]
+  private val gdSystemUtils             = GlobalVars[GDSystemUtils]
 
   private val actionQueue: ActorRef[ActionQueue.ActionStatus] = context.spawnAnonymous(ActionQueue.init())
 
