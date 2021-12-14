@@ -13,31 +13,63 @@ import scala.concurrent.duration.{Duration, MILLISECONDS}
 import scala.util.{Failure, Success}
 
 object WebAppListener {
-  trait GoHomeKey
-  case object StartGoHomeKeyListener               extends GoHomeKey
-  case class StartActionComplete(isReady: Boolean) extends GoHomeKey
-  case object PressGoHomeKeyBoard                  extends GoHomeKey
-  // case object PressEnableBuffBoard                 extends GoHomeKey
-  case object PressAutoEnableBuffBoard                                              extends GoHomeKey
-  case class RoundAction(replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) extends GoHomeKey
-  case object ReadyToListen                                                         extends GoHomeKey
-  case object StopWebSystem                                                         extends GoHomeKey
-  case object PressSkillRound                                                       extends GoHomeKey
+  sealed trait GoHomeKey
+  trait PreDo                                                                       extends GoHomeKey
+  case object StartGoHomeKeyListener                                                extends PreDo
+  case class StartActionComplete(isReady: Boolean)                                  extends PreDo
+  sealed trait SendKey                                                              extends GoHomeKey
+  case object PressGoHomeKeyBoard                                                   extends SendKey
+  case object PressAutoEnableBuffBoard                                              extends SendKey
+  case class RoundAction(replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) extends SendKey
+  case object StopWebSystem                                                         extends SendKey
+  case object PressSkillRound                                                       extends SendKey
 
-  def apply(): Behavior[GoHomeKey]                 = Behaviors.setup(s => new WebAppListener(s))
-  def apply(isReady: Boolean): Behavior[GoHomeKey] = Behaviors.setup(s => new WebAppListener(s, isReady = isReady))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListener(_))
+  def ready(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListenerImpl(_))
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false) extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private implicit val scheduler        = system.classicSystem.scheduler
-  private val self                      = context.self
+  private val logger                    = context.log
 
-  private val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey] = context.spawnAnonymous(GoHomeKeyListener())
-  // private val enableBuffAction: ActorRef[EnableBuffAction.GoHomeKey]    = context.spawnAnonymous(EnableBuffAction())
+  override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
+    msg match {
+      case s: PreDo =>
+        s match {
+          case StartGoHomeKeyListener =>
+            def startAction = Future(GDHotKeyListener.startListen(context.self))(blockExecutionContext)
+            context.pipeToSelf(startAction) {
+              case Success(value) =>
+                logger.info(s"Init project success.")
+                StartActionComplete(true)
+              case Failure(err) =>
+                logger.error(s"Init project error.", err)
+                StartActionComplete(false)
+            }
+            Behaviors.same
+          case StartActionComplete(r) =>
+            if (r)
+              WebAppListener.ready()
+            else
+              Behaviors.same
+        }
+      case _: SendKey =>
+        Behaviors.same
+    }
+  }
+}
+
+class WebAppListenerImpl(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+  private val system                    = context.system
+  private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
+  private implicit val scheduler        = system.classicSystem.scheduler
+
+  private val pressKeyboardActor: ActorRef[GoHomeKeyListener.GoHomeKey]  = context.spawnAnonymous(GoHomeKeyListener())
   private val imageSearcher: ActorRef[ImageSearcher.GoHomeKey]           = context.spawnAnonymous(ImageSearcher())
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
@@ -56,36 +88,26 @@ class WebAppListener(context: ActorContext[GoHomeKey], isReady: Boolean = false)
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
-      case StartGoHomeKeyListener =>
-        def startAction = Future(GDHotKeyListener.startListen(self))(blockExecutionContext)
-        context.pipeToSelf(startAction) {
-          case Success(value) =>
-            logger.info(s"Init project success.")
-            StartActionComplete(true)
-          case Failure(err) =>
-            logger.error(s"Init project error.", err)
-            StartActionComplete(false)
+      case _: PreDo => Behaviors.same
+      case s: SendKey =>
+        s match {
+          case PressGoHomeKeyBoard =>
+            pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
+            Behaviors.same
+          case PressAutoEnableBuffBoard =>
+            imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
+            Behaviors.same
+          case PressSkillRound =>
+            skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
+            Behaviors.same
+          case RoundAction(replyTo) =>
+            val actor = context.spawnAnonymous(SkillsRoundAction3())
+            replyTo ! actor
+            Behaviors.same
+          case StopWebSystem =>
+            stopWebSystem
+            Behaviors.same
         }
-        Behaviors.same
-      case StartActionComplete(r) =>
-        WebAppListener(r)
-      case PressGoHomeKeyBoard =>
-        if (isReady) pressKeyboardActor ! GoHomeKeyListener.PressGoHomeKeyBoard
-        Behaviors.same
-      // case PressEnableBuffBoard     => if (isReady) enableBuffAction ! EnableBuffAction.PressGoHomeKeyBoard
-      case PressAutoEnableBuffBoard =>
-        if (isReady) imageSearcher ! ImageSearcher.PressGoHomeKeyBoard
-        Behaviors.same
-      case PressSkillRound =>
-        if (isReady) skillsRoundAction2 ! SkillsRoundAction2.PressGoHomeKeyBoard
-        Behaviors.same
-      case RoundAction(replyTo) =>
-        val actor = context.spawnAnonymous(SkillsRoundAction3())
-        replyTo ! actor
-        Behaviors.same
-      case StopWebSystem =>
-        stopWebSystem
-        Behaviors.same
     }
   }
 }
