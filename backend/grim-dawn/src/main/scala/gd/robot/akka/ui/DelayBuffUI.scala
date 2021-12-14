@@ -13,7 +13,7 @@ class DelayBuffUI(gen: () => DelayBuff) {
 
   lazy val 战争领主Buff监控 = {
     val buff1 = gen()
-    buff1.delayTime.value = 25
+    buff1.delayTime.value = 15.5
     buff1.keyCodePro.value = KeyCode.DIGIT6
     val buff2 = gen()
     buff2.delayTime.value = 25
