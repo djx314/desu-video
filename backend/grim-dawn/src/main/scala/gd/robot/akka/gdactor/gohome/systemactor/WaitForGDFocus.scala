@@ -15,8 +15,8 @@ object WaitForGDFocus {
   case class InputPromise(promise: ActorRef[Boolean]) extends ActionStatus
   case class CheckGDFocus(focus: Boolean)             extends ActionStatus
 
-  def apply(): Behavior[ActionStatus]                               = Behaviors.setup(s => new WaitForGDFocus(s, List.empty))
-  def apply2(list: List[ActorRef[Boolean]]): Behavior[ActionStatus] = Behaviors.setup(s => new WaitForGDFocus(s, list))
+  def apply(): Behavior[ActionStatus]                              = Behaviors.setup(s => new WaitForGDFocus(s, List.empty))
+  def apply(list: List[ActorRef[Boolean]]): Behavior[ActionStatus] = Behaviors.setup(s => new WaitForGDFocus(s, list))
 }
 
 import WaitForGDFocus._
@@ -26,7 +26,6 @@ class WaitForGDFocus(context: ActorContext[ActionStatus], promiseList: List[Acto
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private val gdSystemUtils             = GlobalVars[GDSystemUtils]
-  private val self                      = context.self
 
   private def delayCheck[T](million: Long): Future[Boolean] = {
     Patterns.after(
@@ -40,7 +39,7 @@ class WaitForGDFocus(context: ActorContext[ActionStatus], promiseList: List[Acto
   override def onMessage(msg: ActionStatus): Behavior[ActionStatus] = {
     msg match {
       case InputPromise(promise) =>
-        WaitForGDFocus.apply2(promise :: promiseList)
+        WaitForGDFocus(promise :: promiseList)
       case CheckGDFocus(focus) =>
         context.pipeToSelf(delayCheck(500))(s => CheckGDFocus(s.getOrElse(false)))
         if (focus) {

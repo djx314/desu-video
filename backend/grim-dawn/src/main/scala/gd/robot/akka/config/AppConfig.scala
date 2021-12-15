@@ -2,7 +2,7 @@ package gd.robot.akka.config
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import gd.robot.akka.gdactor.gohome.{ActionQueue, SkillsRoundAction2}
-import gd.robot.akka.utils.{CompareImg, ImageMatcher, ImageMatcherEnv, ImageUtils, JinenglanImg, SkillsImg}
+import gd.robot.akka.utils.{CompareImg, ImageMatcherEnv, ImageUtils, JinenglanImg, SkillsImg}
 import javafx.scene.input.KeyCode
 
 class AppConfig(system: ActorSystem[Nothing]) {
