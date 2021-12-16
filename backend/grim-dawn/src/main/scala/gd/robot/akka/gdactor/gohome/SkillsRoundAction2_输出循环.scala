@@ -3,7 +3,7 @@ package gd.robot.akka.gdactor.gohome
 import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.mainapp.GDApp
 import gd.robot.akka.utils.{GDSystemUtils, ImageMatcher}
 import javafx.scene.input.KeyCode
 
@@ -68,8 +68,8 @@ class SkillsRoundAction2Inner(context: ActorContext[GoHomeKey], val actionQueue:
 trait SkillsRoundAction2Runner {
   protected implicit def executionContext: ExecutionContext
   val actionQueue: ActorRef[ActionQueue.ActionStatus]
-  private val imageMatcher  = GlobalVars[ImageMatcher]
-  private val gdSystemUtils = GlobalVars[GDSystemUtils]
+  private val imageMatcher  = GDApp.resource.get[ImageMatcher]
+  private val gdSystemUtils = GDApp.resource.get[GDSystemUtils]
 
   import ActionQueue._
   private def keyType(keyCode: KeyCode): Unit                                       = appendAction(KeyType(keyCode))

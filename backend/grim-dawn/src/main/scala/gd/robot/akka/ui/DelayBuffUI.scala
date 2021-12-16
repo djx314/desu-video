@@ -11,20 +11,22 @@ import scalafx.scene.paint.Paint
 
 class DelayBuffUI(gen: () => DelayBuff) {
 
+  def genBuff = gen()
+
   lazy val 战争领主Buff监控 = {
-    val buff1 = gen()
+    val buff1 = genBuff
     buff1.delayTime.value = 15.5
     buff1.keyCodePro.value = KeyCode.DIGIT6
-    val buff2 = gen()
+    val buff2 = genBuff
     buff2.delayTime.value = 25
     buff2.keyCodePro.value = KeyCode.DIGIT7
     List(buff1, buff2)
   }
   lazy val 净化Buff监控 = {
-    val buff1 = gen()
+    val buff1 = genBuff
     buff1.delayTime.value = 15
     buff1.keyCodePro.value = KeyCode.DIGIT8
-    val buff2 = gen()
+    val buff2 = genBuff
     buff2.delayTime.value = 27
     buff2.keyCodePro.value = KeyCode.R
     List(buff1, buff2)
@@ -100,7 +102,7 @@ class DelayBuffUI(gen: () => DelayBuff) {
     }
   }
 
-  val ui = new VBox {
+  lazy val ui = new VBox {
     margin = Insets(8, 0, 5, 2)
     padding = Insets(8, 0, 0, 4)
     val paint = Paint.valueOf("rgb(0,0,0)")
@@ -125,7 +127,7 @@ class DelayBuffUI(gen: () => DelayBuff) {
         children = List(
           new Button("+") {
             onMouseClicked = { e =>
-              val buttonRandom = gen()
+              val buttonRandom = genBuff
               buttonRandom.delayTime.value = 31
               bufferBind.value = bufferBind.value.appended(buttonRandom)
             }

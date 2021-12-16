@@ -5,12 +5,12 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, AskPattern, Be
 import akka.util.Timeout
 import gd.robot.akka.config.AppConfig
 import gd.robot.akka.gdactor.gohome.{ActionQueue, WebAppListener}
-import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.mainapp.GDApp
 import gd.robot.akka.utils.GDSystemUtils
 import javafx.scene.input.KeyCode
 import scalafx.beans.property.{BooleanProperty, DoubleProperty, ObjectProperty}
 
-class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
+case class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
 
   val isOn       = BooleanProperty(false)
   val delayTime  = DoubleProperty(0.05)
@@ -84,7 +84,7 @@ class SkillsRoundAction3Impl(
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  private val gdSystemUtils             = GlobalVars[GDSystemUtils]
+  private val gdSystemUtils             = GDApp.resource.get[GDSystemUtils]
 
   import ActionQueue._
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a

@@ -4,7 +4,7 @@ import akka.actor.typed.scaladsl._
 import akka.actor.typed._
 import akka.pattern.Patterns
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.mainapp.GDApp
 import gd.robot.akka.utils.GDSystemUtils
 
 import scala.concurrent.duration.{Duration, MILLISECONDS}
@@ -25,7 +25,7 @@ class WaitForGDFocus(context: ActorContext[ActionStatus], promiseList: List[Acto
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  private val gdSystemUtils             = GlobalVars[GDSystemUtils]
+  private val gdSystemUtils             = GDApp.resource.get[GDSystemUtils]
 
   private def delayCheck[T](million: Long): Future[Boolean] = {
     Patterns.after(

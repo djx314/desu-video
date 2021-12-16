@@ -5,13 +5,13 @@ import sbt.Keys._
 
 object Dependencies {
 
-  val AkkaVersion           = "2.6.16"
-  val AkkaHttpVersion       = "10.2.6"
-  val akkaHttpCirceVersion  = "1.37.0"
-  val slf4jVersion          = "1.7.31"
+  val AkkaVersion           = "2.6.17"
+  val AkkaHttpVersion       = "10.2.7"
+  val akkaHttpCirceVersion  = "1.38.2"
+  val slf4jVersion          = "1.7.32"
   val typeSafeConfigVersion = "1.4.1"
   val scalatestVersion      = "3.2.9"
-  val macwireVersion        = "2.4.1"
+  val macwireVersion        = "2.5.0"
   val circeVersion          = "0.15.0-M1"
   val http4sVersion         = "0.23.6"
   val slickVersion          = "3.3.3"
@@ -19,9 +19,13 @@ object Dependencies {
   val tapirVersion          = "0.19.1"
   val jintellitypeVersion   = "1.4.0"
   val catsEffectVersion     = "3.2.9"
-  val sttpVersion           = "3.3.16"
+  val sttpVersion           = "3.3.18"
   val kindProjectorVersion  = "0.13.2"
   val quillVersion          = "3.8.0"
+  val distageVersion        = "1.0.8"
+  val zioLoggingVersion     = "0.5.14"
+  val catsEffect2Version    = "2.5.4"
+  val zioVersion            = "1.0.9"
 
   val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
 
@@ -43,7 +47,8 @@ object Dependencies {
     "org.http4s" %% "http4s-circe"        % http4sVersion
   )
 
-  val cats = Seq("org.typelevel" %% "cats-effect" % catsEffectVersion)
+  val cats  = Seq("org.typelevel" %% "cats-effect" % catsEffectVersion)
+  val cats2 = Seq("org.typelevel" %% "cats-effect" % catsEffect2Version)
 
   val circe = Seq(
     "io.circe" %% "circe-core"    % circeVersion,
@@ -76,7 +81,7 @@ object Dependencies {
     "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % sttpVersion
   )
 
-  val zioLogging = "dev.zio" %% "zio-logging" % "0.5.14"
+  val zioLogging = "dev.zio" %% "zio-logging" % zioLoggingVersion
 
   val tapir = List(
     "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVersion,
@@ -117,5 +122,9 @@ object Dependencies {
     val javafx = javaFXModules.map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
     fx :: javafx
   }
+
+  val distage = "io.7mind.izumi" %% "distage-core" % distageVersion
+
+  val zio = "dev.zio" %% "zio" % zioVersion
 
 }

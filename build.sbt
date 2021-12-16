@@ -11,7 +11,7 @@ val common   = project in commonPath
 val http4s   = (project in backendPath / "desu-video-http4s").dependsOn(common)
 val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(common)
 val nodeTest = project in backendPath / "node-test"
-val gd       = (project in backendPath / "grim-dawn").dependsOn(common)
+val gd       = (project in backendPath / "grim-dawn")
 
 addCommandAlias("prun", "http4s/reStart")
 addCommandAlias("krun", "akkaHttp/run")

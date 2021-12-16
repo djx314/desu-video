@@ -55,6 +55,6 @@ class AppConfig(system: ActorSystem[Nothing]) {
 }
 
 object AppConfig {
-  val defaultDispatcherName = "desu-dispatcher"
+  val defaultDispatcherName = "gd-dispatcher"
   val gdSelector            = DispatcherSelector.fromConfig(defaultDispatcherName)
 }

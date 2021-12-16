@@ -2,7 +2,7 @@ package gd.robot.akka.ui
 
 import akka.actor.typed.ActorRef
 import gd.robot.akka.gdactor.gohome.WebAppListener
-import gd.robot.akka.mainapp.GlobalVars
+import gd.robot.akka.mainapp.GDApp
 import scalafx.Includes._
 import scalafx.application.JFXApp3
 import scalafx.beans.property.BooleanProperty
@@ -14,8 +14,8 @@ import scalafx.stage.Screen
 
 object GdStage extends JFXApp3 {
 
-  val webappListener = GlobalVars[ActorRef[WebAppListener.GoHomeKey]]
-  def delayBuffUI    = GlobalVars[DelayBuffUI]
+  val webappListener = GDApp.resource.get[ActorRef[WebAppListener.GoHomeKey]]
+  def delayBuffUI    = GDApp.resource.get[DelayBuffUI]
   webappListener ! WebAppListener.StartGoHomeKeyListener
 
   override def start(): Unit = {
@@ -61,7 +61,5 @@ object GdStage extends JFXApp3 {
     }
   }
 
-  override def stopApp(): Unit = {
-    webappListener ! WebAppListener.StopWebSystem
-  }
+  override def stopApp(): Unit = zio.Runtime.default.unsafeRun(GDApp.release(zio.Exit.succeed(())))
 }

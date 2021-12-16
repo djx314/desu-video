@@ -21,15 +21,15 @@ object WebAppListener {
   case object PressGoHomeKeyBoard                                                   extends SendKey
   case object PressAutoEnableBuffBoard                                              extends SendKey
   case class RoundAction(replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) extends SendKey
-  case object StopWebSystem                                                         extends SendKey
-  case object PressSkillRound                                                       extends SendKey
+  // case object StopWebSystem                                                         extends SendKey
+  case object PressSkillRound extends SendKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListener(_))
-  def ready(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListenerImpl(_))
+  // def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListener(_))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListenerImpl(_))
 }
 
 import WebAppListener._
-class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+/*class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
@@ -61,7 +61,7 @@ class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[
         Behaviors.same
     }
   }
-}
+}*/
 
 class WebAppListenerImpl(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
@@ -74,10 +74,10 @@ class WebAppListenerImpl(context: ActorContext[GoHomeKey]) extends AbstractBehav
   private val skillsRoundAction2: ActorRef[SkillsRoundAction2.GoHomeKey] = context.spawnAnonymous(SkillsRoundAction2())
   private val logger                                                     = context.log
 
-  private def stopWebSystem = {
+  /*private def stopWebSystem = {
     val closeAction = Future(GDHotKeyListener.close())(blockExecutionContext)
     closeAction.onComplete(_ => system.terminate())
-  }
+  }*/
 
   private def delayMillions[T](million: Long, callable: Callable[Future[T]]): Future[T] = Patterns.after(
     Duration(million, MILLISECONDS),
@@ -104,9 +104,9 @@ class WebAppListenerImpl(context: ActorContext[GoHomeKey]) extends AbstractBehav
             val actor = context.spawnAnonymous(SkillsRoundAction3())
             replyTo ! actor
             Behaviors.same
-          case StopWebSystem =>
+          /*case StopWebSystem =>
             stopWebSystem
-            Behaviors.same
+            Behaviors.same*/
         }
     }
   }
