@@ -16,7 +16,6 @@ object GdStage extends JFXApp3 {
 
   val webappListener = GDApp.resource.get[ActorRef[WebAppListener.GoHomeKey]]
   def delayBuffUI    = GDApp.resource.get[DelayBuffUI]
-  webappListener ! WebAppListener.StartGoHomeKeyListener
 
   override def start(): Unit = {
     val screenBounds = Screen.primary.bounds

@@ -11,7 +11,8 @@ import izumi.distage.model.Locator
 import zio._
 
 object GDModule extends ModuleDef {
-  val actorSystemZManaged = ZManaged.makeEffect(ActorSystem(Behaviors.empty, "gd-system"))(system => system.terminate())
+  val actorSystemZManaged =
+    ZManaged.make(ZIO.effect(ActorSystem(Behaviors.empty, "gd-system")))(system => ZIO.effect(system.terminate()).option)
   make[ActorSystem[Nothing]].fromResource(actorSystemZManaged)
   make[ImageMatcher]
   make[GDSystemUtils]
@@ -20,10 +21,10 @@ object GDModule extends ModuleDef {
   make[ImageMatcherEnv].from { appConfig: AppConfig =>
     appConfig.imgMatch
   }
-  make[GDHotKeyListener.type].fromResource { actor: ActorRef[WebAppListener.GoHomeKey] =>
+  make[GDHotKeyListener.type].fromResource(Functoid { actor: ActorRef[WebAppListener.GoHomeKey] =>
     val pre = blocking.effectBlocking(GDHotKeyListener.startListen(actor))
     ZManaged.fromAutoCloseable(for (_ <- pre) yield GDHotKeyListener)
-  }
+  })
   make[ActorRef[WebAppListener.GoHomeKey]].from { system: ActorSystem[Nothing] =>
     system.systemActorOf(WebAppListener(), "web-app-listener")
   }
@@ -36,7 +37,12 @@ object GDApp {
   private val plan = injector.plan(
     GDModule,
     Activation.empty,
-    Roots(DIKey[ImageMatcher], DIKey[GDSystemUtils], DIKey[ActorRef[WebAppListener.GoHomeKey]], DIKey[DelayBuffUI])
+    Roots(
+      DIKey[ImageMatcher],
+      DIKey[GDSystemUtils],
+      DIKey[ActorRef[WebAppListener.GoHomeKey]],
+      DIKey[DelayBuffUI]
+    )
   )
   private val preResource                      = injector.produce(plan)
   private val Reservation(require, preRelease) = Runtime.default.unsafeRun(preResource.toZIO.reserve)
