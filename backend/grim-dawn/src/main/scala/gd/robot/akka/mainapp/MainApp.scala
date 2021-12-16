@@ -22,11 +22,8 @@ object GDModule extends ModuleDef {
     appConfig.imgMatch
   }
   make[ActorRef[WebAppListener.GoHomeKey]].fromResource { system: ActorSystem[Nothing] =>
-    val actor = system.systemActorOf(WebAppListener(), "web-app-listener")
-    val pre = blocking.effectBlocking {
-      println("11" * 1000)
-      GDHotKeyListener.startListen(actor)
-    }
+    val actor   = system.systemActorOf(WebAppListener(), "web-app-listener")
+    val pre     = blocking.effectBlocking(GDHotKeyListener.startListen(actor))
     val managed = ZManaged.fromAutoCloseable(for (_ <- pre) yield GDHotKeyListener)
     for (_ <- managed) yield actor
   }
