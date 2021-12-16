@@ -26,7 +26,6 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
-  private val self                      = context.self
   private val imgMatcher                = GDApp.resource.get[ImageMatcher]
   private val gdSystemUtils             = GDApp.resource.get[GDSystemUtils]
 
@@ -39,7 +38,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
   private def keyType(keyCode: KeyCode): Unit     = appendAction(KeyType(keyCode))
   private def delayAction(millions: Long): Unit   = appendAction(ActionInputDelay(millions))
   private def appendAction(a: ActionStatus): Unit = actionQueue ! a
-  private def completeAction: Unit                = appendAction(ReplyTo(self, PressCanStart))
+  private def completeAction: Unit                = appendAction(ReplyTo(context.self, PressCanStart))
 
   override def onMessage(msg: GoHomeKey): Behavior[GoHomeKey] = {
     msg match {
@@ -49,7 +48,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
             enabled = true
             if (!isNowWorking) {
               isNowWorking = true
-              self ! ExecuteRunning
+              context.self ! ExecuteRunning
             }
           } else enabled = false
         }
@@ -67,7 +66,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
               case Success(value) =>
                 val list = value.map(s => PressJineng(keyCode = s.keyCode, delay = s.delay))
                 if (list.isEmpty) directNextRound
-                else self ! PressStart(list)
+                else context.self ! PressStart(list)
               case Failure(exception) => exception.printStackTrace()
             }
           } else directNextRound
@@ -99,7 +98,7 @@ class ImageSearcher(context: ActorContext[GoHomeKey]) extends AbstractBehavior[G
 
         action.onComplete(_ => completeAction)
       case PressCanStart =>
-        if (enabled) self ! ExecuteRunning
+        if (enabled) context.self ! ExecuteRunning
         else isNowWorking = false
 
     }

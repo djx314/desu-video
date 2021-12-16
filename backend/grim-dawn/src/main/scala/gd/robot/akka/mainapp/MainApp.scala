@@ -21,10 +21,10 @@ object GDModule extends ModuleDef {
   make[ImageMatcherEnv].from { appConfig: AppConfig =>
     appConfig.imgMatch
   }
-  make[GDHotKeyListener.type].fromResource(Functoid { actor: ActorRef[WebAppListener.GoHomeKey] =>
+  make[GDHotKeyListener.type].fromResource { actor: ActorRef[WebAppListener.GoHomeKey] =>
     val pre = blocking.effectBlocking(GDHotKeyListener.startListen(actor))
     ZManaged.fromAutoCloseable(for (_ <- pre) yield GDHotKeyListener)
-  })
+  }
   make[ActorRef[WebAppListener.GoHomeKey]].from { system: ActorSystem[Nothing] =>
     system.systemActorOf(WebAppListener(), "web-app-listener")
   }
@@ -33,7 +33,7 @@ object GDModule extends ModuleDef {
 }
 
 object GDApp {
-  private val injector = Injector[Task[*]]()
+  private val injector = Injector[RIO[blocking.Blocking with console.Console, *]]()
   private val plan = injector.plan(
     GDModule,
     Activation.empty,
@@ -41,7 +41,8 @@ object GDApp {
       DIKey[ImageMatcher],
       DIKey[GDSystemUtils],
       DIKey[ActorRef[WebAppListener.GoHomeKey]],
-      DIKey[DelayBuffUI]
+      DIKey[DelayBuffUI],
+      DIKey[GDHotKeyListener.type]
     )
   )
   private val preResource                      = injector.produce(plan)
