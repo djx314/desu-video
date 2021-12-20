@@ -10,7 +10,7 @@ import gd.robot.akka.utils.GDSystemUtils
 import javafx.scene.input.KeyCode
 import scalafx.beans.property.{BooleanProperty, DoubleProperty, ObjectProperty}
 
-case class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebAppListener.GoHomeKey]) extends AutoCloseable {
+case class DelayBuff(system: ActorSystem[WebAppListener.GoHomeKey]) extends AutoCloseable {
 
   val isOn       = BooleanProperty(false)
   val delayTime  = DoubleProperty(0.05)
@@ -21,7 +21,7 @@ case class DelayBuff(system: ActorSystem[Nothing], webAppListener: ActorRef[WebA
   implicit val scheduler        = system.scheduler
   implicit val timeout          = Timeout(3.seconds)
   implicit val executionContext = system.executionContext
-  private val roundF = webAppListener ? ((replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) => WebAppListener.RoundAction(replyTo))
+  private val roundF = system ? ((replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) => WebAppListener.RoundAction(replyTo))
 
   def tick() = {
     if (isOn.value) {

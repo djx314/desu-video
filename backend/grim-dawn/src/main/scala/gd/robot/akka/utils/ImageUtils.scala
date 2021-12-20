@@ -2,6 +2,7 @@ package gd.robot.akka.utils
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.gdactor.gohome.WebAppListener
 import javafx.embed.swing.SwingFXUtils
 import javafx.scene.image.WritableImage
 import org.bytedeco.javacpp._
@@ -20,7 +21,7 @@ import scala.util.Using
 
 case class ColorRGB(red: Int, green: Int, blue: Int)
 
-class ImageUtils(system: ActorSystem[Nothing]) {
+class ImageUtils(system: ActorSystem[WebAppListener.GoHomeKey]) {
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 

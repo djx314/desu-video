@@ -19,12 +19,12 @@ object WebAppListener {
   case class RoundAction(replyTo: ActorRef[ActorRef[SkillsRoundAction3.GoHomeKey]]) extends SendKey
   case object PressSkillRound                                                       extends SendKey
 
-  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListenerImpl(_))
+  def apply(): Behavior[GoHomeKey] = Behaviors.setup(new WebAppListener(_))
 }
 
 import WebAppListener._
 
-class WebAppListenerImpl(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
+class WebAppListener(context: ActorContext[GoHomeKey]) extends AbstractBehavior[GoHomeKey](context) {
   private val system                    = context.system
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)

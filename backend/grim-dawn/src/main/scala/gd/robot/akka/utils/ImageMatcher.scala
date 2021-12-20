@@ -2,8 +2,9 @@ package gd.robot.akka.utils
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import gd.robot.akka.config.AppConfig
-import gd.robot.akka.gdactor.gohome.SkillsRoundAction2
+import gd.robot.akka.gdactor.gohome.{SkillsRoundAction2, WebAppListener}
 import javafx.scene.input.KeyCode
+
 import scala.concurrent.Future
 
 case class CompareImg(img: Array[Byte], keyCode: KeyCode, delay: Long)
@@ -18,7 +19,7 @@ case class ImageMatcherEnv(compareInfo: List[CompareImg], jinengImg: JinenglanIm
 
 class ImageMatcher(
   env: ImageMatcherEnv,
-  system: ActorSystem[Nothing],
+  system: ActorSystem[WebAppListener.GoHomeKey],
   imageUtils: ImageUtils
 ) {
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())

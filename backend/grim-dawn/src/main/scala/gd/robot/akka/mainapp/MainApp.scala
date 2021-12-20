@@ -11,9 +11,6 @@ import izumi.distage.model.Locator
 import zio._
 
 object GDModule extends ModuleDef {
-  val actorSystemZManaged =
-    ZManaged.make(ZIO.effect(ActorSystem(Behaviors.empty, "gd-system")))(system => ZIO.effect(system.terminate()).option)
-  make[ActorSystem[Nothing]].fromResource(actorSystemZManaged)
   make[ImageMatcher]
   make[GDSystemUtils]
   make[ImageUtils]
@@ -21,11 +18,13 @@ object GDModule extends ModuleDef {
   make[ImageMatcherEnv].from { appConfig: AppConfig =>
     appConfig.imgMatch
   }
-  make[ActorRef[WebAppListener.GoHomeKey]].fromResource { system: ActorSystem[Nothing] =>
-    val actor   = system.systemActorOf(WebAppListener(), "web-app-listener")
-    val pre     = blocking.effectBlocking(GDHotKeyListener.startListen(actor))
-    val managed = ZManaged.fromAutoCloseable(for (_ <- pre) yield GDHotKeyListener)
-    for (_ <- managed) yield actor
+  make[ActorSystem[WebAppListener.GoHomeKey]].fromResource {
+    val actorManaged =
+      ZManaged.make(ZIO.effect(ActorSystem(WebAppListener(), "gd-system")))(system => ZIO.effect(system.terminate()).option)
+    for {
+      actor <- actorManaged
+      _     <- GDHotKeyListener.startListen(actor)
+    } yield actor
   }
   make[() => DelayBuff]
   make[DelayBuffUI]
@@ -39,7 +38,7 @@ object GDApp {
     Roots(
       DIKey[ImageMatcher],
       DIKey[GDSystemUtils],
-      DIKey[ActorRef[WebAppListener.GoHomeKey]],
+      DIKey[ActorSystem[WebAppListener.GoHomeKey]],
       DIKey[DelayBuffUI]
     )
   )

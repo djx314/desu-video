@@ -1,6 +1,6 @@
 package gd.robot.akka.ui
 
-import akka.actor.typed.ActorRef
+import akka.actor.typed.{ActorRef, ActorSystem}
 import gd.robot.akka.gdactor.gohome.WebAppListener
 import gd.robot.akka.mainapp.GDApp
 import scalafx.Includes._
@@ -14,7 +14,7 @@ import scalafx.stage.Screen
 
 object GdStage extends JFXApp3 {
 
-  val webappListener = GDApp.resource.get[ActorRef[WebAppListener.GoHomeKey]]
+  val webappListener = GDApp.resource.get[ActorSystem[WebAppListener.GoHomeKey]]
   def delayBuffUI    = GDApp.resource.get[DelayBuffUI]
 
   override def start(): Unit = {

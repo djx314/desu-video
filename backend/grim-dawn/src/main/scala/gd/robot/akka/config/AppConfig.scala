@@ -1,11 +1,11 @@
 package gd.robot.akka.config
 
 import akka.actor.typed.{ActorSystem, DispatcherSelector}
-import gd.robot.akka.gdactor.gohome.{ActionQueue, SkillsRoundAction2}
+import gd.robot.akka.gdactor.gohome.{ActionQueue, SkillsRoundAction2, WebAppListener}
 import gd.robot.akka.utils.{CompareImg, ImageMatcherEnv, ImageUtils, JinenglanImg, SkillsImg}
 import javafx.scene.input.KeyCode
 
-class AppConfig(system: ActorSystem[Nothing]) {
+class AppConfig(system: ActorSystem[WebAppListener.GoHomeKey]) {
   val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
 
@@ -31,10 +31,10 @@ class AppConfig(system: ActorSystem[Nothing]) {
   val 是否战斗状态Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/是否战斗状态.png")
 
   val listImg: List[CompareImg] = List(
-    CompareImg(神灵之力Byte, KeyCode.DIGIT5, 100),
-    CompareImg(信念光环Byte, KeyCode.DIGIT6, 100),
-    CompareImg(附身烈焰Byte, KeyCode.DIGIT7, 100),
-    CompareImg(复仇烈焰Byte, KeyCode.DIGIT8, 100),
+    CompareImg(神灵之力Byte, KeyCode.DIGIT6, 100),
+    CompareImg(信念光环Byte, KeyCode.DIGIT7, 100),
+    CompareImg(附身烈焰Byte, KeyCode.DIGIT8, 100),
+    // CompareImg(复仇烈焰Byte, KeyCode.DIGIT8, 100),
     CompareImg(神圣护佑Byte, KeyCode.DIGIT9, 100),
     CompareImg(旋转刀刃Byte, KeyCode.DIGIT0, 0)
   )

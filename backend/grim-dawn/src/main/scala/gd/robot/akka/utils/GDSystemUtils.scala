@@ -3,6 +3,7 @@ package gd.robot.akka.utils
 import akka.actor.typed.{ActorRef, ActorSystem, DispatcherSelector}
 import akka.util.Timeout
 import gd.robot.akka.config.AppConfig
+import gd.robot.akka.gdactor.gohome.WebAppListener
 import gd.robot.akka.gdactor.gohome.systemactor.WaitForGDFocus
 
 import java.nio.file.{Files, Path, Paths}
@@ -10,7 +11,7 @@ import java.util.{Date, Optional}
 import scala.concurrent.Future
 import scala.io.Source
 
-class GDSystemUtils(system: ActorSystem[Nothing]) {
+class GDSystemUtils(system: ActorSystem[WebAppListener.GoHomeKey]) {
   private val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
   private implicit val executionContext = system.dispatchers.lookup(AppConfig.gdSelector)
   private implicit val scheduler        = system.scheduler
