@@ -17,14 +17,16 @@ class GDSystemUtils(system: ActorSystem[WebAppListener.GoHomeKey]) {
   private implicit val scheduler        = system.scheduler
   val currentProcessIdExeFileName       = "isGDRunning.exe"
 
+  def blockingFuture[T](block: => T): Future[T] = Future(block)(blockExecutionContext)
+
   private def currentProcessIdExeImpl: Future[Path] = {
     val tempPath = Paths.get(System.getProperty("java.io.tmpdir"))
-    Future {
+    blockingFuture {
       val path           = Files.createDirectories(tempPath.resolve(s"gdSystemUtil-${new Date().getTime / 1000 / 60 / 60 / 24}"))
       val isRunningBytes = ImageUtils.getBytesFromClasspath(s"/$currentProcessIdExeFileName")
       Files.write(path.resolve(currentProcessIdExeFileName), isRunningBytes)
       path
-    }(blockExecutionContext)
+    }
   }
   val currentProcessIdExe: Future[Path] = currentProcessIdExeImpl
 
@@ -39,12 +41,12 @@ class GDSystemUtils(system: ActorSystem[WebAppListener.GoHomeKey]) {
 
     for {
       exePath       <- currentProcessIdExe
-      processResult <- Future(process(exePath))(blockExecutionContext)
-      result        <- Future(Source.fromInputStream(processResult.getInputStream).getLines().mkString.trim)(blockExecutionContext)
+      processResult <- blockingFuture(process(exePath))
+      result        <- blockingFuture(Source.fromInputStream(processResult.getInputStream).getLines().mkString.trim)
       processIdOpt  <- Future(result.toLongOption)
-      processName <- Future {
+      processName <- blockingFuture {
         for (processId <- processIdOpt) yield nameFromProcessId(processId)
-      }(blockExecutionContext)
+      }
     } yield for {
       nameOpt <- processName
       name    <- fromOptional(nameOpt)
