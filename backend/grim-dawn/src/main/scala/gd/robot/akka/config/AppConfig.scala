@@ -31,10 +31,10 @@ class AppConfig(system: ActorSystem[WebAppListener.GoHomeKey]) {
   val 是否战斗状态Byte: Array[Byte] = ImageUtils.getBytesFromClasspath("/是否战斗状态.png")
 
   val listImg: List[CompareImg] = List(
+    CompareImg(复仇烈焰Byte, KeyCode.DIGIT5, 100),
     CompareImg(神灵之力Byte, KeyCode.DIGIT6, 100),
     CompareImg(信念光环Byte, KeyCode.DIGIT7, 100),
     CompareImg(附身烈焰Byte, KeyCode.DIGIT8, 100),
-    // CompareImg(复仇烈焰Byte, KeyCode.DIGIT8, 100),
     CompareImg(神圣护佑Byte, KeyCode.DIGIT9, 100),
     CompareImg(旋转刀刃Byte, KeyCode.DIGIT0, 0)
   )
