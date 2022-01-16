@@ -17,7 +17,7 @@ object Dependencies {
     val circe          = "0.15.0-M1"
     val kindProjector  = "0.13.2"
     val scalatest      = "3.2.9"
-    val macwire        = "2.5.0"
+    val macwire        = "2.5.3"
     val mysql          = "8.0.26"
     val slick          = "3.3.3"
     val sttp           = "3.3.18"
