@@ -17,7 +17,7 @@ import sttp.tapir.swagger.SwaggerUI
 
 object AppRoutes {
 
-  type ZIORuntimeEnv[T] = RIO[ZEnv with clock.Clock with blocking.Blocking, T]
+  // type ZIORuntimeEnv[T] = RIO[ZEnv with clock.Clock with blocking.Blocking, T]
   type ZIOEnv[T]        = RIO[ZEnv, T]
 
   private lazy val filePageRoute: FilePageRoute               = wire[FilePageRoute]

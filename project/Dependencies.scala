@@ -13,7 +13,7 @@ object Dependencies {
   val scalatestVersion      = "3.2.9"
   val macwireVersion        = "2.5.0"
   val circeVersion          = "0.15.0-M1"
-  val http4sVersion         = "0.23.6"
+  val http4sVersion         = "0.23.7"
   val slickVersion          = "3.3.3"
   val mysqlVersion          = "8.0.26"
   val tapirVersion          = "0.19.1"
