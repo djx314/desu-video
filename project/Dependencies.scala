@@ -5,104 +5,106 @@ import sbt.Keys._
 
 object Dependencies {
 
-  val AkkaVersion           = "2.6.17"
-  val AkkaHttpVersion       = "10.2.7"
-  val akkaHttpCirceVersion  = "1.38.2"
-  val slf4jVersion          = "1.7.32"
-  val typeSafeConfigVersion = "1.4.1"
-  val scalatestVersion      = "3.2.9"
-  val macwireVersion        = "2.5.0"
-  val circeVersion          = "0.15.0-M1"
-  val http4sVersion         = "0.23.7"
-  val slickVersion          = "3.3.3"
-  val mysqlVersion          = "8.0.26"
-  val tapirVersion          = "0.19.1"
-  val jintellitypeVersion   = "1.4.0"
-  val catsEffectVersion     = "3.2.9"
-  val sttpVersion           = "3.3.18"
-  val kindProjectorVersion  = "0.13.2"
-  val quillVersion          = "3.8.0"
-  val distageVersion        = "1.0.8"
-  val zioLoggingVersion     = "0.5.14"
-  val catsEffect2Version    = "2.5.4"
-  val zioVersion            = "1.0.9"
+  object versions {
+    val akka           = "2.6.17"
+    val akkaHttp       = "10.2.7"
+    val akkaHttpCirce  = "1.38.2"
+    val slf4j          = "1.7.32"
+    val typeSafeConfig = "1.4.1"
+    val http4s         = "0.23.7"
+    val catsEffect     = "3.2.9"
+    val catsEffect2    = "2.5.4"
+    val circe          = "0.15.0-M1"
+    val kindProjector  = "0.13.2"
+    val scalatest      = "3.2.9"
+    val macwire        = "2.5.0"
+    val mysql          = "8.0.26"
+    val slick          = "3.3.3"
+    val sttp           = "3.3.18"
+    val tapir          = "0.19.1"
+    val zioLogging     = "0.5.14"
+    val jintellitype   = "1.4.0"
+    val quill          = "3.8.0"
+    val distage        = "1.0.8"
+    val zio            = "1.0.9"
+  }
 
-  val config = List("com.typesafe" % "config" % typeSafeConfigVersion)
+  val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
 
-  val simpleLogger = List("org.slf4j" % "slf4j-simple" % slf4jVersion)
+  val simpleLogger = List("org.slf4j" % "slf4j-simple" % versions.slf4j)
 
   val akkaHttp = Seq(
-    "com.typesafe.akka" %% "akka-actor-typed"    % AkkaVersion,
-    "com.typesafe.akka" %% "akka-stream"         % AkkaVersion,
-    "com.typesafe.akka" %% "akka-http"           % AkkaHttpVersion,
-    "de.heikoseeberger" %% "akka-http-circe"     % akkaHttpCirceVersion,
-    "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion,
-    "com.typesafe.akka" %% "akka-http-testkit"   % AkkaHttpVersion
+    "com.typesafe.akka" %% "akka-actor-typed"    % versions.akka,
+    "com.typesafe.akka" %% "akka-stream"         % versions.akka,
+    "com.typesafe.akka" %% "akka-http"           % versions.akkaHttp,
+    "de.heikoseeberger" %% "akka-http-circe"     % versions.akkaHttpCirce,
+    "com.typesafe.akka" %% "akka-stream-testkit" % versions.akka,
+    "com.typesafe.akka" %% "akka-http-testkit"   % versions.akkaHttp
   )
 
   val http4s = Seq(
-    "org.http4s" %% "http4s-dsl"          % http4sVersion,
-    "org.http4s" %% "http4s-blaze-server" % http4sVersion,
-    "org.http4s" %% "http4s-blaze-client" % http4sVersion,
-    "org.http4s" %% "http4s-circe"        % http4sVersion
+    "org.http4s" %% "http4s-dsl"          % versions.http4s,
+    "org.http4s" %% "http4s-blaze-server" % versions.http4s,
+    "org.http4s" %% "http4s-blaze-client" % versions.http4s,
+    "org.http4s" %% "http4s-circe"        % versions.http4s
   )
 
-  val cats  = Seq("org.typelevel" %% "cats-effect" % catsEffectVersion)
-  val cats2 = Seq("org.typelevel" %% "cats-effect" % catsEffect2Version)
+  val cats  = Seq("org.typelevel" %% "cats-effect" % versions.catsEffect)
+  val cats2 = Seq("org.typelevel" %% "cats-effect" % versions.catsEffect2)
 
   val circe = Seq(
-    "io.circe" %% "circe-core"    % circeVersion,
-    "io.circe" %% "circe-generic" % circeVersion,
-    "io.circe" %% "circe-parser"  % circeVersion
+    "io.circe" %% "circe-core"    % versions.circe,
+    "io.circe" %% "circe-generic" % versions.circe,
+    "io.circe" %% "circe-parser"  % versions.circe
   )
 
   val macwire = Seq(
-    "com.softwaremill.macwire" %% "macros"     % macwireVersion % "provided",
-    "com.softwaremill.macwire" %% "macrosakka" % macwireVersion % "provided",
-    "com.softwaremill.macwire" %% "util"       % macwireVersion,
-    "com.softwaremill.macwire" %% "proxy"      % macwireVersion
+    "com.softwaremill.macwire" %% "macros"     % versions.macwire % "provided",
+    "com.softwaremill.macwire" %% "macrosakka" % versions.macwire % "provided",
+    "com.softwaremill.macwire" %% "util"       % versions.macwire,
+    "com.softwaremill.macwire" %% "proxy"      % versions.macwire
   )
 
   val scalatest = Seq(
-    "org.scalactic" %% "scalactic" % scalatestVersion,
-    "org.scalatest" %% "scalatest" % scalatestVersion % "test"
+    "org.scalactic" %% "scalactic" % versions.scalatest,
+    "org.scalatest" %% "scalatest" % versions.scalatest % "test"
   )
 
-  val mysql = Seq("mysql" % "mysql-connector-java" % mysqlVersion)
+  val mysql = Seq("mysql" % "mysql-connector-java" % versions.mysql)
 
   val slick = Seq(
-    "com.typesafe.slick" %% "slick"          % slickVersion,
-    "com.typesafe.slick" %% "slick-codegen"  % slickVersion,
-    "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
+    "com.typesafe.slick" %% "slick"          % versions.slick,
+    "com.typesafe.slick" %% "slick-codegen"  % versions.slick,
+    "com.typesafe.slick" %% "slick-hikaricp" % versions.slick
   )
 
   val sttp = List(
-    "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio"  % sttpVersion,
-    "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % sttpVersion
+    "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio"  % versions.sttp,
+    "com.softwaremill.sttp.client3" %% "async-http-client-backend-cats" % versions.sttp
   )
 
-  val zioLogging = "dev.zio" %% "zio-logging" % zioLoggingVersion
+  val zioLogging = "dev.zio" %% "zio-logging" % versions.zioLogging
 
   val tapir = List(
-    "com.softwaremill.sttp.tapir" %% "tapir-zio"                % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui"         % tapirVersion,
-    "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % tapirVersion
+    "com.softwaremill.sttp.tapir" %% "tapir-zio"                % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui"         % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % versions.tapir
   )
 
-  val jintellitype = "com.melloware" % "jintellitype" % jintellitypeVersion
+  val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
 
   val thumbnailator = "net.coobird"  % "thumbnailator"   % "0.4.14"
   val javacv        = "org.bytedeco" % "javacv-platform" % "1.5.6"
 
-  val kindProjector = "org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.full
+  val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
-  val quill = List("io.getquill" %% "quill-codegen-jdbc" % quillVersion, "io.getquill" %% "quill-async-mysql" % quillVersion)
-  def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
+  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill, "io.getquill" %% "quill-async-mysql" % versions.quill)
+  def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % versions.scala
 
   lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
 
@@ -123,8 +125,8 @@ object Dependencies {
     fx :: javafx
   }
 
-  val distage = "io.7mind.izumi" %% "distage-core" % distageVersion
+  val distage = "io.7mind.izumi" %% "distage-core" % versions.distage
 
-  val zio = "dev.zio" %% "zio" % zioVersion
+  val zio = "dev.zio" %% "zio" % versions.zio
 
 }
