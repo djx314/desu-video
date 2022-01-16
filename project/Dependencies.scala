@@ -104,7 +104,7 @@ object Dependencies {
   val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
   val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill, "io.getquill" %% "quill-async-mysql" % versions.quill)
-  def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % versions.scala
+  def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
 
   lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
 
