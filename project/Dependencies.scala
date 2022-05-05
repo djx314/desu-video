@@ -12,21 +12,25 @@ object Dependencies {
     val slf4j          = "1.7.32"
     val typeSafeConfig = "1.4.1"
     val http4s         = "0.23.7"
-    val catsEffect     = "3.2.9"
+    val catsEffect     = "3.3.11"
     val catsEffect2    = "2.5.4"
     val circe          = "0.15.0-M1"
     val kindProjector  = "0.13.2"
-    val scalatest      = "3.2.9"
+    val scalatest      = "3.2.12"
     val macwire        = "2.5.3"
-    val mysql          = "8.0.26"
-    val slick          = "3.3.3"
+    val mysql          = "8.0.29"
+    val slick          = "3.4.0-M1"
     val sttp           = "3.3.18"
-    val tapir          = "0.19.1"
+    val tapir          = "1.0.0-M8"
     val zioLogging     = "0.5.14"
     val jintellitype   = "1.4.0"
-    val quill          = "3.8.0"
+    val quill_old      = "3.12.0"
+    val quill          = "3.17.0.Beta3.0-RC4"
     val distage        = "1.0.8"
     val zio            = "1.0.9"
+    val zio2           = "2.0.0-RC5"
+    val zioMagic       = "0.3.11"
+    val zioHttp        = "2.0.0-RC7"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -103,7 +107,7 @@ object Dependencies {
 
   val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
-  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill, "io.getquill" %% "quill-async-mysql" % versions.quill)
+  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill_old, "io.getquill" %% "quill-async-mysql" % versions.quill_old)
   def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
 
   lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
@@ -127,6 +131,14 @@ object Dependencies {
 
   val distage = "io.7mind.izumi" %% "distage-core" % versions.distage
 
-  val zio = "dev.zio" %% "zio" % versions.zio
+  val zio  = "dev.zio" %% "zio" % versions.zio
+  val zio2 = "dev.zio" %% "zio" % versions.zio2
+
+  val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)
+
+  val quill_scala3 = Seq(
+    "io.getquill"          %% "quill-jdbc-zio" % versions.quill
+    // "io.github.kitlangton" %% "zio-magic"      % versions.zioMagic
+  )
 
 }

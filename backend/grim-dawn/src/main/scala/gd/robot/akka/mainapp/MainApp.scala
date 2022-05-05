@@ -23,7 +23,7 @@ object GDModule extends ModuleDef {
       ZManaged.make(ZIO.effect(ActorSystem(WebAppListener(), "gd-system")))(system => ZIO.effect(system.terminate()).option)
     for {
       actor <- actorManaged
-      _     <- GDHotKeyListener.startListen(actor)
+      // _     <- GDHotKeyListener.startListen(actor)
     } yield actor
   }
   make[() => DelayBuff]
