@@ -21,7 +21,7 @@ object Dependencies {
     val mysql          = "8.0.29"
     val slick          = "3.4.0-M1"
     val sttp           = "3.3.18"
-    val tapir          = "1.0.0-M8"
+    val tapir          = "1.0.0-M9"
     val zioLogging     = "0.5.14"
     val jintellitype   = "1.4.0"
     val quill_old      = "3.12.0"
@@ -97,7 +97,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui"         % versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % versions.tapir
+    "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"    % versions.tapir
   )
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
@@ -137,7 +138,7 @@ object Dependencies {
   val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)
 
   val quill_scala3 = Seq(
-    "io.getquill"          %% "quill-jdbc-zio" % versions.quill
+    "io.getquill" %% "quill-jdbc-zio" % versions.quill
     // "io.github.kitlangton" %% "zio-magic"      % versions.zioMagic
   )
 
