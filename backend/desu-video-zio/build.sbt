@@ -13,5 +13,6 @@ libraryDependencies += Dependencies.zio2
 libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.zioHttp
 libraryDependencies ++= Dependencies.quill_scala3
+libraryDependencies ++= Dependencies.scalaCollectionCompat
 
 run / fork := true

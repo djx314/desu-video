@@ -24,13 +24,16 @@ object Dependencies {
     val tapir          = "1.0.0-M9"
     val zioLogging     = "0.5.14"
     val jintellitype   = "1.4.0"
-    val quill_old      = "3.12.0"
+    val quill_old      = "3.17.0-RC4"
     val quill          = "3.17.0.Beta3.0-RC4"
     val distage        = "1.0.8"
     val zio            = "1.0.9"
     val zio2           = "2.0.0-RC5"
     val zioMagic       = "0.3.11"
     val zioHttp        = "2.0.0-RC7"
+    val finch = "0.33.0"
+    val scalaCollectionCompat = "2.7.0"
+    val scalaJava8Compat = "1.0.2"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -108,7 +111,7 @@ object Dependencies {
 
   val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
-  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill_old, "io.getquill" %% "quill-async-mysql" % versions.quill_old)
+  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill_old, "io.getquill" %% "quill-jasync-mysql" % versions.quill_old,"io.github.kitlangton" %% "zio-magic"      % versions.zioMagic)
   def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
 
   lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
@@ -141,5 +144,13 @@ object Dependencies {
     "io.getquill" %% "quill-jdbc-zio" % versions.quill
     // "io.github.kitlangton" %% "zio-magic"      % versions.zioMagic
   )
+
+  val finch = Seq(
+    "com.github.finagle" %% "finchx-core" % versions.finch,
+    "com.github.finagle" %% "finchx-generic" % versions.finch
+  )
+
+  val scalaCollectionCompat = List("org.scala-lang.modules" %% "scala-collection-compat" % versions.scalaCollectionCompat)
+  val scalaJava8Compat = List("org.scala-lang.modules" %% "scala-java8-compat" %   versions.scalaJava8Compat)
 
 }
