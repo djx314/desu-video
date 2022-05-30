@@ -1,16 +1,14 @@
 package desu.video.common.slick.model
 // AUTO-GENERATED Slick data model
 /** Stand-alone Slick data model for immediate use */
-object Tables
-    extends {
-      val profile = slick.jdbc.MySQLProfile
-    }
-    with Tables
+object Tables extends Tables {
+  val profile = slick.jdbc.MySQLProfile
+}
 
-/** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.) Each
-  * generated XXXXTable trait is mixed in this trait hence allowing access to all the TableQuery lazy vals.
+/** Slick data model trait for extension, choice of backend or usage in the cake pattern. (Make sure to initialize this late.)
+    Each generated XXXXTable trait is mixed in this trait hence allowing access to all the TableQuery lazy vals.
   */
-trait Tables extends DirMappingTable with FlywaySchemaHistoryTable {
+trait Tables extends TablesRoot with DirMappingTable with FlywaySchemaHistoryTable {
   val profile: slick.jdbc.JdbcProfile
   import profile.api._
   import slick.model.ForeignKeyAction

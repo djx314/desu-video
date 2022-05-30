@@ -1,9 +1,9 @@
 package desu.video.akka.routes.test
 
+import akka.actor.typed.ActorSystem
+import akka.event.Logging
 import akka.http.scaladsl.model.ContentTypes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server._
-import desu.video.akka.routes.HttpServerRoutingMinimal
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -12,19 +12,25 @@ import desu.video.common.slick.model.Tables._
 import desu.video.common.slick.model.Tables.profile.api._
 import org.scalatest.concurrent.ScalaFutures
 import io.circe.syntax._
+import desu.video.common.model.DesuResult
 
 import java.nio.file.Files
 
 class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRouteTest with ScalaFutures {
+  implicit val logger = Logging.getLogger(system, "akka-http-test")
+
+  implicit val typedSystem = ActorSystem.wrap(system)
+
+  val testWire = TestWire()
 
   "rootPath should" should {
 
     "exists" in {
-      Files.exists(TestWire.appConfig.rootPath) shouldBe true
+      Files.exists(testWire.appConfig.rootPath.futureValue) shouldBe true
     }
 
     "be a dirctory" in {
-      Files.isDirectory(TestWire.appConfig.rootPath) shouldBe true
+      Files.isDirectory(testWire.appConfig.rootPath.futureValue) shouldBe true
     }
 
   }
@@ -32,31 +38,37 @@ class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRou
   "The root file service" should {
 
     "return a Json when request file list" in {
-      Get("/rootPathFiles") ~> HttpServerRoutingMinimal.route ~> check {
+      Get("/api/desu/rootPathFiles") ~> testWire.routingMinimal.route ~> check {
         contentType shouldEqual ContentTypes.`application/json`
-
-        val rootFiles        = TestWire.appConfig.rootPath.toFile.listFiles().to(List).map(_.getName)
-        val rootFileToBeTest = RootPathFiles(dirConfirm = true, rootFiles)
-
-        responseAs[RootPathFiles] shouldEqual rootFileToBeTest
+        val rootFiles        = testWire.appConfig.rootPath.futureValue.toFile.listFiles().to(List).map(_.getName)
+        val rootFileToBeTest = RootPathFiles(rootFiles)
+        responseAs[DesuResult[RootPathFiles]].data shouldEqual rootFileToBeTest
       }
     }
 
     "return a Json when request root file name" in {
-      val rootFiles = TestWire.appConfig.rootPath.toFile.listFiles().to(List).map(_.getName)
+      val rootFiles = testWire.appConfig.rootPath.futureValue.toFile.listFiles().to(List).map(_.getName)
       rootFiles.foreach { fileName =>
         val requestModel = RootFileNameRequest(fileName = fileName)
 
-        Post("/rootPathFile", requestModel) ~> HttpServerRoutingMinimal.route ~> check {
+        Post("/api/desu/rootPathFile", requestModel) ~> testWire.routingMinimal.route ~> check {
           contentType shouldEqual ContentTypes.`application/json`
 
           val dirId      = responseAs[DirId]
-          val fileNameF  = TestWire.desuDatabase.db.run(DirMapping.filter(_.id === dirId.id).result)
-          val dirNameRow = fileNameF.futureValue.to(List)
+          val fileNameF  = testWire.desuDatabase.db.run(DirMapping.filter(_.id === dirId.id).to[List].result)
+          val dirNameRow = fileNameF.futureValue
 
-          dirNameRow shouldEqual List(DirMappingRow(id = dirId.id, filePath = List(dirId.fileName).asJson.noSpaces))
+          val confirm =
+            for (row <- dirNameRow)
+              yield DirId(
+                id = row.id,
+                fileName = io.circe.parser.parse(row.filePath).getOrElse(null).as[List[String]].getOrElse(null).head
+              )
+
+          confirm shouldEqual List(
+            DirId(id = dirId.id, fileName = dirId.fileName)
+          )
         }
-
       }
     }
 

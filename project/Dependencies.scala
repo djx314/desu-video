@@ -6,34 +6,34 @@ import sbt.Keys._
 object Dependencies {
 
   object versions {
-    val akka           = "2.6.17"
-    val akkaHttp       = "10.2.7"
-    val akkaHttpCirce  = "1.38.2"
-    val slf4j          = "1.7.32"
-    val typeSafeConfig = "1.4.1"
-    val http4s         = "0.23.7"
-    val catsEffect     = "3.3.11"
-    val catsEffect2    = "2.5.4"
-    val circe          = "0.15.0-M1"
-    val kindProjector  = "0.13.2"
-    val scalatest      = "3.2.12"
-    val macwire        = "2.5.3"
-    val mysql          = "8.0.29"
-    val slick          = "3.4.0-M1"
-    val sttp           = "3.3.18"
-    val tapir          = "1.0.0-M9"
-    val zioLogging     = "0.5.14"
-    val jintellitype   = "1.4.0"
-    val quill_old      = "3.17.0-RC4"
-    val quill          = "3.17.0.Beta3.0-RC4"
-    val distage        = "1.0.8"
-    val zio            = "1.0.9"
-    val zio2           = "2.0.0-RC5"
-    val zioMagic       = "0.3.11"
-    val zioHttp        = "2.0.0-RC7"
-    val finch = "0.33.0"
+    val akka                  = "2.6.17"
+    val akkaHttp              = "10.2.7"
+    val akkaHttpCirce         = "1.38.2"
+    val slf4j                 = "1.8.0-beta4"
+    val typeSafeConfig        = "1.4.1"
+    val http4s                = "0.23.7"
+    val catsEffect            = "3.3.11"
+    val catsEffect2           = "2.5.4"
+    val circe                 = "0.15.0-M1"
+    val kindProjector         = "0.13.2"
+    val scalatest             = "3.2.12"
+    val macwire               = "2.5.3"
+    val mysql                 = "8.0.29"
+    val slick                 = "3.4.0-M1"
+    val sttp                  = "3.3.18"
+    val tapir                 = "1.0.0-M9"
+    val zioLogging            = "0.5.14"
+    val jintellitype          = "1.4.0"
+    val quill_old             = "3.17.0-RC4"
+    val quill                 = "3.17.0.Beta3.0-RC4"
+    val distage               = "1.0.8"
+    val zio                   = "1.0.9"
+    val zio2                  = "2.0.0-RC5"
+    val zioMagic              = "0.3.11"
+    val zioHttp               = "2.0.0-RC7"
+    val finch                 = "0.33.0"
     val scalaCollectionCompat = "2.7.0"
-    val scalaJava8Compat = "1.0.2"
+    val scalaJava8Compat      = "1.0.2"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -111,7 +111,11 @@ object Dependencies {
 
   val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
-  val quill = List("io.getquill" %% "quill-codegen-jdbc" % versions.quill_old, "io.getquill" %% "quill-jasync-mysql" % versions.quill_old,"io.github.kitlangton" %% "zio-magic"      % versions.zioMagic)
+  val quill = List(
+    "io.getquill"          %% "quill-codegen-jdbc" % versions.quill_old,
+    "io.getquill"          %% "quill-jasync-mysql" % versions.quill_old,
+    "io.github.kitlangton" %% "zio-magic"          % versions.zioMagic
+  )
   def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
 
   lazy val javaFXModules = List("base", "controls", "fxml", "graphics", "media", "swing", "web")
@@ -146,11 +150,10 @@ object Dependencies {
   )
 
   val finch = Seq(
-    "com.github.finagle" %% "finchx-core" % versions.finch,
+    "com.github.finagle" %% "finchx-core"    % versions.finch,
     "com.github.finagle" %% "finchx-generic" % versions.finch
   )
 
   val scalaCollectionCompat = List("org.scala-lang.modules" %% "scala-collection-compat" % versions.scalaCollectionCompat)
-  val scalaJava8Compat = List("org.scala-lang.modules" %% "scala-java8-compat" %   versions.scalaJava8Compat)
 
 }

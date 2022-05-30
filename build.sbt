@@ -13,7 +13,7 @@ val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(commo
 val zio      = project in backendPath / "desu-video-zio"
 val nodeTest = project in backendPath / "node-test"
 val gd       = project in backendPath / "grim-dawn"
-val finch       = project in backendPath / "desu-video-finch"
+val finch    = project in backendPath / "desu-video-finch"
 
 addCommandAlias("prun", "http4s/reStart")
 addCommandAlias("krun", "akkaHttp/run")

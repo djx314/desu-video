@@ -16,5 +16,6 @@ libraryDependencies ++= Dependencies.mysql
 libraryDependencies ++= Dependencies.slick
 libraryDependencies ++= Dependencies.circe
 libraryDependencies ++= Dependencies.tapir
-libraryDependencies ++= Dependencies.quill map (_ exclude ("org.scala-lang.modules", "scala-java8-compat" + scalaVersion.value))
+
+libraryDependencies ++= Dependencies.quill map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion.binaryScalaVersion(scalaVersion.value)}"))
 libraryDependencies += Dependencies.scalaReflect(scalaVersion.value)

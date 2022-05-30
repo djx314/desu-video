@@ -25,7 +25,7 @@ class FileService(appConfig: AppConfig, desuDatabase: DesuDatabase)(implicit sys
     val dirMappingOptF = db.run(DirMapping.filter(_.filePath === fileNameJson).result.headOption)
 
     def insertQuery = DirMapping returning DirMapping.map(_.id) into ((model, id) => model.copy(id = id))
-    def notExistsF  = db.run(insertQuery += DirMappingRow(id = -1, filePath = fileNameJson))
+    def notExistsF  = db.run(insertQuery += DirMappingRow(id = -1, filePath = fileNameJson, parentId = -1))
 
     def fromOpt(opt: Option[DirMappingRow]) = opt match {
       case Some(dirMapping) => Future.successful(dirMapping)
