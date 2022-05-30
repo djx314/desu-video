@@ -60,10 +60,16 @@ class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRou
 
           val confirm =
             for (row <- dirNameRow)
-              yield DirId(
-                id = row.id,
-                fileName = io.circe.parser.parse(row.filePath).getOrElse(null).as[List[String]].getOrElse(null).head
-              )
+              yield {
+                val name = for {
+                  a1 <- io.circe.parser.parse(row.filePath)
+                  a2 <- a1.as[List[String]]
+                } yield a2.head
+                DirId(
+                  id = row.id,
+                  fileName = name.getOrElse(null)
+                )
+              }
 
           confirm shouldEqual List(
             DirId(id = dirId.id, fileName = dirId.fileName)
