@@ -1,0 +1,1 @@
+ALTER TABLE `dir_mapping` ADD COLUMN parent_id INT NOT NULL COMMENT '父文件目录'

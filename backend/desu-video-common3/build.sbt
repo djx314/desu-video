@@ -1,10 +1,10 @@
 import org.scalax.sbt.Dependencies
 
-org.scalax.sbt.CustomSettings.scalaConfig
+org.scalax.sbt.CustomSettings.scala3Config
 org.scalax.sbt.CustomSettings.fmtConfig
 
-name := "desu-video-common"
-moduleName := "desu-video-common"
+name := "desu-video-common3"
+moduleName := "desu-video-common3"
 
 enablePlugins(FlywayPlugin)
 
@@ -14,9 +14,5 @@ flywayPassword := "root"
 flywayLocations += "db/migration"
 
 libraryDependencies ++= Dependencies.mysql
-libraryDependencies ++= Dependencies.slick
+libraryDependencies ++= Dependencies.quill_scala3 map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion.binaryScalaVersion(scalaVersion.value)}"))
 libraryDependencies ++= Dependencies.circe
-libraryDependencies ++= Dependencies.tapir
-
-libraryDependencies ++= Dependencies.quill map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion.binaryScalaVersion(scalaVersion.value)}"))
-libraryDependencies += Dependencies.scalaReflect(scalaVersion.value)
