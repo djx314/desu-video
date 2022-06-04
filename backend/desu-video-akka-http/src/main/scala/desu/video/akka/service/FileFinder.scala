@@ -7,12 +7,12 @@ import desu.video.akka.model.{FileNotConfirmException, RootPathFiles}
 
 import java.nio.file.{Files, Path}
 import java.util.stream.Collectors
-import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
+import scala.concurrent.{ExecutionContext, Future}
+import scala.jdk.CollectionConverters.*
 
 class FileFinder(appConfig: AppConfig)(implicit system: ActorSystem[Nothing]) {
-  implicit val executionContext = system.dispatchers.lookup(appConfig.desuSelector)
-  val blockExecutionContext     = system.dispatchers.lookup(DispatcherSelector.blocking())
+  given ExecutionContext    = system.dispatchers.lookup(appConfig.desuSelector)
+  val blockExecutionContext = system.dispatchers.lookup(DispatcherSelector.blocking())
 
   /** @throws FileNotConfirmException
     * @return

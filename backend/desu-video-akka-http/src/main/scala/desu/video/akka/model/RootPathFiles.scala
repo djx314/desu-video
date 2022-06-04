@@ -1,14 +1,11 @@
 package desu.video.akka.model
 
-import io.circe.generic.JsonCodec
+import io.circe.Codec
 
-@JsonCodec
-case class RootPathFiles(files: List[String])
+case class RootPathFiles(files: List[String]) derives Codec.AsObject
 
-@JsonCodec
-case class DirId(id: Long, fileName: String)
+case class DirId(id: Long, fileName: String) derives Codec.AsObject
 
 case class FileNotConfirmException(message: String) extends Exception(message)
 
-@JsonCodec
-case class RootFileNameRequest(fileName: String)
+case class RootFileNameRequest(fileName: String) derives Codec.AsObject

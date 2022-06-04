@@ -16,10 +16,10 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
   val routeWithPath = path("rootPathFiles") {
     get {
       extractLog { implicit log =>
-        onComplete(fileFinder.rootPathFiles) {
-          case Success(list)                       => complete(DesuResult.data(true, list))
-          case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
-          case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
+        onComplete(fileFinder.rootPathFiles) { case Success(list) =>
+          complete(DesuResult.data(true, list))
+        // case Failure(FileNotConfirmException(_)) => complete(DesuResult.message(false, message = "根目录配置错误或配置已过时"))
+        // case Failure(_)                          => complete(DesuResult.message(false, message = "未知错误，请联系管理员"))
         }
       }
     }
