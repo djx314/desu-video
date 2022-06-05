@@ -12,3 +12,4 @@ libraryDependencies ++= Dependencies.scalatest
 libraryDependencies ++= Dependencies.simpleLogger
 libraryDependencies += Dependencies.jintellitype
 libraryDependencies ++= Dependencies.circe
+libraryDependencies += "com.zaxxer" % "HikariCP" % "5.0.1"

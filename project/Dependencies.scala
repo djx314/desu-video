@@ -14,7 +14,7 @@ object Dependencies {
     val http4s                = "0.23.7"
     val catsEffect            = "3.3.11"
     val catsEffect2           = "2.5.4"
-    val circe                 = "0.15.0-M1"
+    val circe                 = "0.14.2"
     val kindProjector         = "0.13.2"
     val scalatest             = "3.2.12"
     val macwire               = "2.5.7"

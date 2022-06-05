@@ -14,11 +14,27 @@ import java.io.Closeable
 import javax.sql.DataSource
 import scala.concurrent.ExecutionContext
 import scala.io.StdIn
+import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 
 object MainApp {
 
+  private def buildConfig = {
+    val hikariConfig = new HikariConfig()
+    // 基础配置
+    hikariConfig.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/desu_video")
+    hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver")
+    hikariConfig.setUsername("root")
+    hikariConfig.setPassword("root")
+    // 连接池配置
+    hikariConfig.setPoolName("dev-hikari-pool")
+    hikariConfig.setMinimumIdle(4)
+    hikariConfig.setMaximumPoolSize(8)
+    hikariConfig.setIdleTimeout(600000L)
+    hikariConfig
+  }
+
   given ActorSystem[Nothing]                = ActorSystem(Behaviors.empty, "my-system")
-  private given (DataSource with Closeable) = ???
+  private given (DataSource with Closeable) = new HikariDataSource(buildConfig)
 
   private given AppConfig    = wire
   private given FileService  = wire
