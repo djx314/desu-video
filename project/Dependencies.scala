@@ -21,8 +21,8 @@ object Dependencies {
     val mysql                 = "8.0.29"
     val slick                 = "3.4.0-M1"
     val sttp                  = "3.3.18"
-    val tapir                 = "1.0.0-M9"
-    val zioLogging            = "0.5.14"
+    val tapir                 = "1.0.0-RC3"
+    val zioLogging            = "2.0.0-RC10"
     val jintellitype          = "1.4.0"
     val quill_old             = "4.0.0-RC1"
     val quill                 = "3.17.0-Beta30-RC5"
@@ -34,6 +34,8 @@ object Dependencies {
     val finch                 = "0.33.0"
     val scalaCollectionCompat = "2.7.0"
     val scalaJava8Compat      = "1.0.2"
+    val circeYaml = "0.2.1"
+    val hikariCP = "5.0.1"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -93,14 +95,15 @@ object Dependencies {
 
   val tapir = List(
     "com.softwaremill.sttp.tapir" %% "tapir-zio"                % versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-zio-http4s-server"  % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server-zio"  % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"       % versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % versions.tapir,
+    "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml" % versions.circeYaml,
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe"         % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-sttp-client"        % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui"         % versions.tapir,
     "com.softwaremill.sttp.tapir" %% "tapir-redoc"              % versions.tapir,
-    "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"    % versions.tapir
+    "com.softwaremill.sttp.tapir" %% "tapir-zio-http-server"    % versions.tapir,
+    "com.softwaremill.sttp.tapir" %% "tapir-sttp-stub-server" % versions.tapir
   )
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
@@ -154,5 +157,7 @@ object Dependencies {
   )
 
   val scalaCollectionCompat = List("org.scala-lang.modules" %% "scala-collection-compat" % versions.scalaCollectionCompat)
+
+  val hikariCP= "com.zaxxer" % "HikariCP" % versions.hikariCP
 
 }

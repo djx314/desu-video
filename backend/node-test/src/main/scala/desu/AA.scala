@@ -1,23 +1,24 @@
 package desu
 
-import com.eclipsesource.v8.{Releasable, V8}
+import com.eclipsesource.v8.{Releasable, V8, V8Object}
 import zio._
-import logging._
 
-object AA extends App {
+import scala.concurrent.{ExecutionContext, Future}
+import java.util.concurrent.{Executors => JExecutors}
 
-  def releaseRealeaseable(s: Releasable): ZIO[Logging, Nothing, Unit] =
-    Task(s.release()).catchAll(f => log.throwable("Close V8 object error.", f))
-  def fromReleasable[T <: Releasable](a: => T): ZManaged[Logging, Throwable, T] = ZManaged.make(Task(a))(releaseRealeaseable)
+object AA extends ZIOAppDefault {
 
-  val env =
-    Logging.console(
-      logLevel = LogLevel.Info,
-      format = LogFormat.ColoredLogFormat()
-    ) >>> Logging.withRootLoggerName("my-component")
+  private val execute               = ExecutionContext.fromExecutor(JExecutors.newSingleThreadExecutor())
+  def doThread[T](s: => T): Task[T] = ZIO.fromFutureInterrupt(ec => Future(s)(execute))
 
-  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
-    def script(runtime: V8) = Task(
+  def releaseRealeaseable(s: Releasable): UIO[Unit] =
+    doThread(s.release()).catchAll(f => ZIO.logErrorCause("Close V8 object error.", Cause.fail(f)))
+
+  def fromReleasable[T <: Releasable](a: => T)(implicit tag: Tag[T]): TaskLayer[T] =
+    ZLayer.scoped(ZIO.acquireRelease(doThread(a))(releaseRealeaseable))
+
+  override def run: ZIO[Environment with ZIOAppArgs with Scope, Any, Any] = {
+    def script(runtime: V8) = doThread(
       runtime.executeVoidScript(
         ""
           + "var person = {};\n"
@@ -27,22 +28,26 @@ object AA extends App {
           + "person.hockeyTeam = hockeyTeam;\n"
       )
     )
-    val managed = for {
-      runtime     <- fromReleasable(V8.createV8Runtime())
-      _           <- ZManaged.fromEffect(script(runtime))
-      person      <- fromReleasable(runtime.getObject("person"))
-      hockeyTeam  <- fromReleasable(person.getObject("hockeyTeam"))
-      hockeyTeam1 <- fromReleasable(person.getObject("hockeyTeam"))
-    } yield (hockeyTeam, hockeyTeam1, person.getString("first"))
 
-    val action = managed.use { case (s1, s2, ian) =>
-      for {
-        _ <- console.putStrLn(s1.getString("name"))
-        _ <- console.putStrLn(s2.getString("name"))
-        _ <- console.putStrLn(ian)
-      } yield {}
-    }
-    action.provideCustomLayer(env).exitCode
+    val managed: TaskLayer[(V8Object, V8Object, String)] = for {
+      runtimeEnv  <- fromReleasable(V8.createV8Runtime())
+      _           <- ZLayer.fromZIO(script(runtimeEnv.get[V8]))
+      personEnv   <- fromReleasable(runtimeEnv.get[V8].getObject("person"))
+      person      <- ZLayer.fromZIO(doThread(personEnv.get[V8Object].getString("first")))
+      hockeyTeam  <- fromReleasable(personEnv.get[V8Object].getObject("hockeyTeam"))
+      hockeyTeam1 <- fromReleasable(personEnv.get[V8Object].getObject("hockeyTeam"))
+    } yield ZEnvironment((hockeyTeam.get[V8Object], hockeyTeam1.get[V8Object], person.get[String]))
+
+    val action = for {
+      s     <- ZIO.service[(V8Object, V8Object, String)]
+      name1 <- doThread(s._1.getString("name"))
+      _     <- Console.printLine(name1)
+      name2 <- doThread(s._2.getString("name"))
+      _     <- Console.printLine(name2)
+      _     <- Console.printLine(s._3)
+    } yield {}
+
+    action.provideLayer(managed).catchAll(e => ZIO.logErrorCause(Cause.fail(e))).exitCode
   }
 
 }

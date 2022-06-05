@@ -15,6 +15,7 @@ val codegen   = project in commonCodegenPath
 val http4s   = (project in backendPath / "desu-video-http4s").dependsOn(common)
 val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(common3)
 val zio      = project in backendPath / "desu-video-zio"
+val test      = project in backendPath / "desu-video-test"
 val nodeTest = project in backendPath / "node-test"
 val gd       = project in backendPath / "grim-dawn"
 val finch    = project in backendPath / "desu-video-finch"
