@@ -5,19 +5,24 @@ import com.softwaremill.macwire._
 import desu.video.akka.config.AppConfig
 import desu.video.akka.routes.HttpServerRoutingMinimal
 import desu.video.akka.service.{FileFinder, FileService}
-import desu.video.common.slick.DesuDatabase
-
+import desu.video.common.quill.model.MysqlContext
 import scala.concurrent.ExecutionContext
+import io.getquill.util.LoadConfig
+import javax.sql.DataSource
+import java.io.Closeable
+import io.getquill.*
 
 case class TestWire()(implicit val system: ActorSystem[Nothing]) {
 
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(null)
-  lazy val appConfig                        = wire[AppConfig]
-  lazy val desuDatabase                     = wire[DesuDatabase]
+  private given ExecutionContext = ExecutionContext.fromExecutor(null)
+  given AppConfig                = wire
 
-  private lazy val fileService = wire[FileService]
-  private lazy val fileFinder  = wire[FileFinder]
+  private given FileService = wire
+  private given FileFinder  = wire
 
-  lazy val routingMinimal = wire[HttpServerRoutingMinimal]
+  given HttpServerRoutingMinimal = wire
+
+  given MysqlContext                     = wire
+  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
 
 }

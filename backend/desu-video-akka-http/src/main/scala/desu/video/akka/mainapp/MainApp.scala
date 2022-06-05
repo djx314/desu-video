@@ -1,6 +1,7 @@
 package desu.video.akka.mainapp
 
-import akka.actor.typed.ActorSystem
+import akka.Done
+import akka.actor.typed.{ActorSystem, DispatcherSelector}
 import akka.actor.typed.scaladsl.Behaviors
 import com.softwaremill.macwire.*
 import desu.video.akka.config.AppConfig
@@ -12,29 +13,18 @@ import desu.video.common.quill.model.MysqlContext
 
 import java.io.Closeable
 import javax.sql.DataSource
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import io.getquill.util.LoadConfig
+
+import javax.sql.DataSource
+import io.getquill.*
+import io.getquill.context.ZioJdbc.DataSourceLayer
 
 object MainApp {
 
-  private def buildConfig = {
-    val hikariConfig = new HikariConfig()
-    // 基础配置
-    hikariConfig.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/desu_video")
-    hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver")
-    hikariConfig.setUsername("root")
-    hikariConfig.setPassword("root")
-    // 连接池配置
-    hikariConfig.setPoolName("dev-hikari-pool")
-    hikariConfig.setMinimumIdle(4)
-    hikariConfig.setMaximumPoolSize(8)
-    hikariConfig.setIdleTimeout(600000L)
-    hikariConfig
-  }
-
-  given ActorSystem[Nothing]                = ActorSystem(Behaviors.empty, "my-system")
-  private given (DataSource with Closeable) = new HikariDataSource(buildConfig)
+  given ActorSystem[Nothing]             = ActorSystem(Behaviors.empty, "my-system")
+  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
 
   private given AppConfig    = wire
   private given FileService  = wire
@@ -43,14 +33,23 @@ object MainApp {
 
   given HttpServerRoutingMinimal = wire
 
+  private val blockExecutionContext = implicitly[ActorSystem[Nothing]].dispatchers.lookup(DispatcherSelector.blocking())
+  private given ExecutionContext    = implicitly[ActorSystem[Nothing]].dispatchers.lookup(implicitly[AppConfig].desuSelector)
+
+  def closeProject: Future[Done] = {
+    val close1 = Future(implicitly[DataSource & Closeable].close())(blockExecutionContext)
+    for (_ <- close1) yield Done.done()
+  }
+
 }
 
 object HttpServerRoutingMinimal {
 
   def main(args: Array[String]): Unit = {
     import MainApp.given
-    val system                   = implicitly[ActorSystem[Nothing]]
-    val httpServerRoutingMinimal = implicitly[HttpServerRoutingMinimal]
+    val system: ActorSystem[Nothing]                       = implicitly
+    val httpServerRoutingMinimal: HttpServerRoutingMinimal = implicitly
+
     // needed for the future flatMap/onComplete in the end
     given ExecutionContext = system.executionContext
 
@@ -58,9 +57,16 @@ object HttpServerRoutingMinimal {
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
     StdIn.readLine() // let it run until user presses return
-    bindingFuture
-      .flatMap(_.unbind())                 // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+    val shutdown1 = for {
+      b <- bindingFuture
+      _ <- b.unbind()
+    } yield Done.done()
+    val shutdown2 = MainApp.closeProject
+    val shutdown = for {
+      _ <- shutdown1
+      _ <- shutdown2
+    } yield Done.done()
+    shutdown.onComplete(_ => system.terminate())
   }
 
 }

@@ -1,11 +1,11 @@
 package desu.video.akka.routes
 
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.*
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import desu.video.akka.model.{FileNotConfirmException, RootFileNameRequest}
 import desu.video.akka.service.{FileFinder, FileService}
 import desu.video.common.model.DesuResult
-import io.circe.syntax._
+import io.circe.syntax.*
 
 import scala.util.{Failure, Success}
 
