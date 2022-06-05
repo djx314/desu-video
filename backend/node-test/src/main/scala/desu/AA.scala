@@ -41,8 +41,8 @@ object AA extends ZIOAppDefault {
     val action = for {
       s     <- ZIO.service[(V8Object, V8Object, String)]
       name1 <- doThread(s._1.getString("name"))
-      _     <- Console.printLine(name1)
       name2 <- doThread(s._2.getString("name"))
+      _     <- Console.printLine(name1)
       _     <- Console.printLine(name2)
       _     <- Console.printLine(s._3)
     } yield {}
