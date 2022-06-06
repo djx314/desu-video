@@ -3,7 +3,7 @@ import org.scalax.sbt.Dependencies
 org.scalax.sbt.CustomSettings.scalaConfig
 org.scalax.sbt.CustomSettings.fmtConfig
 
-name := "desu-video-codegen"
+name       := "desu-video-codegen"
 moduleName := "desu-video-codegen"
 
 enablePlugins(FlywayPlugin)

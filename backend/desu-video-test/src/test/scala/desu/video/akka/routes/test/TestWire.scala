@@ -1,5 +1,6 @@
 package desu.video.akka.routes.test
 
+/*
 import akka.actor.typed.ActorSystem
 import com.softwaremill.macwire._
 import desu.video.akka.config.AppConfig
@@ -26,3 +27,4 @@ case class TestWire()(implicit val system: ActorSystem[Nothing]) {
   private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
 
 }
+ */

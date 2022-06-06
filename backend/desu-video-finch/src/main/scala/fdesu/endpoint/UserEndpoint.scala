@@ -1,6 +1,5 @@
 package fdesu.endpoint
 
-
 import io.finch._, cats.effect.IO
 import com.twitter.finagle.Http
 import com.twitter.util.Await

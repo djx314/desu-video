@@ -3,7 +3,7 @@ import org.scalax.sbt.Dependencies
 org.scalax.sbt.CustomSettings.scalaConfig
 org.scalax.sbt.CustomSettings.fmtConfig
 
-name := "desu-video-common"
+name       := "desu-video-common"
 moduleName := "desu-video-common"
 
 enablePlugins(FlywayPlugin)
