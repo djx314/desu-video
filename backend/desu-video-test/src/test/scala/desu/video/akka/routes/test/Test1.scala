@@ -10,10 +10,12 @@ import zio.test.{test, *}
 import zio.test.Assertion.*
 import desu.video.test.model.*
 import sttp.tapir.generic.auto.*
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.client3.httpclient.zio.*
+import scala.jdk.CollectionConverters.*
+import java.util.stream.Collectors
 
 object RootPathFilesTestCase1 extends ZIOSpecDefault:
 
@@ -24,8 +26,8 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
       .errorOut(jsonBody[DesuResult[Option[String]]])
 
   def rootFileToBeTest(path: String): RootPathFiles = {
-    val names = Paths.get(path).toFile.listFiles().to(List).map(_.getName)
-    RootPathFiles(names)
+    val files = Files.list(Paths.get(path)).map(_.toFile.getName).collect(Collectors.toList[String])
+    RootPathFiles(files.asScala.to(List))
   }
 
   override def spec = suite("The root path info service")(test("should return a json when sending a root info reuqest.") {
