@@ -14,8 +14,7 @@ import io.getquill.*
 
 case class TestWire()(implicit val system: ActorSystem[Nothing]) {
 
-  private given ExecutionContext = ExecutionContext.fromExecutor(null)
-  given AppConfig                = wire
+  given AppConfig = wire
 
   private given FileService = wire
   private given FileFinder  = wire

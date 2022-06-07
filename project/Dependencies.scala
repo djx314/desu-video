@@ -36,6 +36,7 @@ object Dependencies {
     val scalaJava8Compat      = "1.0.2"
     val circeYaml             = "0.2.1"
     val hikariCP              = "5.0.1"
+    val zioConfig             = "3.0.0-RC9"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -103,7 +104,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir"   %% "tapir-swagger-ui"        % versions.tapir,
     "com.softwaremill.sttp.tapir"   %% "tapir-redoc"             % versions.tapir,
     "com.softwaremill.sttp.tapir"   %% "tapir-zio-http-server"   % versions.tapir,
-    "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir,
+    "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir
   )
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
@@ -143,9 +144,11 @@ object Dependencies {
 
   val zio = "dev.zio" %% "zio" % versions.zio
   val zio2 = List(
-    "dev.zio" %% "zio"          % versions.zio2,
-    "dev.zio" %% "zio-test"     % versions.zio2 % "test",
-    "dev.zio" %% "zio-test-sbt" % versions.zio2 % "test"
+    "dev.zio" %% "zio"                 % versions.zio2,
+    "dev.zio" %% "zio-test"            % versions.zio2 % "test",
+    "dev.zio" %% "zio-test-sbt"        % versions.zio2 % "test",
+    "dev.zio" %% "zio-config"          % versions.zioConfig,
+    "dev.zio" %% "zio-config-magnolia" % versions.zioConfig
   )
 
   val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)

@@ -5,9 +5,14 @@ import sbt.Keys._
 
 object CustomSettings {
 
-  val scalaConfig  = Seq(scalaVersion := "2.13.8", scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations"))
-  val scala3Config = Seq(scalaVersion := "3.1.2", scalacOptions ++= Seq("-feature", "-deprecation"))
+  val scalaVersion_213 = "2.13.8"
+  val scalaVersion_3   = "3.1.2"
+
+  val scalaConfig  = Seq(scalaVersion := scalaVersion_213, scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations"))
+  val scala3Config = Seq(scalaVersion := scalaVersion_3, scalacOptions ++= Seq("-feature", "-deprecation"))
 
   val fmtConfig = org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile := true
+
+  val crossConfig = crossScalaVersions := Seq(scalaVersion_213, scalaVersion_3)
 
 }
