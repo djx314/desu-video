@@ -1,30 +1,30 @@
 package desu.video.akka.routes.test
 
-/*
-import akka.actor.typed.ActorSystem
-import com.softwaremill.macwire._
-import desu.video.akka.config.AppConfig
-import desu.video.akka.routes.HttpServerRoutingMinimal
-import desu.video.akka.service.{FileFinder, FileService}
-import desu.video.common.quill.model.MysqlContext
-import scala.concurrent.ExecutionContext
-import io.getquill.util.LoadConfig
-import javax.sql.DataSource
-import java.io.Closeable
-import io.getquill.*
+import zio.*
+import sttp.tapir.server.ziohttp.ZioHttpServerOptions
+import sttp.tapir.server.interceptor.CustomiseInterceptors
+import sttp.tapir.server.interceptor.exception.ExceptionHandler
+import sttp.tapir.server.model.ValuedEndpointOutput
+import sttp.tapir.PublicEndpoint
+import sttp.tapir.ztapir.*
+import sttp.model.StatusCode
+import sttp.monad.MonadError
+import sttp.tapir.server.stub.TapirStubInterpreter
+import sttp.client3.testing.SttpBackendStub
 
-case class TestWire()(implicit val system: ActorSystem[Nothing]) {
+class TestEnv {
 
-  private given ExecutionContext = ExecutionContext.fromExecutor(null)
-  given AppConfig                = wire
+  val exceptionHandler = ExceptionHandler.pure[[x] =>> RIO[ZEnv, x]](ctx =>
+    Some(ValuedEndpointOutput(stringBody.and(statusCode), (s"failed due to ${ctx.e.getMessage}", StatusCode.InternalServerError)))
+  )
 
-  private given FileService = wire
-  private given FileFinder  = wire
+  val customOptions: CustomiseInterceptors[[x] =>> RIO[ZEnv, x], ZioHttpServerOptions[ZEnv]] =
+    ZioHttpServerOptions.customiseInterceptors.exceptionHandler(exceptionHandler)
 
-  given HttpServerRoutingMinimal = wire
+  val m: MonadError[[x] =>> RIO[ZEnv, x]] = new RIOMonadError[ZEnv]
 
-  given MysqlContext                     = wire
-  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
+  val stubInterpreter = TapirStubInterpreter(customOptions, SttpBackendStub(m))
 
 }
- */
+
+object TestEnv extends TestEnv

@@ -1,50 +1,39 @@
 package desu.video.akka.routes.test
 
 import zio.*
-import sttp.tapir.server.ziohttp.ZioHttpServerOptions
-import sttp.tapir.server.interceptor.exception.ExceptionHandler
-import scala.concurrent.Future
-import sttp.tapir.server.model.ValuedEndpointOutput
-import sttp.model.StatusCode
 import sttp.tapir.PublicEndpoint
-import sttp.tapir.server.interceptor.CustomiseInterceptors
-import sttp.client3.testing.SttpBackendStub
-import sttp.tapir.server.stub.TapirStubInterpreter
 import sttp.tapir.ztapir.*
+import sttp.tapir.json.circe.*
 import sttp.client3.*
-import sttp.monad.MonadError
+import sttp.tapir.DecodeResult
 
 import zio.test.{test, *}
 import zio.test.Assertion.*
+import desu.video.test.model.*
+import sttp.tapir.generic.auto.*
+
+import sttp.tapir.client.sttp.SttpClientInterpreter
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 
 object Test1 extends ZIOSpecDefault:
 
-  val exceptionHandler = ExceptionHandler.pure[[x] =>> RIO[ZEnv, x]](ctx =>
-    Some(ValuedEndpointOutput(stringBody.and(statusCode), (s"failed due to ${ctx.e.getMessage}", StatusCode.InternalServerError)))
-  )
-
-  val customOptions: CustomiseInterceptors[[x] =>> RIO[ZEnv, x], ZioHttpServerOptions[ZEnv]] =
-    ZioHttpServerOptions.customiseInterceptors.exceptionHandler(exceptionHandler)
-
-  val someEndpoint: PublicEndpoint[Unit, String, String, Any] = endpoint.get.in("api").out(stringBody).errorOut(stringBody)
-
-  val m: MonadError[[x] =>> RIO[ZEnv, x]] = new RIOMonadError[ZEnv]
+  val someEndpoint: PublicEndpoint[Unit, DesuResult[Option[String]], DesuResult[RootPathFiles], Any] =
+    endpoint.get
+      .in("api" / "desu" / "rootPathFiles")
+      .out(jsonBody[DesuResult[RootPathFiles]])
+      .errorOut(jsonBody[DesuResult[Option[String]]])
 
   // given
-  val stub = TapirStubInterpreter(customOptions, SttpBackendStub(m))
-    .whenEndpoint(someEndpoint)
-    .thenThrowException(new RuntimeException("error"))
-    .backend()
+  val stub = TestEnv.stubInterpreter.whenEndpoint(someEndpoint).thenThrowException(new RuntimeException("error")).backend()
 
   // when
-
-  override def spec = suite("A Suite")(
-    test("aa")(
-      sttp.client3.basicRequest
-        .get(uri"http://test.com/api")
-        .send(stub)
-        // then
-        .map(s => assert(s.body)(Assertion.equalTo(Left("failed due to error"))))
+  override def spec = suite("The root path info service")(
+    test("should return a json when sending a root info reuqest.")(
+      for {
+        backend <- AsyncHttpClientZioBackend()
+        response = SttpClientInterpreter().toClient(someEndpoint, Some(uri"http://localhost:8080"), backend)
+        s <- response(())
+      } yield assert(s)(Assertion.equalTo(DecodeResult.Value(Right("aa"))))
     )
   ).provideCustomLayer(ZEnv.live)
 

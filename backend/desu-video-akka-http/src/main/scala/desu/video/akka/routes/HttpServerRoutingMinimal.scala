@@ -16,6 +16,7 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
   val routeWithPath = path("rootPathFiles") {
     get {
       extractLog { implicit log =>
+        log.info("xx*" repeat 100)
         onComplete(fileFinder.rootPathFiles) {
           case Success(list) =>
             complete(DesuResult.data(true, list))

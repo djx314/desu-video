@@ -13,9 +13,10 @@ libraryDependencies ++= Dependencies.circe
 libraryDependencies += Dependencies.hikariCP
 libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.macwire
+libraryDependencies ++= Dependencies.sttp map (_ exclude("org.scala-lang.modules", "scala-collection-compat_2.13"))
 libraryDependencies ++= Dependencies.akkaHttp
   .map(_ cross CrossVersion.for3Use2_13)
-  .map(_ exclude ("io.circe", "*")) map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_2.13"))
+  .map(_ exclude ("io.circe", "*")) map (_ exclude ("org.scala-lang.modules", "scala-java8-compat_2.13"))
 
 libraryDependencies ++= Dependencies.zio2
 libraryDependencies ++= Dependencies.tapir

@@ -20,7 +20,7 @@ object Dependencies {
     val macwire               = "2.5.7"
     val mysql                 = "8.0.29"
     val slick                 = "3.4.0-M1"
-    val sttp                  = "3.3.18"
+    val sttp                  = "3.6.2"
     val tapir                 = "1.0.0-RC3"
     val zioLogging            = "2.0.0-RC10"
     val jintellitype          = "1.4.0"
@@ -103,7 +103,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir"   %% "tapir-swagger-ui"        % versions.tapir,
     "com.softwaremill.sttp.tapir"   %% "tapir-redoc"             % versions.tapir,
     "com.softwaremill.sttp.tapir"   %% "tapir-zio-http-server"   % versions.tapir,
-    "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir
+    "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir,
   )
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype

@@ -7,5 +7,4 @@ name       := "desu-video-common3"
 moduleName := "desu-video-common3"
 
 libraryDependencies ++= Dependencies.mysql
-libraryDependencies ++= Dependencies.quill_scala3 map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion
-    .binaryScalaVersion(scalaVersion.value)}"))
+libraryDependencies ++= Dependencies.quill_scala3 map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_2.13"))
