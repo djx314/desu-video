@@ -1,26 +1,17 @@
-package desu.video.akka.routes.test
+package desu.video.test.cases
 
-import akka.actor.typed.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
-import akka.http.scaladsl.model.ContentTypes
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
-import desu.video.akka.config.AppConfig
-import desu.video.akka.model.{DirId, RootFileNameRequest, RootPathFiles}
-import desu.video.akka.routes.HttpServerRoutingMinimal
-import org.scalatest.concurrent.ScalaFutures
-import io.circe.syntax.*
-import desu.video.common.model.DesuResult
-import desu.video.common.quill.model.MysqlContext
-import zio.*
-import io.getquill.*
-import desu.video.common.quill.model.desuVideo.dirMapping
+import zio.config._
+import zio.config.magnolia.descriptor
+import zio.config.typesafe._
 
-import java.nio.file.Files
+case class DesuConfig(desu: VideoConfig)
+case class VideoConfig(video: FileConfig)
+case class FileConfig(file: RootPath)
+case class RootPath(rootPath: String)
 
-class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRouteTest with ScalaFutures {
-  "dev.zio" % "zio-config_3" % "3.0.0-RC9"
+object DesuConfigModel:
 
-}
+  val desuConfigAutomatic = descriptor[DesuConfig]
+  val layer               = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
+
+end DesuConfigModel

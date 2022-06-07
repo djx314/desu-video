@@ -1,4 +1,4 @@
-package desu.video.akka.routes.test
+package desu.video.test.cases
 
 import zio.*
 import sttp.tapir.{DecodeResult, PublicEndpoint}
@@ -15,7 +15,7 @@ import java.nio.file.Paths
 import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.client3.httpclient.zio.*
 
-object Test1 extends ZIOSpecDefault:
+object RootPathFilesTestCase1 extends ZIOSpecDefault:
 
   val someEndpoint: PublicEndpoint[Unit, DesuResult[Option[String]], DesuResult[RootPathFiles], Any] =
     endpoint.get
@@ -23,23 +23,23 @@ object Test1 extends ZIOSpecDefault:
       .out(jsonBody[DesuResult[RootPathFiles]])
       .errorOut(jsonBody[DesuResult[Option[String]]])
 
-  val rootFileNames    = Paths.get("d:/xlxz").toFile.listFiles().to(List).map(_.getName)
-  val rootFileToBeTest = RootPathFiles(rootFileNames)
+  def rootFileToBeTest(path: String): RootPathFiles = {
+    val names = Paths.get(path).toFile.listFiles().to(List).map(_.getName)
+    RootPathFiles(names)
+  }
 
-  // given
-  val stub = TestEnv.stubInterpreter.whenEndpoint(someEndpoint).thenThrowException(new RuntimeException("error")).backend()
-
-  // when
   override def spec = suite("The root path info service")(test("should return a json when sending a root info reuqest.") {
 
     val request = SttpClientInterpreter().toRequest(someEndpoint, Some(uri"http://localhost:8080"))
 
-    for (response <- send(request(())))
-      yield
-        val assert1 = response.body.map(_.map(_.data))
-        val assert2 = DecodeResult.Value(Right(rootFileToBeTest))
-        assert(assert1)(Assertion.equalTo(assert2))
+    for {
+      desuConfig <- ZIO.service[DesuConfig]
+      response   <- send(request(()))
+    } yield
+      val assert1 = response.body.map(_.map(_.data))
+      val assert2 = DecodeResult.Value(Right(rootFileToBeTest(desuConfig.desu.video.file.rootPath)))
+      assert(assert1)(Assertion.equalTo(assert2))
 
-  }).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer())
+  }).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer)
 
-end Test1
+end RootPathFilesTestCase1

@@ -148,7 +148,8 @@ object Dependencies {
     "dev.zio" %% "zio-test"            % versions.zio2 % "test",
     "dev.zio" %% "zio-test-sbt"        % versions.zio2 % "test",
     "dev.zio" %% "zio-config"          % versions.zioConfig,
-    "dev.zio" %% "zio-config-magnolia" % versions.zioConfig
+    "dev.zio" %% "zio-config-magnolia" % versions.zioConfig,
+    "dev.zio" %% "zio-config-typesafe" % versions.zioConfig
   )
 
   val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)
