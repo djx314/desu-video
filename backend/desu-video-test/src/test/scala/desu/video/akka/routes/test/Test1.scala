@@ -74,7 +74,7 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
       yield TestResult.all(assertion2: _*)
 
     }
-  ).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.live1)
+  ).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDataBase.layer)
 
   end spec
 
