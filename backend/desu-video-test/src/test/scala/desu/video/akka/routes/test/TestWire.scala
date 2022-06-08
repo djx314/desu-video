@@ -25,8 +25,8 @@ object Filling:
 
   transparent inline def value[T, Ploy](inline v: Filling[T, Ploy]): T = v
 
-  given [T, U]: Conversion[T, Filling[T, U]] with
-    override def apply(in: T): Filling[T, U] = in
+  inline given [T, U]: Conversion[T, Filling[T, U]] with
+    override inline def apply(in: T): Filling[T, U] = in
 
 end Filling
 
@@ -64,7 +64,7 @@ end TestEnv
 
 object TestEnv extends TestEnv
 
-def simpleToRequest[E, I, O, U](
+def simpleToRequest[E, I, O](
   endpoint: PublicEndpoint[E, I, O, TestEnv.ZIOEndPointType]
 )(using Filling[E, Filling.type & FillingImpl.type]): RIO[ContextUri & SttpClient, Response[DecodeResult[Either[I, O]]]] =
   TestEnv.toRequest(endpoint)

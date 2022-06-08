@@ -2,7 +2,7 @@ package desu.video.test.cases
 
 import zio.*
 import sttp.tapir.{DecodeResult, PublicEndpoint}
-import sttp.tapir.ztapir.*
+import sttp.tapir.ztapir.{query => _, *}
 import sttp.tapir.json.circe.*
 import sttp.client3.*
 
@@ -16,10 +16,17 @@ import sttp.tapir.client.sttp.SttpClientInterpreter
 import sttp.client3.httpclient.zio.*
 import scala.jdk.CollectionConverters.*
 import java.util.stream.Collectors
+import io.getquill.*
+import desu.video.test.cases.{MysqlJdbcContext => ctx}
+import desu.video.common.quill.model.desuVideo.*
 
 import scala.language.implicitConversions
+import scala.util.Try
+import javax.sql.DataSource
 
 object RootPathFilesTestCase1 extends ZIOSpecDefault:
+
+  import ctx.*
 
   val rootPathFilesEndpoint: PublicEndpoint[Unit, DesuResult[Option[String]], DesuResult[RootPathFiles], Any] =
     endpoint.get
@@ -39,6 +46,30 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     files.asScala.to(List)
   end rootFileToBeTest
 
+  def dirInfoFromId(dirId: Long) =
+    inline def fileNameQuery = quote {
+      query[dirMapping].filter(_.id == lift(dirId))
+    }
+    val fileNameZio = ctx.run(fileNameQuery)
+
+    ZIO.flatten(
+      for fileName <- fileNameZio
+      yield ZIO.collectAll(
+        for row <- fileName
+        yield ZIO.fromEither(
+          for
+            a1   <- io.circe.parser.parse(row.filePath)
+            a2   <- a1.as[List[String]]
+            name <- Try(a2.head).toEither
+          yield DirId(
+            id = row.id,
+            fileName = name
+          )
+        )
+      )
+    )
+  end dirInfoFromId
+
   override def spec = suite("The root path info service")(
     test("should return a json when sending a root info reuqest.") {
 
@@ -54,27 +85,30 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     },
     test("should return a json when sending a root file name.") {
 
-      val testAction =
+      val testAction = ZIO.flatten(
         for desuConfig <- ZIO.service[DesuConfig]
-        yield
-          val coll =
-            for fileName <- rootFileToBeTest(desuConfig.desu.video.file.rootPath)
-            yield for response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(fileName))
+        yield ZIO.collectAll(
+          for fileName <- rootFileToBeTest(desuConfig.desu.video.file.rootPath)
+          yield ZIO.flatten(
+            for response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(fileName))
             yield
-              val assert1     = response.body
-              val dirIdResult = assert1.map(_.map(_.id))
-              val assert2     = DecodeResult.Value(Right(rootFileToBeTest(desuConfig.desu.video.file.rootPath)))
-              assert(assert1)(Assertion.equalTo(assert2))
+              val assert1 = response.body.match {
+                case DecodeResult.Value(Right(value)) => value
+                case s                                => throw IllegalArgumentException(s"Error Response Value.${s}")
+              }
 
-          ZIO.collectAll(coll)
+              val queryAction       = dirInfoFromId(assert1.id)
+              val dirIdDecodeResult = List(DirId(id = assert1.id, fileName = assert1.fileName))
+              assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
+          )
+        )
+      )
 
-      for
-        assertion1 <- testAction
-        assertion2 <- assertion1
-      yield TestResult.all(assertion2: _*)
+      for assertion1 <- testAction
+      yield TestResult.all(assertion1: _*)
 
     }
-  ).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDataBase.layer)
+  ).provideCustomLayer(CommonLayer.live)
 
   end spec
 

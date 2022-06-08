@@ -11,6 +11,7 @@ import java.io.Closeable
 import io.getquill.context.ZioJdbc.DataSourceLayer
 import io.getquill.util.LoadConfig
 import io.getquill.*
+import sttp.client3.httpclient.zio.*
 
 case class DesuConfig(desu: VideoConfig)
 case class VideoConfig(video: FileConfig)
@@ -37,3 +38,7 @@ object ContextJdbcDataBase:
   val layer: TaskLayer[DataSource] = DataSourceLayer.fromDataSource(JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource)
 
 end ContextJdbcDataBase
+
+object CommonLayer:
+  val live = ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDataBase.layer
+end CommonLayer
