@@ -8,7 +8,7 @@ import desu.video.akka.model.FileNotConfirmException
 import java.nio.file.{Files, Path, Paths}
 import scala.concurrent.{ExecutionContext, Future}
 
-class AppConfig(system: ActorSystem[Nothing]) {
+class AppConfig(system: ActorSystem[Nothing]):
   val defaultDispatcherName = "desu-dispatcher"
   val desuSelector          = DispatcherSelector.fromConfig(defaultDispatcherName)
 
@@ -17,19 +17,19 @@ class AppConfig(system: ActorSystem[Nothing]) {
 
   val dirPath = ConfigFactory.load().getString("desu.video.file.rootPath")
 
-  def rootPath(using logger: LoggingAdapter): Future[Path] = {
+  def rootPath(using logger: LoggingAdapter): Future[Path] =
     val path       = Paths.get(dirPath)
     def isConfirmF = Future(!Files.exists(path) || !Files.isDirectory(path))(blockExecutionContext)
-    def result(isConfirm: Boolean): Future[Path] = if (isConfirm) {
+    def result(isConfirm: Boolean): Future[Path] = if (isConfirm)
       val message = s"App root file not exists or app root file is not a directory. Root file path is $dirPath"
       logger.error(message)
       Future.failed(FileNotConfirmException("App root file not exists or app root file is not a directory."))
-    } else Future(path)
+    else Future(path)
 
-    for {
+    for
       isConfirm <- isConfirmF
       f         <- result(isConfirm)
-    } yield f
-  }
+    yield f
+  end rootPath
 
-}
+end AppConfig

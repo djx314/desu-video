@@ -33,22 +33,24 @@ object MainApp {
 
   given HttpServerRoutingMinimal = wire
 
-  private val blockExecutionContext = implicitly[ActorSystem[Nothing]].dispatchers.lookup(DispatcherSelector.blocking())
-  private given ExecutionContext    = implicitly[ActorSystem[Nothing]].dispatchers.lookup(implicitly[AppConfig].desuSelector)
+  private val blockExecutionContext = summon[ActorSystem[Nothing]].dispatchers.lookup(DispatcherSelector.blocking())
+  private given ExecutionContext    = summon[ActorSystem[Nothing]].dispatchers.lookup(implicitly[AppConfig].desuSelector)
 
-  def closeProject: Future[Done] = {
-    val close1 = Future(implicitly[DataSource & Closeable].close())(blockExecutionContext)
-    for (_ <- close1) yield Done.done()
-  }
+  def closeProject: Future[Done] =
+    val close1 = Future(summon[DataSource & Closeable].close())(blockExecutionContext)
+    for _ <- close1 yield Done.done()
+  end closeProject
 
 }
 
 object HttpServerRoutingMinimal {
 
-  def main(args: Array[String]): Unit = {
-    import MainApp.given
-    val system: ActorSystem[Nothing]                       = implicitly
-    val httpServerRoutingMinimal: HttpServerRoutingMinimal = implicitly
+  import MainApp.given
+
+  def main(args: Array[String]): Unit =
+
+    val system: ActorSystem[Nothing]                       = summon
+    val httpServerRoutingMinimal: HttpServerRoutingMinimal = summon
 
     // needed for the future flatMap/onComplete in the end
     given ExecutionContext = system.executionContext
@@ -56,17 +58,23 @@ object HttpServerRoutingMinimal {
     val bindingFuture = Http().newServerAt("localhost", 8080).bind(httpServerRoutingMinimal.route)
 
     println(s"Server online at http://localhost:8080/\nPress RETURN to stop...")
+
     StdIn.readLine() // let it run until user presses return
-    val shutdown1 = for {
+
+    val shutdown1 = for
       b <- bindingFuture
       _ <- b.unbind()
-    } yield Done.done()
+    yield Done.done()
+
     val shutdown2 = MainApp.closeProject
-    val shutdown = for {
+
+    val shutdown = for
       _ <- shutdown1
       _ <- shutdown2
-    } yield Done.done()
+    yield Done.done()
+
     shutdown.onComplete(_ => system.terminate())
-  }
+
+  end main
 
 }
