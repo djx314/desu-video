@@ -52,22 +52,21 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     }
     val fileNameZio = ctx.run(fileNameQuery)
 
-    ZIO.flatten(
-      for fileName <- fileNameZio
-      yield ZIO.collectAll(
-        for row <- fileName
-        yield ZIO.fromEither(
-          for
-            a1   <- io.circe.parser.parse(row.filePath)
-            a2   <- a1.as[List[String]]
-            name <- Try(a2.head).toEither
-          yield DirId(
-            id = row.id,
-            fileName = name
-          )
-        )
-      )
+    def modelToDirId(dirMapping: dirMapping) = for
+      a1   <- io.circe.parser.decode[List[String]](dirMapping.filePath)
+      name <- Try(a1.head).toEither
+    yield DirId(
+      id = dirMapping.id,
+      fileName = name
     )
+    end modelToDirId
+
+    def modelEitherToZIO(models: List[dirMapping]) = for model <- models yield ZIO.fromEither(modelToDirId(model))
+
+    for
+      fileName <- fileNameZio
+      dirIds   <- ZIO.collectAll(modelEitherToZIO(fileName))
+    yield dirIds
   end dirInfoFromId
 
   override def spec = suite("The root path info service")(
@@ -85,24 +84,29 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     },
     test("should return a json when sending a root file name.") {
 
-      val testAction = ZIO.flatten(
-        for desuConfig <- ZIO.service[DesuConfig]
-        yield ZIO.collectAll(
-          for fileName <- rootFileToBeTest(desuConfig.desu.video.file.rootPath)
-          yield ZIO.flatten(
-            for response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(fileName))
-            yield
-              val assert1 = response.body.match {
-                case DecodeResult.Value(Right(value)) => value
-                case s                                => throw IllegalArgumentException(s"Error Response Value.${s}")
-              }
+      def testResultGen(name: String) =
+        ZIO.flatten(
+          for response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(name))
+          yield
+            val assert1 = response.body.match {
+              case DecodeResult.Value(Right(value)) => value
+              case s                                => throw IllegalArgumentException(s"Error Response Value.${s}")
+            }
 
-              val queryAction       = dirInfoFromId(assert1.id)
-              val dirIdDecodeResult = List(DirId(id = assert1.id, fileName = assert1.fileName))
-              assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
-          )
+            val queryAction       = dirInfoFromId(assert1.id)
+            val dirIdDecodeResult = List(DirId(id = assert1.id, fileName = assert1.fileName))
+            assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
         )
-      )
+      end testResultGen
+
+      def fileNameTestResultList(names: List[String]) = ZIO.collectAll(for name <- names yield testResultGen(name))
+
+      val testAction =
+        for
+          desuConfig <- ZIO.service[DesuConfig]
+          testResult <- fileNameTestResultList(rootFileToBeTest(desuConfig.desu.video.file.rootPath))
+        yield testResult
+      end testAction
 
       for assertion1 <- testAction
       yield TestResult.all(assertion1: _*)
