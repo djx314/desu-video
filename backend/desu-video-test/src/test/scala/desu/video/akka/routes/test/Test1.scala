@@ -53,6 +53,7 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
 
     },
     test("should return a json when sending a root file name.") {
+
       val testAction =
         for desuConfig <- ZIO.service[DesuConfig]
         yield
@@ -71,6 +72,7 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
         assertion1 <- testAction
         assertion2 <- assertion1
       yield TestResult.all(assertion2: _*)
+
     }
   ).provideCustomLayer(ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.live1)
 

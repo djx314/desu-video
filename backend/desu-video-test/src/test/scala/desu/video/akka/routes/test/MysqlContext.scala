@@ -1,4 +1,4 @@
-package desu.video.common.quill.model
+package desu.video.test.cases
 
 import desu.video.common.quill.model.desuVideo.DesuVideoExtensions
 import io.getquill.context.ZioJdbc.DataSourceLayer
@@ -8,9 +8,9 @@ import javax.sql.DataSource
 import io.getquill.context.qzio.ImplicitSyntax.Implicit
 
 import java.io.Closeable
+import io.getquill.MysqlJdbcContext
 
-class MysqlContext(dataSource: DataSource & Closeable)
-    extends MysqlZioJdbcContext[SnakeCase](SnakeCase)
-    with DesuVideoExtensions[MySQLDialect, SnakeCase]:
-  val dataSourceLayer = DataSourceLayer.fromDataSource(dataSource)
-end MysqlContext
+class MysqlJdbcContext extends MysqlZioJdbcContext[SnakeCase](SnakeCase) with DesuVideoExtensions[MySQLDialect, SnakeCase]:
+end MysqlJdbcContext
+
+object MysqlJdbcContext extends MysqlJdbcContext
