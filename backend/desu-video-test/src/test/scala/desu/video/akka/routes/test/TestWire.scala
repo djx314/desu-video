@@ -50,11 +50,11 @@ class TestEnv:
   type ZIOEndPointType = sttp.capabilities.zio.ZioStreams & sttp.capabilities.Effect[Task] & sttp.capabilities.WebSockets
 
   def toRequest[E, I, O, U, Ploy](
-    endPoint: PublicEndpoint[E, I, O, ZIOEndPointType]
+    endpoint: PublicEndpoint[E, I, O, ZIOEndPointType]
   )(using Filling[E, Ploy]): RIO[ContextUri & SttpClient, Response[DecodeResult[Either[I, O]]]] =
     for
       context <- ZIO.service[ContextUri]
-      request = SttpClientInterpreter().toRequest(endPoint, Some(context.uri))
+      request = SttpClientInterpreter().toRequest(endpoint, Some(context.uri))
       value   = summon[Filling[E, Ploy]]
       response <- send(request(Filling.value(value)))
     yield response
@@ -65,6 +65,6 @@ end TestEnv
 object TestEnv extends TestEnv
 
 def simpleToRequest[E, I, O, U](
-  endPoint: PublicEndpoint[E, I, O, TestEnv.ZIOEndPointType]
+  endpoint: PublicEndpoint[E, I, O, TestEnv.ZIOEndPointType]
 )(using Filling[E, Filling.type & FillingImpl.type]): RIO[ContextUri & SttpClient, Response[DecodeResult[Either[I, O]]]] =
-  TestEnv.toRequest(endPoint)
+  TestEnv.toRequest(endpoint)
