@@ -24,3 +24,5 @@ libraryDependencies ++= Dependencies.quill_scala3
 libraryDependencies ++= Dependencies.scalaCollectionCompat
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+
+scalacOptions ++= Seq("-Ykind-projector","-rewrite", "-new-syntax")
