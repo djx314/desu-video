@@ -59,26 +59,18 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     }
     val fileNameZio = ctx.run(fileNameQuery)
 
-    def modelToDirId(dirMapping: dirMapping) = for
-      a1   <- io.circe.parser.decode[List[String]](dirMapping.filePath)
-      name <- Try(a1.head).toEither
-    yield DirId(
-      id = dirMapping.id,
-      fileName = name
-    )
+    def modelToDirId(dirMapping: dirMapping) =
+      def decodeResult = io.circe.parser.decode[List[String]](dirMapping.filePath)
+      for
+        a1   <- ZIO.fromEither(decodeResult)
+        name <- ZIO.attempt(a1.head)
+      yield DirId(id = dirMapping.id, fileName = name)
     end modelToDirId
 
-    def modelsToZIO(dirMappings: List[dirMapping]) =
-      def zioAction = dirMappings.map(modelToDirId andThen ZIO.fromEither)
-      for
-        mappings <- ZIO.attempt(zioAction)
-        names    <- ZIO.collectAll(mappings)
-      yield names
-    end modelsToZIO
-
     for
-      dirMappingList <- fileNameZio
-      coll           <- modelsToZIO(dirMappingList)
+      dirMappings <- fileNameZio
+      list = dirMappings.map(modelToDirId)
+      coll <- ZIO.collectAll(list)
     yield coll
   end dirInfoFromId
 
