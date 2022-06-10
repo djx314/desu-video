@@ -23,10 +23,13 @@ import desu.video.common.quill.model.desuVideo.*
 import scala.language.implicitConversions
 import scala.util.Try
 import javax.sql.DataSource
+import sttp.model.MediaType
 
 object RootPathFilesTestCase1 extends ZIOSpecDefault:
 
   import ctx.*
+
+  private val jsonMediaOptString: Option[String] = Some(MediaType.ApplicationJson.toString)
 
   val rootPathFilesEndpoint: PublicEndpoint[Unit, DesuResult[Option[String]], DesuResult[RootPathFiles], Any] =
     endpoint.get
@@ -41,9 +44,13 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
       .out(jsonBody[DirId])
       .errorOut(jsonBody[DesuResult[Option[String]]])
 
-  def rootFileToBeTest(path: String): List[String] =
-    val files = Files.list(Paths.get(path)).map(_.toFile.getName).collect(Collectors.toList[String])
-    files.asScala.to(List)
+  val rootFileToBeTest: RIO[DesuConfig, List[String]] =
+    def forPath(path: String) = Files.list(Paths.get(path)).map(_.toFile.getName).collect(Collectors.toList[String])
+    for
+      desuConfig <- ZIO.service[DesuConfig]
+      path = desuConfig.desu.video.file.rootPath
+      names <- ZIO.attempt(forPath(path))
+    yield names.asScala.to(List)
   end rootFileToBeTest
 
   def dirInfoFromId(dirId: Long) =
@@ -61,12 +68,18 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     )
     end modelToDirId
 
-    def modelEitherToZIO(models: List[dirMapping]) = for model <- models yield ZIO.fromEither(modelToDirId(model))
+    def modelsToZIO(dirMappings: List[dirMapping]) =
+      def zioAction = dirMappings.map(modelToDirId andThen ZIO.fromEither)
+      for
+        mappings <- ZIO.attempt(zioAction)
+        names    <- ZIO.collectAll(mappings)
+      yield names
+    end modelsToZIO
 
     for
-      fileName <- fileNameZio
-      dirIds   <- ZIO.collectAll(modelEitherToZIO(fileName))
-    yield dirIds
+      dirMappingList <- fileNameZio
+      coll           <- modelsToZIO(dirMappingList)
+    yield coll
   end dirInfoFromId
 
   override def spec = suite("The root path info service")(
@@ -75,41 +88,43 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
       for
         desuConfig <- ZIO.service[DesuConfig]
         response   <- simpleToRequest(rootPathFilesEndpoint)
+        names      <- rootFileToBeTest
+        DecodeResult.Value(responseModel) = response.body
+        model <- ZIO.fromEither(responseModel)
       yield
-        val assert1 = response.body.map(_.map(_.data))
-        val names   = rootFileToBeTest(desuConfig.desu.video.file.rootPath)
-        val assert2 = DecodeResult.Value(Right(RootPathFiles(names)))
-        assert(assert1)(Assertion.equalTo(assert2))
+        val assert2     = RootPathFiles(names)
+        val dataAssert  = assert(model.data)(Assertion.equalTo(assert2))
+        val mediaAssert = assert(response.contentType)(Assertion.equalTo(jsonMediaOptString))
+        dataAssert && mediaAssert
 
     },
     test("should return a json when sending a root file name.") {
 
-      def testResultGen(name: String) =
-        ZIO.flatten(
-          for response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(name))
-          yield
-            val assert1 = response.body.match {
-              case DecodeResult.Value(Right(value)) => value
-              case s                                => throw IllegalArgumentException(s"Error Response Value.${s}")
-            }
+      def assertDirId(model: DirId) =
+        val queryAction       = dirInfoFromId(model.id)
+        val dirIdDecodeResult = List(DirId(id = model.id, fileName = model.fileName))
+        assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
+      end assertDirId
 
-            val queryAction       = dirInfoFromId(assert1.id)
-            val dirIdDecodeResult = List(DirId(id = assert1.id, fileName = assert1.fileName))
-            assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
-        )
-      end testResultGen
+      def singleFileNameResult(name: String) = for
+        response <- simpleToRequest(rootPathFileEndpoint)(using RootFileNameRequest(name))
+        DecodeResult.Value(responseValue) = response.body
+        model       <- ZIO.fromEither(responseValue)
+        modelAssert <- assertDirId(model)
+      yield
+        val mediaTypeAssert = assert(response.contentType)(Assertion.equalTo(jsonMediaOptString))
+        modelAssert && mediaTypeAssert
+      end singleFileNameResult
 
-      def fileNameTestResultList(names: List[String]) = ZIO.collectAll(for name <- names yield testResultGen(name))
+      def fileNameTestResultList(names: List[String]) =
+        val assertSet = names.map(singleFileNameResult)
+        ZIO.collectAll(assertSet)
+      end fileNameTestResultList
 
-      val testAction =
-        for
-          desuConfig <- ZIO.service[DesuConfig]
-          testResult <- fileNameTestResultList(rootFileToBeTest(desuConfig.desu.video.file.rootPath))
-        yield testResult
-      end testAction
-
-      for assertion1 <- testAction
-      yield TestResult.all(assertion1: _*)
+      for
+        names      <- rootFileToBeTest
+        testResult <- fileNameTestResultList(names)
+      yield TestResult.all(testResult: _*)
 
     }
   ).provideCustomLayer(CommonLayer.live)
