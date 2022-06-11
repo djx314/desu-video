@@ -1,4 +1,4 @@
-package desu.video.test.cases
+package desu.video.test.cases.mainapp
 
 import zio.config.*
 import zio.config.magnolia.descriptor
@@ -19,26 +19,20 @@ case class FileConfig(file: RootPath)
 case class RootPath(rootPath: String)
 
 object DesuConfigModel:
-
   private val desuConfigAutomatic = descriptor[DesuConfig]
   val layer                       = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
-
 end DesuConfigModel
 
 class ContextUri(val uri: Uri)
 
 object ContextUri:
-
   val layer1: ULayer[ContextUri] = ZLayer.succeed(ContextUri(uri"http://127.0.0.1:8080"))
-
 end ContextUri
 
-object ContextJdbcDataBase:
-
+object ContextJdbcDatabase:
   val layer: TaskLayer[DataSource] = DataSourceLayer.fromDataSource(JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource)
-
-end ContextJdbcDataBase
+end ContextJdbcDatabase
 
 object CommonLayer:
-  val live = ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDataBase.layer
+  val live = ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDatabase.layer
 end CommonLayer

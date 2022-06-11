@@ -1,4 +1,4 @@
-package desu.video.test.cases
+package desu.video.test.cases.mainapp
 
 import desu.video.common.quill.model.desuVideo.DesuVideoExtensions
 import io.getquill.context.ZioJdbc.DataSourceLayer

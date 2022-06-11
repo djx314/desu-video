@@ -1,11 +1,10 @@
-package desu.video.test.cases
+package desu.video.test.cases.mainapp
 
 import zio.*
 import sttp.tapir.server.ziohttp.ZioHttpServerOptions
 import sttp.tapir.server.interceptor.CustomiseInterceptors
 import sttp.tapir.server.interceptor.exception.ExceptionHandler
 import sttp.tapir.server.model.ValuedEndpointOutput
-import sttp.tapir.PublicEndpoint
 import sttp.tapir.ztapir.*
 import sttp.tapir.Endpoint
 import sttp.model.StatusCode
@@ -34,7 +33,7 @@ object FillingImpl:
   inline given [T]: Filling[Unit, T] = ()
 end FillingImpl
 
-class TestEnv:
+private class SttpEnvImpl:
 
   private val exceptionHandler = ExceptionHandler.pure[RIO[ZEnv, *]](ctx =>
     Some(ValuedEndpointOutput(stringBody.and(statusCode), (s"failed due to ${ctx.e.getMessage}", StatusCode.InternalServerError)))
@@ -47,10 +46,8 @@ class TestEnv:
 
   val stubInterpreter = TapirStubInterpreter(customiseOptions, SttpBackendStub(m))
 
-  type ZIOEndPointType = sttp.capabilities.zio.ZioStreams & sttp.capabilities.Effect[Task] & sttp.capabilities.WebSockets
-
   def toRequest[E, I, O, U, Ploy](
-    endpoint: PublicEndpoint[E, I, O, ZIOEndPointType]
+    endpoint: PublicEndpoint[E, I, O, __SttpZIORequestEndpointType]
   )(using Filling[E, Ploy]): RIO[ContextUri & SttpClient, Response[DecodeResult[Either[I, O]]]] =
     for
       context <- ZIO.service[ContextUri]
@@ -60,11 +57,13 @@ class TestEnv:
     yield response
   end toRequest
 
-end TestEnv
+end SttpEnvImpl
 
-object TestEnv extends TestEnv
+private object SttpEnvImpl extends SttpEnvImpl
+
+type __SttpZIORequestEndpointType = sttp.capabilities.zio.ZioStreams & sttp.capabilities.Effect[Task] & sttp.capabilities.WebSockets
 
 def simpleToRequest[E, I, O](
-  endpoint: PublicEndpoint[E, I, O, TestEnv.ZIOEndPointType]
+  endpoint: PublicEndpoint[E, I, O, __SttpZIORequestEndpointType]
 )(using Filling[E, Filling.type & FillingImpl.type]): RIO[ContextUri & SttpClient, Response[DecodeResult[Either[I, O]]]] =
-  TestEnv.toRequest(endpoint)
+  SttpEnvImpl.toRequest(endpoint)
