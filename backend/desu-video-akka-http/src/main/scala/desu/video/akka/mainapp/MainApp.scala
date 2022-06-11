@@ -24,7 +24,7 @@ import io.getquill.context.ZioJdbc.DataSourceLayer
 object MainApp {
 
   given ActorSystem[Nothing]             = ActorSystem(Behaviors.empty, "my-system")
-  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
+  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuQuillDB")).dataSource
 
   private given AppConfig    = wire
   private given FileService  = wire

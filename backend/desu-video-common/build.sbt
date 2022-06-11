@@ -8,4 +8,3 @@ name       := "desu-video-common"
 moduleName := "desu-video-common"
 
 libraryDependencies ++= Dependencies.mysql
-

@@ -18,3 +18,5 @@ libraryDependencies ++= Dependencies.slick
 
 libraryDependencies ++= Dependencies.quill map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion.binaryScalaVersion(scalaVersion.value)}"))
 libraryDependencies += Dependencies.scalaReflect(scalaVersion.value)
+
+

@@ -30,7 +30,7 @@ object ContextUri:
 end ContextUri
 
 object ContextJdbcDatabase:
-  val layer: TaskLayer[DataSource] = DataSourceLayer.fromDataSource(JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource)
+  val layer: TaskLayer[DataSource] = DataSourceLayer.fromDataSource(JdbcContextConfig(LoadConfig("mysqlDesuQuillDB")).dataSource)
 end ContextJdbcDatabase
 
 object CommonLayer:

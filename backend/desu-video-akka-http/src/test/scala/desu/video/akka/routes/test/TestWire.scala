@@ -22,6 +22,6 @@ case class TestWire()(implicit val system: ActorSystem[Nothing]) {
   given HttpServerRoutingMinimal = wire
 
   given MysqlContext                     = wire
-  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuDB")).dataSource
+  private given (DataSource & Closeable) = JdbcContextConfig(LoadConfig("mysqlDesuQuillDB")).dataSource
 
 }
