@@ -11,6 +11,6 @@ case class HelloWorld(name: String, age: Int) {
 object HelloWorld {
 
   val println = ZIO.serviceWith[HelloWorld](_.println)
-  val live    = ZLayer.fromFunction(HelloWorld.apply)
+  val live    = ZLayer.fromFunction(HelloWorld.apply _)
 
 }

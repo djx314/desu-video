@@ -23,22 +23,32 @@ val nodeTest = project in backendPath / "node-test"
 val gd       = project in backendPath / "grim-dawn"
 val finch    = project in backendPath / "desu-video-finch"
 
-addCommandAlias("prun", "http4s/reStart")
+val grun = inputKey[Unit]("grun")
+grun := (gd / Compile / run).evaluated
 
-addCommandAlias("grun", "gd/run")
-addCommandAlias("zrun", "zio/reStart")
-addCommandAlias("frun", "finch/reStart")
-addCommandAlias("flyway", "common/flywayMigrate")
+val flyway = taskKey[Unit]("flyway")
+flyway := (codegen / Compile / flywayMigrate).value
+
+val zrun = inputKey[Unit]("zrun")
+zrun := (zio / Compile / reStart).evaluated
+
+val prun = inputKey[Unit]("prun")
+prun := (http4s / Compile / reStart).evaluated
+
+val frun = inputKey[Unit]("frun")
+frun := (finch / Compile / reStart).evaluated
 
 val krun = inputKey[Unit]("krun")
 krun := (akkaHttp / Compile / run).evaluated
 
 val slickCodegen = inputKey[Unit]("slickCodegen")
 slickCodegen := (codegen / Compile / runMain)
-  .partialInput(s" desu.video.common.slick.codegen.MysqlDesuVideoCodegen ${commonPath2.getAbsolutePath}")
+  .partialInput(s" desu.video.common.slick.codegen.MysqlDesuVideoCodegen")
+  .partialInput(s" ${commonPath2.getAbsolutePath}")
   .evaluated
 
 val quillCodegen = inputKey[Unit]("quillCodegen")
 quillCodegen := (codegen / Compile / runMain)
-  .partialInput(s" desu.video.common.quill.codegen.MysqlDesuQuillVideoCodegen ${commonPath3.getAbsolutePath}")
+  .partialInput(s" desu.video.common.quill.codegen.MysqlDesuQuillVideoCodegen")
+  .partialInput(s" ${commonPath3.getAbsolutePath}")
   .evaluated
