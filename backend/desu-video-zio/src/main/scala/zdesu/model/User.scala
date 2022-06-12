@@ -1,5 +1,6 @@
 package zdesu.model
 
-import io.circe.Codec
+import io.circe.generic.JsonCodec
 
-case class User(nam33324: String) derives Codec.AsObject
+@JsonCodec
+case class User(nam33324: String)
