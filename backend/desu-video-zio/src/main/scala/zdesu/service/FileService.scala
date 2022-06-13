@@ -1,9 +1,9 @@
 package zdesu.service
 
 import zio._
-import io.circe.syntax._
 import zdesu.model.DirId
 import desu.video.common.slick.model.Tables._
+import play.api.libs.json._
 import profile.api._
 import zdesu.mainapp._
 
@@ -13,7 +13,7 @@ case class FileService(slickDBAction: SlickDBAction) {
 
   def rootPathRequestFileId(fileName: String): Task[DirId] = {
 
-    val fileNameJson = List(fileName).asJson.noSpaces
+    val fileNameJson = Json.stringify(Json.toJson(List(fileName)))
 
     def dirMappingDBIO = DirMapping.filter(_.filePath === fileNameJson).take(1).to[List].result.headOption
 
@@ -30,7 +30,7 @@ case class FileService(slickDBAction: SlickDBAction) {
       dirMapping <- fromOpt(dirOpt)
     } yield DirId(
       id = dirMapping.id,
-      fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
+      fileName = Json.parse(dirMapping.filePath).asOpt[List[String]].getOrElse(List.empty).head
     )
 
     zioDB.runWith(implicit e => action)
