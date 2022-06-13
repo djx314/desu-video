@@ -14,4 +14,3 @@ libraryDependencies ++= Dependencies.zioHttp
 libraryDependencies ++= Dependencies.slick
 libraryDependencies ++= Dependencies.scalaCollectionCompat
 
-run / fork := true

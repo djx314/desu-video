@@ -2,15 +2,16 @@ package zdesu.fusion
 
 import sttp.tapir.ztapir._
 import sttp.tapir.server.ziohttp.ZioHttpInterpreter
-import zdesu.endpoint.UserEndpoint
+import zdesu.endpoint.HttpServerRoutingMinimal
 import zdesu.handle.UserHandle
+import zdesu.mainapp._
 
 object Fusion {
 
-  val userHttp   = UserEndpoint.userEndpoint.zServerLogic(UserHandle.user)
-  val userHttp11 = UserEndpoint.userEndpoint11.zServerLogic(UserHandle.user11)
+  val rootPathFiles = HttpServerRoutingMinimal.rootPathFiles.zServerLogic(UserHandle.user)
+  val rootPathFile  = HttpServerRoutingMinimal.rootPathFile.zServerLogic(UserHandle.rootPathFile)
 
-  val list = List(userHttp, userHttp11)
+  val list = List(rootPathFiles.widen[ProjectEnv], rootPathFile.widen[ProjectEnv])
   val http = ZioHttpInterpreter().toHttp(list)
 
 }

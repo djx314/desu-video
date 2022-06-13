@@ -32,7 +32,7 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
     val dirMappingOptZio = run(dirMappingOpt).map(_.headOption).provideLayer(dataSourceLayer)
     def dirMappingOptF   = Runtime.default.unsafeRunToFuture(dirMappingOptZio)
 
-    val modelToImport = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
+    def modelToImport = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
     inline def insertQuery = quote {
       query[dirMapping].insertValue(lift(modelToImport)).returning(_.id)
     }
@@ -48,7 +48,7 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
       dirMapping <- fromOpt(dirOpt)
     } yield DirId(
       id = dirMapping.id,
-      fileName = io.circe.parser.parse(dirMapping.filePath).flatMap(_.asJson.as[List[String]]).getOrElse(List.empty).head
+      fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
     )
   }
 
