@@ -8,8 +8,10 @@ import zdesu.handle.UserHandle
 
 object Fusion {
 
-  val userHttp   = UserEndpoint.userEndpoint.zServerLogic[ZIOAppArgs with Scope](UserHandle.user)
-  val userHttp11 = UserEndpoint.userEndpoint11.zServerLogic[ZIOAppArgs with Scope](UserHandle.user11)
+  import zdesu.mainapp._
+
+  val userHttp   = UserEndpoint.userEndpoint.zServerLogic[ProjectEnv](UserHandle.user)
+  val userHttp11 = UserEndpoint.userEndpoint11.zServerLogic[ProjectEnv](UserHandle.user11)
 
   val list = List(userHttp, userHttp11)
   val http = ZioHttpInterpreter().toHttp(list)
