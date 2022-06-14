@@ -2,9 +2,9 @@ package desu.video.test.cases.endpoints
 
 import sttp.tapir.PublicEndpoint
 import sttp.tapir.ztapir.{query => _, *}
-import sttp.tapir.json.circe.*
 import sttp.client3.*
 import sttp.tapir.generic.auto.*
+import sttp.tapir.json.zio.*
 
 import desu.video.test.model.*
 

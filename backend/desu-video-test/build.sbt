@@ -22,6 +22,7 @@ libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.zioHttp
 libraryDependencies ++= Dependencies.quill_scala3
 libraryDependencies ++= Dependencies.scalaCollectionCompat
+libraryDependencies +="com.softwaremill.sttp.tapir"   %% "tapir-json-zio"        % Dependencies.versions.tapir
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 

@@ -10,6 +10,7 @@ import io.getquill.*
 import desu.video.common.quill.model.desuVideo.*
 import desu.video.test.cases.mainapp.{MysqlJdbcContext => ctx}
 import desu.video.test.model.*
+import zio.json.*
 
 import javax.sql.DataSource
 
@@ -42,9 +43,9 @@ case class ResolveFileNameService(dataSource: DataSource):
     val fileNameZio = ctx.run(fileNameQuery)
 
     def modelToDirId(dirMapping: dirMapping) =
-      def decodeResult = io.circe.parser.decode[List[String]](dirMapping.filePath)
+      def decodeResult = JsonDecoder[List[String]].decodeJson(dirMapping.filePath)
       for
-        a1   <- ZIO.fromEither(decodeResult)
+        a1   <- ZIO.fromEither(decodeResult).mapError(s => new IllegalArgumentException(s))
         name <- ZIO.attempt(a1.head)
       yield DirId(id = dirMapping.id, fileName = name)
     end modelToDirId
