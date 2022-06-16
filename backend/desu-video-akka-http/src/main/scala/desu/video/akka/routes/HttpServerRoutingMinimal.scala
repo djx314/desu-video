@@ -1,11 +1,10 @@
 package desu.video.akka.routes
 
 import akka.http.scaladsl.server.Directives.*
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import desu.video.akka.model.{FileNotConfirmException, RootFileNameRequest}
 import desu.video.akka.service.{FileFinder, FileService}
 import desu.video.common.model.DesuResult
-import io.circe.syntax.*
+import de.heikoseeberger.akkahttpziojson.ZioJsonSupport._
 
 import scala.util.{Failure, Success}
 
@@ -28,7 +27,7 @@ class HttpServerRoutingMinimal(fileFinder: FileFinder, fileService: FileService)
     // 未调整
     post {
       entity(as[RootFileNameRequest]) { fileName =>
-        onSuccess(fileService.rootPathRequestFileId(fileName.fileName))(model => complete(model.asJson))
+        onSuccess(fileService.rootPathRequestFileId(fileName.fileName))(model => complete(model))
       }
     }
   }

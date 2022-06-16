@@ -27,8 +27,8 @@ class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRou
 
   val testWire = TestWire()
   import testWire.given
-  val appConfig      = implicitly[AppConfig]
-  val mysqlContext   = implicitly[MysqlContext]
+  val appConfig    = implicitly[AppConfig]
+  val mysqlContext = implicitly[MysqlContext]
 
   import mysqlContext.{*, given}
 
@@ -43,6 +43,5 @@ class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRou
     }
 
   }
-
 
 }

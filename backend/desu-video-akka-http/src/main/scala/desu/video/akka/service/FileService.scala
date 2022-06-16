@@ -5,12 +5,12 @@ import desu.video.akka.config.AppConfig
 import desu.video.akka.model.DirId
 
 import scala.concurrent.{ExecutionContext, Future}
-import io.circe.syntax.*
 import desu.video.common.quill.model.MysqlContext
 import desu.video.common.quill.model.desuVideo.dirMapping
 import io.getquill.*
 import io.getquill.context.qzio.ImplicitSyntax.*
-import zio._
+import zio.*
+import zio.json.*
 
 class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system: ActorSystem[Nothing]) {
 
@@ -24,7 +24,7 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
     * @return
     */
   def rootPathRequestFileId(fileName: String): Future[DirId] = {
-    val fileNameJson = List(fileName).asJson.noSpaces
+    val fileNameJson = List(fileName).toJson
 
     inline def dirMappingOpt = quote {
       query[dirMapping].filter(_.filePath == lift(fileNameJson)).take(1)
@@ -48,7 +48,7 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
       dirMapping <- fromOpt(dirOpt)
     } yield DirId(
       id = dirMapping.id,
-      fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
+      fileName = JsonDecoder[List[String]].decodeJson(dirMapping.filePath).getOrElse(List.empty).head
     )
   }
 

@@ -1,7 +1,6 @@
 package desu.video.common.model
 
-import io.circe.{Decoder, Encoder}
-import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import zio.json.*
 
 case class DesuResult[T](isSucceed: Boolean, data: T, message: String)
 
@@ -9,6 +8,6 @@ object DesuResult {
   def data[T](isSucceed: Boolean, data: T, message: String = ""): DesuResult[T] = DesuResult(isSucceed, data, message)
   def message(isSucceed: Boolean, message: String): DesuResult[Option[String]]  = DesuResult(isSucceed, Option.empty[String], message)
 
-  given [T](using Encoder[T]): Encoder[DesuResult[T]] = deriveEncoder
-  given [T](using Decoder[T]): Decoder[DesuResult[T]] = deriveDecoder
+  given [T](using JsonEncoder[T]): JsonEncoder[DesuResult[T]] = DeriveJsonEncoder.gen
+  given [T](using JsonDecoder[T]): JsonDecoder[DesuResult[T]] = DeriveJsonDecoder.gen
 }

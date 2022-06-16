@@ -8,9 +8,12 @@ moduleName := "desu-video-akka-http"
 
 libraryDependencies ++= Dependencies.akkaHttp
   .map(_ cross CrossVersion.for3Use2_13)
-  .map(_ exclude ("io.circe", "*") exclude ("org.scala-lang.modules", "scala-java8-compat_2.13"))
+  .map(_ exclude ("io.circe", "*"))
+  .map(_ exclude ("dev.zio", "*"))
+  .map(_ exclude ("org.scala-lang.modules", "scala-java8-compat_2.13"))
+  .map(_ exclude ("org.scala-lang.modules", "scala-collection-compat_2.13"))
 libraryDependencies ++= Dependencies.macwire
 libraryDependencies ++= Dependencies.scalatest
 libraryDependencies ++= Dependencies.simpleLogger
-libraryDependencies ++= Dependencies.circe
+libraryDependencies ++= Dependencies.zioJson
 libraryDependencies += Dependencies.hikariCP
