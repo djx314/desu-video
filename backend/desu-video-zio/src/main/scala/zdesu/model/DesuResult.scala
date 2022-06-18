@@ -1,7 +1,7 @@
 package zdesu.model
 
-import julienrf.json.derived
-import play.api.libs.json.{OWrites, Reads, Writes}
+import com.github.plokhotnyuk.jsoniter_scala.macros._
+import com.github.plokhotnyuk.jsoniter_scala.core._
 
 case class DesuResult[T](isSucceed: Boolean, data: T, message: String)
 
@@ -9,6 +9,5 @@ object DesuResult {
   def data[T](isSucceed: Boolean, data: T, message: String = ""): DesuResult[T] = DesuResult(isSucceed, data, message)
   def message(isSucceed: Boolean, message: String): DesuResult[Option[String]]  = DesuResult(isSucceed, Option.empty[String], message)
 
-  implicit def _desuResultEncoder[T](implicit e: Reads[T]): Reads[DesuResult[T]]    = derived.reads()
-  implicit def _desuResultDecoder[T](implicit e: Writes[T]): OWrites[DesuResult[T]] = derived.owrites()
+  implicit def codec[T](implicit c: JsonValueCodec[T]): JsonValueCodec[DesuResult[T]] = JsonCodecMaker.make
 }
