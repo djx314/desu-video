@@ -33,10 +33,11 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
         DecodeResult.Value(responseModel) = response.body
         model <- ZIO.fromEither(responseModel)
       yield
-        val assert2     = RootPathFiles(names)
-        val dataAssert  = assert(model.data)(Assertion.equalTo(assert2))
-        val mediaAssert = assert(response.contentType)(Assertion.equalTo(jsonMediaOptString))
-        dataAssert && mediaAssert
+        val assert2         = RootPathFiles(names)
+        val dataAssert      = assert(model.data)(Assertion.equalTo(assert2))
+        val mediaAssert     = assert(response.contentType)(Assertion.equalTo(jsonMediaOptString))
+        val successedAssert = assert(model.isSucceed)(Assertion.equalTo(true))
+        dataAssert && mediaAssert && successedAssert
 
     },
     test("should return a json when sending a root file name.") {

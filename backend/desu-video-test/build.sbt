@@ -8,7 +8,6 @@ moduleName := "desu-video-test"
 
 libraryDependencies ++= Dependencies.scalatest
 libraryDependencies ++= Dependencies.simpleLogger
-libraryDependencies ++= Dependencies.circe
 libraryDependencies += Dependencies.hikariCP
 libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.macwire
@@ -19,7 +18,8 @@ libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.zioHttp
 libraryDependencies ++= Dependencies.quill_scala3
 libraryDependencies ++= Dependencies.scalaCollectionCompat
-libraryDependencies +="com.softwaremill.sttp.tapir"   %% "tapir-json-zio"        % Dependencies.versions.tapir
+libraryDependencies +="com.softwaremill.sttp.tapir"   %% "tapir-jsoniter-scala"        % Dependencies.versions.tapir
+libraryDependencies ++= Dependencies.jsoniter
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 

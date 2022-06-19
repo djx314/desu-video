@@ -1,23 +1,21 @@
 package desu.video.test.model
 
-import zio.json.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.*
 
 case class RootPathFiles(files: List[String])
 object RootPathFiles {
-  given JsonEncoder[RootPathFiles] = DeriveJsonEncoder.gen
-  given JsonDecoder[RootPathFiles] = DeriveJsonDecoder.gen
+  given bb: JsonValueCodec[RootPathFiles] = make
 }
 
 case class DirId(id: Long, fileName: String)
 object DirId {
-  given JsonEncoder[DirId] = DeriveJsonEncoder.gen
-  given JsonDecoder[DirId] = DeriveJsonDecoder.gen
+  given JsonValueCodec[DirId] = make
 }
 
 case class FileNotConfirmException(message: String) extends Exception(message)
 
 case class RootFileNameRequest(fileName: String)
 object RootFileNameRequest {
-  given JsonEncoder[RootFileNameRequest] = DeriveJsonEncoder.gen
-  given JsonDecoder[RootFileNameRequest] = DeriveJsonDecoder.gen
+  given JsonValueCodec[RootFileNameRequest] = make
 }

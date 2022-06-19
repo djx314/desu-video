@@ -1,7 +1,8 @@
 package zdesu.model
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import tethys._
+import tethys.jackson._
+import tethys.derivation.semiauto._
 
 case class DesuResult[T](isSucceed: Boolean, data: T, message: String)
 
@@ -9,5 +10,6 @@ object DesuResult {
   def data[T](isSucceed: Boolean, data: T, message: String = ""): DesuResult[T] = DesuResult(isSucceed, data, message)
   def message(isSucceed: Boolean, message: String): DesuResult[Option[String]]  = DesuResult(isSucceed, Option.empty[String], message)
 
-  implicit def codec[T](implicit c: JsonValueCodec[T]): JsonValueCodec[DesuResult[T]] = JsonCodecMaker.make
+  implicit def jWriter[T](implicit w: JsonWriter[T]): JsonObjectWriter[DesuResult[T]] = jsonWriter
+  implicit def jReader[T](implicit r: JsonReader[T]): JsonReader[DesuResult[T]]       = jsonReader
 }

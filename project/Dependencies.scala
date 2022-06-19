@@ -39,6 +39,7 @@ object Dependencies {
     val zioConfig             = "3.0.0-RC9"
     val zioJson               = "0.3.0-RC8"
     val jsoniter              = "2.13.31"
+    val tethys                = "0.26.0"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -58,7 +59,13 @@ object Dependencies {
   val zioJson = Seq("dev.zio" %% "zio-json" % versions.zioJson)
   val jsoniter = Seq(
     "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core"   % versions.jsoniter,
-    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter % "compile-internal"
+    "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter
+  )
+
+  val tethysJson = Seq(
+    "com.tethys-json" %% "tethys-core"       % versions.tethys,
+    "com.tethys-json" %% "tethys-jackson"    % versions.tethys,
+    "com.tethys-json" %% "tethys-derivation" % versions.tethys
   )
 
   val http4s = Seq(

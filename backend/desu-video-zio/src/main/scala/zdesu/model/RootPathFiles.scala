@@ -1,21 +1,25 @@
 package zdesu.model
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import tethys._
+import tethys.jackson._
+import tethys.derivation.semiauto._
 
 case class RootPathFiles(files: List[String])
 object RootPathFiles {
-  implicit def codec: JsonValueCodec[RootPathFiles] = JsonCodecMaker.make
+  implicit val jWriter: JsonObjectWriter[RootPathFiles] = jsonWriter
+  implicit val jReader: JsonReader[RootPathFiles]       = jsonReader
 }
 
 case class DirId(id: Long, fileName: String)
 object DirId {
-  implicit def codec: JsonValueCodec[DirId] = JsonCodecMaker.make
+  implicit val jWriter: JsonObjectWriter[DirId] = jsonWriter
+  implicit val jReader: JsonReader[DirId]       = jsonReader
 }
 
 case class FileNotConfirmException(message: String) extends Exception(message)
 
 case class RootFileNameRequest(fileName: String)
 object RootFileNameRequest {
-  implicit def codec: JsonValueCodec[RootFileNameRequest] = JsonCodecMaker.make
+  implicit val jWriter: JsonObjectWriter[RootFileNameRequest] = jsonWriter
+  implicit val jReader: JsonReader[RootFileNameRequest]       = jsonReader
 }

@@ -10,7 +10,9 @@ import io.getquill.*
 import desu.video.common.quill.model.desuVideo.*
 import desu.video.test.cases.mainapp.{MysqlJdbcContext => ctx}
 import desu.video.test.model.*
-import zio.json.*
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.*
+import com.github.plokhotnyuk.jsoniter_scala.core.*
+import scala.util.Try
 
 import javax.sql.DataSource
 
@@ -34,6 +36,8 @@ end RootPathFileServices
 
 case class ResolveFileNameService(dataSource: DataSource):
 
+  given JsonValueCodec[List[String]] = make
+
   import ctx.*
 
   def dirInfoFromId(dirId: Long): Task[List[DirId]] =
@@ -43,9 +47,9 @@ case class ResolveFileNameService(dataSource: DataSource):
     val fileNameZio = ctx.run(fileNameQuery)
 
     def modelToDirId(dirMapping: dirMapping) =
-      def decodeResult = JsonDecoder[List[String]].decodeJson(dirMapping.filePath)
+      def decodeResult = Try(readFromString[List[String]](dirMapping.filePath))
       for
-        a1   <- ZIO.fromEither(decodeResult).mapError(s => new IllegalArgumentException(s))
+        a1   <- ZIO.fromTry(decodeResult).mapError(s => new IllegalArgumentException(s))
         name <- ZIO.attempt(a1.head)
       yield DirId(id = dirMapping.id, fileName = name)
     end modelToDirId
