@@ -1,19 +1,15 @@
 package desu.video.test.cases.endpoints
 
 import sttp.tapir.PublicEndpoint
-import sttp.tapir.ztapir.{query => _, *}
+import sttp.tapir.ztapir.{query as _, *}
 import sttp.client3.*
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.jsoniter.*
 import desu.video.test.model.*
 
-import com.github.plokhotnyuk.jsoniter_scala.core.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.*
+import desu.video.test.cases.model.JsonCodec.given
 
 object TestEndpoint:
-
-  given jsonValueCodecImplicit1: JsonValueCodec[DesuResult[Option[String]]] = make
-  given jsonValueCodecImplicit2: JsonValueCodec[DesuResult[RootPathFiles]]  = make
 
   private val apiPrefix = endpoint.in("api" / "desu")
 

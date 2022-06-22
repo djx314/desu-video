@@ -8,11 +8,12 @@ import java.util.stream.Collectors
 import scala.jdk.CollectionConverters.given
 import io.getquill.*
 import desu.video.common.quill.model.desuVideo.*
-import desu.video.test.cases.mainapp.{MysqlJdbcContext => ctx}
+import desu.video.test.cases.mainapp.MysqlJdbcContext as ctx
 import desu.video.test.model.*
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.*
-import com.github.plokhotnyuk.jsoniter_scala.core.*
 import scala.util.Try
+
+import desu.video.test.cases.model.JsonCodec.given
+import com.github.plokhotnyuk.jsoniter_scala.core.*
 
 import javax.sql.DataSource
 
@@ -35,8 +36,6 @@ object RootPathFileServices:
 end RootPathFileServices
 
 case class ResolveFileNameService(dataSource: DataSource):
-
-  given JsonValueCodec[List[String]] = make
 
   import ctx.*
 

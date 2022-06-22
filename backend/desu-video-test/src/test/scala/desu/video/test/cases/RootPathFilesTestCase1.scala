@@ -2,7 +2,7 @@ package desu.video.test.cases
 
 import zio.*
 import sttp.tapir.{DecodeResult, PublicEndpoint}
-import sttp.tapir.ztapir.{query => _, *}
+import sttp.tapir.ztapir.{query as _, *}
 import sttp.tapir.json.circe.*
 import sttp.client3.*
 

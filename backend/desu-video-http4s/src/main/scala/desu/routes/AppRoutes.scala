@@ -1,40 +1,31 @@
 package desu.routes
 
-import com.softwaremill.macwire._
+import cats.effect.*
+import org.http4s.*
+import org.http4s.dsl.io.*
+import cats.syntax.all.*
+import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.implicits.given
+import org.http4s.server.Router
+import scala.concurrent.duration.given
+import desu.models.DesuResult
+import desu.service.FileFinder
+import io.circe.syntax.*
+import org.http4s.circe.*
 import desu.config.AppConfig
-import org.http4s.server.staticcontent._
-import org.http4s._
-import org.http4s.dsl.io._
-import desu.service.RootFilePathsService
-import cats.implicits._
-import zio._
-import zio.interop.catz._
 
-import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
-import sttp.tapir.openapi.circe.yaml._
-import sttp.tapir.server.http4s.ztapir.ZHttp4sServerInterpreter
-import sttp.tapir.swagger.SwaggerUI
+class AppRoutes(fileFinder: FileFinder, appConfig: AppConfig):
 
-object AppRoutes {
+  val DRoot = appConfig.FilePageRoot
 
-  // type ZIORuntimeEnv[T] = RIO[ZEnv with clock.Clock with blocking.Blocking, T]
-  type ZIOEnv[T] = RIO[ZEnv, T]
+  val rootPathFiles = HttpRoutes.of[IO] { case GET -> DRoot / "rootPathFiles" =>
+    for {
+      s    <- fileFinder.rootPathFiles
+      data <- IO(DesuResult.data(isSucceed = true, s))
+      r    <- Ok(data.asJson)
+    } yield r
+  }
 
-  private lazy val filePageRoute: FilePageRoute               = wire[FilePageRoute]
-  private lazy val rootFilePathsService: RootFilePathsService = wire[RootFilePathsService]
+  val routes = Router("/" -> rootPathFiles).orNotFound
 
-  private lazy val appConfig: AppConfig = wire[AppConfig]
-
-  /*val routes1: HttpRoutes[IO] = {
-    filePageRoute.rootPathFiles <+> filePageRoute.rootDirName <+> filePageRoute.baiduPage <+> fileRoutes
-  }*/
-
-  private val fileRoutes = fileService[ZIOEnv](FileService.Config("D:/xlxz", pathPrefix = "eeff"))
-  private val httpRoutes = ZHttp4sServerInterpreter[ZEnv]().from(filePageRoute.routes).toRoutes
-
-  private val docsAsYaml: String = OpenAPIDocsInterpreter().toOpenAPI(filePageRoute.docs, "Desu App", "1.0").toYaml
-  private val swaggerUIRoute     = ZHttp4sServerInterpreter[ZEnv]().from(SwaggerUI[ZIOEnv](docsAsYaml)).toRoutes
-
-  val routes: HttpRoutes[ZIOEnv] = httpRoutes <+> fileRoutes <+> swaggerUIRoute
-
-}
+end AppRoutes

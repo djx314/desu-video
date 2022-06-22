@@ -1,20 +1,16 @@
 package desu.models
 
-import desu.video.common.quill.model.desuVideo._
 import io.circe.Codec
-import io.circe.generic.semiauto.deriveCodec
-import io.circe.generic.JsonCodec
 
-object CirceImplicit {
-  implicit val dirMappingCodec: Codec[dirMapping] = deriveCodec
-}
+case class RootPathFiles(files: List[String]) derives Codec.AsObject
 
-@JsonCodec
-case class ResultSet[T](data: T, code: Int)
-@JsonCodec
-case class DirInfo(dirInfo: dirMapping, subFiles: List[FileItem], isDir: Boolean)
-object DirInfo {
-  import CirceImplicit._
-}
-@JsonCodec
-case class FileItem(fileName: String, isDir: Boolean)
+case class DirId(id: Long, fileName: String) derives Codec.AsObject
+
+case class FileNotConfirmException(message: String) extends Exception(message)
+
+case class RootFileNameRequest(fileName: String) derives Codec.AsObject
+
+case class DesuConfig(desu: VideoConfig)
+case class VideoConfig(video: FileConfig)
+case class FileConfig(file: RootPath)
+case class RootPath(rootPath: String)

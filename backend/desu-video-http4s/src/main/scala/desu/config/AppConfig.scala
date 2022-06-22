@@ -1,19 +1,30 @@
 package desu.config
 
 import org.http4s.Uri.Path.Segment
-import org.http4s.dsl.io._
+import org.http4s.dsl.io.*
 
-import java.nio.file.{Path => JPath, Paths}
-import sttp.tapir._
+import java.nio.file.{Path as JPath, Paths}
 
-class AppConfig {
+import zio.config.magnolia.descriptor
+import zio.config.typesafe.*
+import zio.{IO as _, *}
+
+import desu.models.*
+import cats.effect.*
+
+class DesuConfigModel:
+  private def desuConfigAutomatic      = descriptor[DesuConfig]
+  private def layer                    = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
+  private def desuConfigZIO            = ZIO.service[DesuConfig].provide(layer)
+  private def configZIORUN: DesuConfig = Runtime.default.unsafeRunTask(desuConfigZIO)
+
+  val configIO = IO.blocking(configZIORUN)
+end DesuConfigModel
+
+class AppConfig(desuConfigModel: DesuConfigModel):
 
   val FilePageRoot: Path = Root / Segment("api") / Segment("desu")
 
-  val rootFilePath: JPath = Paths.get("d:", "xlxz")
+  val rootPath: IO[JPath] = for (config <- desuConfigModel.configIO) yield Paths.get(config.desu.video.file.rootPath)
 
-}
-
-object AppConfig {
-  val filePageRoot: PublicEndpoint[Unit, Unit, Unit, Any] = endpoint.in("api" / "desu")
-}
+end AppConfig

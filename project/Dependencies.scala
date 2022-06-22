@@ -11,7 +11,7 @@ object Dependencies {
     val akkaHttpCirce         = "1.40.0-RC2"
     val slf4j                 = "1.8.0-beta4"
     val typeSafeConfig        = "1.4.1"
-    val http4s                = "0.23.7"
+    val http4s                = "0.23.12"
     val catsEffect            = "3.3.11"
     val catsEffect2           = "2.5.4"
     val circe                 = "0.14.2"
@@ -40,13 +40,15 @@ object Dependencies {
     val zioJson               = "0.3.0-RC8"
     val jsoniter              = "2.13.31"
     val tethys                = "0.26.0"
+    val monix = "3.4.1"
+    val pureconfig = "0.17.1"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
 
   val simpleLogger = List("org.slf4j" % "slf4j-simple" % versions.slf4j)
 
-  val akkaHttp = Seq(
+  val akkaHttp = List(
     "com.typesafe.akka" %% "akka-actor-typed" % versions.akka,
     "com.typesafe.akka" %% "akka-stream"      % versions.akka,
     "com.typesafe.akka" %% "akka-http"        % versions.akkaHttp,
@@ -56,48 +58,50 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-testkit"   % versions.akkaHttp
   )
 
-  val zioJson = Seq("dev.zio" %% "zio-json" % versions.zioJson)
-  val jsoniter = Seq(
+  val zioJson = List("dev.zio" %% "zio-json" % versions.zioJson)
+  val jsoniter = List(
     "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core"   % versions.jsoniter,
     "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter
   )
 
-  val tethysJson = Seq(
+  val tethysJson = List(
     "com.tethys-json" %% "tethys-core"       % versions.tethys,
     "com.tethys-json" %% "tethys-jackson"    % versions.tethys,
     "com.tethys-json" %% "tethys-derivation" % versions.tethys
   )
 
-  val http4s = Seq(
-    "org.http4s" %% "http4s-dsl"          % versions.http4s,
-    "org.http4s" %% "http4s-blaze-server" % versions.http4s,
-    "org.http4s" %% "http4s-blaze-client" % versions.http4s,
+  val http4s = List(
+    "org.http4s" %% "http4s-dsl" % versions.http4s,
+    "org.http4s" %% "http4s-ember-server" % versions.http4s,
+    "org.http4s" %% "http4s-ember-client" % versions.http4s,
     "org.http4s" %% "http4s-circe"        % versions.http4s
   )
 
-  val cats  = Seq("org.typelevel" %% "cats-effect" % versions.catsEffect)
-  val cats2 = Seq("org.typelevel" %% "cats-effect" % versions.catsEffect2)
+  val cats  = List("org.typelevel" %% "cats-effect" % versions.catsEffect)
+  val cats2 = List("org.typelevel" %% "cats-effect" % versions.catsEffect2)
 
-  val circe = Seq(
+  val circe = List(
     "io.circe" %% "circe-core"    % versions.circe,
     "io.circe" %% "circe-generic" % versions.circe,
     "io.circe" %% "circe-parser"  % versions.circe
   )
 
-  val macwire = Seq(
+  val macwire = List(
     "com.softwaremill.macwire" %% "macros" % versions.macwire % "provided",
     "com.softwaremill.macwire" %% "util"   % versions.macwire,
     "com.softwaremill.macwire" %% "proxy"  % versions.macwire
   )
 
-  val scalatest = Seq(
+  val pureconfig = List("com.github.pureconfig" %% "pureconfig" % versions.pureconfig)
+
+  val scalatest = List(
     "org.scalactic" %% "scalactic" % versions.scalatest,
     "org.scalatest" %% "scalatest" % versions.scalatest % "test"
   )
 
-  val mysql = Seq("mysql" % "mysql-connector-java" % versions.mysql)
+  val mysql = List("mysql" % "mysql-connector-java" % versions.mysql)
 
-  val slick = Seq(
+  val slick = List(
     "com.typesafe.slick" %% "slick"          % versions.slick,
     "com.typesafe.slick" %% "slick-codegen"  % versions.slick,
     "com.typesafe.slick" %% "slick-hikaricp" % versions.slick
@@ -122,6 +126,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir"   %% "tapir-zio-http-server"   % versions.tapir,
     "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir
   )
+
+  val monix =  List("io.monix" %% "monix" % versions.monix)
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
 

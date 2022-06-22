@@ -9,7 +9,7 @@ backend/desu-video-akka-http：scala 3 + akka-http(http) + scala Future(effect) 
 
 backend/desu-video-zio：scala 2.13 + (tapir + zio-http)(http) + zio(effect) + slick(db) + ZLayer(inject) + Tethys JSON(json)
 
-backend/desu-video-http4s(计划中)：scala 2.13 + http4s(http) + monix(effect) + doobie(db) + distage(inject 待定) + circe(json)
+backend/desu-video-http4s(计划中)：scala 2.13 + http4s(http) + cats-effect(effect) + doobie(db) + distage(inject 待定) + circe(json)
 
 backend/desu-video-finch(计划中)：scala 2.13 + finch(http) + cats-effect(effect) + anorm(db) + distage(inject 待定) + play-json(json)
 

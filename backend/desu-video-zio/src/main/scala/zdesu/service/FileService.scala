@@ -9,7 +9,6 @@ import tethys._
 import tethys.jackson._
 
 import scala.concurrent.ExecutionContext
-import scala.util.Try
 
 case class FileService(slickDBAction: SlickDBAction) {
 

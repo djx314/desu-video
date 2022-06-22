@@ -1,6 +1,6 @@
 import org.scalax.sbt._
 
-CustomSettings.scalaConfig
+CustomSettings.scala3Config
 CustomSettings.fmtConfig
 
 name := "desu-video-http4s"
@@ -10,7 +10,5 @@ libraryDependencies ++= Dependencies.simpleLogger
 libraryDependencies ++= Dependencies.http4s
 libraryDependencies ++= Dependencies.cats
 libraryDependencies ++= Dependencies.macwire
-libraryDependencies ++= Dependencies.sttp
-libraryDependencies ++= Dependencies.tapir
-
-addCompilerPlugin(Dependencies.kindProjector)
+libraryDependencies ++= Dependencies.circe
+libraryDependencies ++= Dependencies.zio2
