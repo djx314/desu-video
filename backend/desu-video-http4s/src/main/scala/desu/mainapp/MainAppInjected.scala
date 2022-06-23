@@ -5,15 +5,23 @@ import desu.endpoint.DesuEndpoint
 import desu.routes.AppRoutes
 import desu.service.FileFinder
 import desu.config.DesuConfigModel
+import desu.config.DoobieDB
+import doobie.*
+import cats.implicits.given
+import cats.effect.*
+import cats.*
+import desu.models.DesuConfig
 
 class MainAppInjected:
 
-  lazy val v1 = new AppRoutes(n2, n3)
-
-  private lazy val n2 = new FileFinder(n3)
-
-  private lazy val n3 = new AppConfig(n4)
-
-  private lazy val n4 = new DesuConfigModel()
+  val appRoutes: Resource[IO, AppRoutes] = for
+    configModel          <- Resource.pure(new DesuConfigModel)
+    given DesuConfig     <- Resource.eval(configModel.configIO)
+    given AppConfig      <- Resource.pure(new AppConfig)
+    doobieDB             <- Resource.pure(new DoobieDB)
+    given Transactor[IO] <- doobieDB.transactor
+    given FileFinder     <- Resource.pure(new FileFinder)
+    route                <- Resource.pure(new AppRoutes)
+  yield route
 
 end MainAppInjected

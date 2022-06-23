@@ -12,3 +12,4 @@ libraryDependencies ++= Dependencies.cats
 libraryDependencies ++= Dependencies.macwire
 libraryDependencies ++= Dependencies.circe
 libraryDependencies ++= Dependencies.zio2
+libraryDependencies ++= Dependencies.doobie

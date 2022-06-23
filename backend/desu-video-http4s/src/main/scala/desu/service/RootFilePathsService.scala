@@ -12,18 +12,22 @@ import cats.effect.*
 
 import desu.models.*
 
-class FileFinder(appConfig: AppConfig) {
+import doobie.*
+import doobie.implicits.given
+
+class FileFinder(using AppConfig, Transactor[IO]) {
+  private val appConfig = summon[AppConfig]
+  private val xa        = summon[Transactor[IO]]
 
   def rootPathFiles: IO[RootPathFiles] = {
     def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
 
-    for {
+    for
       path  <- appConfig.rootPath
       model <- IO.blocking(fileList(path))
-    } yield {
+    yield
       val files = model.asScala.to(List)
       RootPathFiles(files = files)
-    }
   }
 
 }

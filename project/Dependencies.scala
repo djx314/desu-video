@@ -12,7 +12,7 @@ object Dependencies {
     val slf4j                 = "1.8.0-beta4"
     val typeSafeConfig        = "1.4.1"
     val http4s                = "0.23.12"
-    val catsEffect            = "3.3.11"
+    val catsEffect            = "3.3.12"
     val catsEffect2           = "2.5.4"
     val circe                 = "0.14.2"
     val kindProjector         = "0.13.2"
@@ -40,8 +40,9 @@ object Dependencies {
     val zioJson               = "0.3.0-RC8"
     val jsoniter              = "2.13.31"
     val tethys                = "0.26.0"
-    val monix = "3.4.1"
-    val pureconfig = "0.17.1"
+    val monix                 = "3.4.1"
+    val pureconfig            = "0.17.1"
+    val doobie                = "1.0.0-RC2"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -71,7 +72,7 @@ object Dependencies {
   )
 
   val http4s = List(
-    "org.http4s" %% "http4s-dsl" % versions.http4s,
+    "org.http4s" %% "http4s-dsl"          % versions.http4s,
     "org.http4s" %% "http4s-ember-server" % versions.http4s,
     "org.http4s" %% "http4s-ember-client" % versions.http4s,
     "org.http4s" %% "http4s-circe"        % versions.http4s
@@ -127,7 +128,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir"   %% "tapir-sttp-stub-server"  % versions.tapir
   )
 
-  val monix =  List("io.monix" %% "monix" % versions.monix)
+  val monix = List("io.monix" %% "monix" % versions.monix)
 
   val jintellitype = "com.melloware" % "jintellitype" % versions.jintellitype
 
@@ -173,6 +174,8 @@ object Dependencies {
     "dev.zio" %% "zio-config-magnolia" % versions.zioConfig,
     "dev.zio" %% "zio-config-typesafe" % versions.zioConfig
   )
+
+  val doobie = List("org.tpolecat" %% "doobie-core" % versions.doobie,  "org.tpolecat" %% "doobie-hikari" % versions.doobie)
 
   val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)
 
