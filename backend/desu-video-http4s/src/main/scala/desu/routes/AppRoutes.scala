@@ -13,14 +13,15 @@ import io.circe.syntax.*
 import org.http4s.circe.*
 import desu.config.AppConfig
 import desu.models.*
+import doobie.*
 
 class AppRoutes(using FileFinder, AppConfig):
   private val fileFinder = summon[FileFinder]
   private val appConfig  = summon[AppConfig]
 
-  val DRoot = appConfig.FilePageRoot
+  private val DRoot = appConfig.FilePageRoot
 
-  given EntityDecoder[IO, RootFileNameRequest] = jsonOf
+  private given EntityDecoder[IO, RootFileNameRequest] = jsonOf
 
   val rootPathFiles = HttpRoutes.of[IO] { case GET -> DRoot / "rootPathFiles" =>
     for
@@ -29,6 +30,7 @@ class AppRoutes(using FileFinder, AppConfig):
       r    <- Ok(data.asJson)
     yield r
   }
+  end rootPathFiles
 
   val rootPathFile = HttpRoutes.of[IO] { case req @ POST -> DRoot / "rootPathFile" =>
     for
@@ -38,7 +40,9 @@ class AppRoutes(using FileFinder, AppConfig):
       r     <- Ok(data.asJson)
     yield r
   }
+  end rootPathFile
 
-  val routes = Router("/" -> rootPathFiles).orNotFound
+  private val compatRoutes = rootPathFiles <+> rootPathFile
+  val routes               = Router("/" -> compatRoutes).orNotFound
 
 end AppRoutes

@@ -19,7 +19,7 @@ class FileFinder(using AppConfig, Transactor[IO]) {
   private val appConfig = summon[AppConfig]
   private val xa        = summon[Transactor[IO]]
 
-  def rootPathFiles: IO[RootPathFiles] = {
+  def rootPathFiles: IO[RootPathFiles] =
     def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
 
     for
@@ -28,6 +28,6 @@ class FileFinder(using AppConfig, Transactor[IO]) {
     yield
       val files = model.asScala.to(List)
       RootPathFiles(files = files)
-  }
+  end rootPathFiles
 
 }
