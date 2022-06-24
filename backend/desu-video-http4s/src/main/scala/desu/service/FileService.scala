@@ -9,6 +9,7 @@ import scala.jdk.CollectionConverters.*
 import cats.*
 import cats.syntax.all.*
 import cats.effect.*
+import cats.data.*
 
 import desu.models.*
 
@@ -18,12 +19,12 @@ import doobie.implicits.given
 import io.circe.syntax.*
 import desu.video.common.quill.model.desuVideo.*
 
-trait FileService(appConfig: AppConfig, xa: Transactor[IO]) {
+trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
 
   val y = xa.yolo
   import y.*
 
-  def rootPathRequestFileId(fileName: String): IO[DirId] = {
+  def rootPathRequestFileId(fileName: String): IO[DirId] =
     val fileNameJson = List(fileName).asJson.noSpaces
 
     val dirMappingOption: ConnectionIO[Option[dirMapping]] =
@@ -38,22 +39,20 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]) {
 
     def notExistsAction(m: dirMapping): ConnectionIO[dirMapping] = for id <- insertAction(m) yield m.copy(id = id)
 
-    def fromOpt(opt: Option[dirMapping]) = opt match
-      case Some(dirMapping) => Applicative[ConnectionIO].pure(dirMapping)
-      case None             => notExistsAction(modelToImport)
-    end fromOpt
+    def fromOpt(opt: OptionT[ConnectionIO, dirMapping]) = opt.foldF(notExistsAction(modelToImport))(Applicative[ConnectionIO].pure)
 
-    val action = for
-      dirOpt     <- dirMappingOption
-      dirMapping <- fromOpt(dirOpt)
-    yield DirId(
-      id = dirMapping.id,
-      fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
-    )
+    val action =
+      for
+        dirOpt     <- dirMappingOption
+        dirMapping <- fromOpt(OptionT.fromOption(dirOpt))
+      yield DirId(
+        id = dirMapping.id,
+        fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
+      )
 
     action.transact(xa)
-  }
+  end rootPathRequestFileId
 
-}
+end FileService
 
 class FileServiceImpl(using AppConfig, Transactor[IO]) extends FileService(summon, summon)
