@@ -32,16 +32,17 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
 
     val dirMappingOption: OptionT[ConnectionIO, dirMapping] = OptionT(dirMappingOptionImpl)
 
-    def modelToImport = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
+    val notExistsAction: ConnectionIO[dirMapping] =
+      val m = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
 
-    def insertAction(m: dirMapping): ConnectionIO[Int] =
       import m.*
-      sql"insert into dir_mapping (file_path, parent_id) values ($filePath, $parentId)".update.withUniqueGeneratedKeys[Int]("id")
-    end insertAction
+      val iAction =
+        sql"insert into dir_mapping (file_path, parent_id) values ($filePath, $parentId)".update.withUniqueGeneratedKeys[Int]("id")
 
-    def notExistsAction(m: dirMapping): ConnectionIO[dirMapping] = for id <- insertAction(m) yield m.copy(id = id)
+      for id <- iAction yield m.copy(id = id)
+    end notExistsAction
 
-    val executeDBInsert = dirMappingOption.foldF(notExistsAction(modelToImport))(Applicative[ConnectionIO].pure)
+    val executeDBInsert = dirMappingOption.foldF(notExistsAction)(Applicative[ConnectionIO].pure)
 
     val action =
       for dirMapping <- executeDBInsert
