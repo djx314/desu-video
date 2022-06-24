@@ -27,8 +27,10 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
   def rootPathRequestFileId(fileName: String): IO[DirId] =
     val fileNameJson = List(fileName).asJson.noSpaces
 
-    val dirMappingOption: ConnectionIO[Option[dirMapping]] =
+    val dirMappingOptionImpl =
       sql"select id, file_path, parent_id from dir_mapping where file_path = $fileNameJson limit 1".query[dirMapping].option
+
+    val dirMappingOption: OptionT[ConnectionIO, dirMapping] = OptionT(dirMappingOptionImpl)
 
     def modelToImport = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
 
@@ -39,10 +41,10 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
 
     def notExistsAction(m: dirMapping): ConnectionIO[dirMapping] = for id <- insertAction(m) yield m.copy(id = id)
 
-    def fromOpt(opt: OptionT[ConnectionIO, dirMapping]) = opt.foldF(notExistsAction(modelToImport))(Applicative[ConnectionIO].pure)
+    val executeDBInsert = dirMappingOption.foldF(notExistsAction(modelToImport))(Applicative[ConnectionIO].pure)
 
     val action =
-      for dirMapping <- fromOpt(OptionT(dirMappingOption))
+      for dirMapping <- executeDBInsert
       yield DirId(id = dirMapping.id, fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head)
 
     action.transact(xa)
