@@ -46,7 +46,7 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
 
     val action =
       for dirMapping <- executeDBInsert
-      yield DirId(id = dirMapping.id, fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head)
+      yield DirId(id = dirMapping.id, fileName = fileName)
 
     action.transact(xa)
   end rootPathRequestFileId
