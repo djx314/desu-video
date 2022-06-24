@@ -42,7 +42,7 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
       for id <- iAction yield m.copy(id = id)
     end notExistsAction
 
-    val executeDBInsert = dirMappingOption.foldF(notExistsAction)(Applicative[ConnectionIO].pure)
+    val executeDBInsert = dirMappingOption.getOrElseF(notExistsAction)
 
     val action =
       for dirMapping <- executeDBInsert
