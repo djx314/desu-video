@@ -8,37 +8,38 @@ import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits.given
 import org.http4s.server.Router
 import desu.models.DesuResult
-import desu.service.FileFinder
+import desu.service.{FileFinder, FileService}
 import io.circe.syntax.*
 import org.http4s.circe.*
 import desu.config.AppConfig
 import desu.models.*
 import doobie.*
 
-class AppRoutes(using FileFinder, AppConfig):
-  private val fileFinder = summon[FileFinder]
-  private val appConfig  = summon[AppConfig]
+trait AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: AppConfig):
 
   private val DRoot = appConfig.FilePageRoot
 
   private given EntityDecoder[IO, RootFileNameRequest] = jsonOf
 
   val rootPathFiles = HttpRoutes.of[IO] { case GET -> DRoot / "rootPathFiles" =>
-    for
+    val action = for
       s    <- fileFinder.rootPathFiles
       data <- IO(DesuResult.data(isSucceed = true, s))
       r    <- Ok(data.asJson)
     yield r
+
+    action.onError(s => IO.blocking(s.printStackTrace))
   }
   end rootPathFiles
 
   val rootPathFile = HttpRoutes.of[IO] { case req @ POST -> DRoot / "rootPathFile" =>
-    for
+    val action = for
       model <- req.as[RootFileNameRequest]
-      s     <- fileFinder.rootPathFiles
-      data  <- IO(DesuResult.data(isSucceed = true, s))
-      r     <- Ok(data.asJson)
+      s     <- fileService.rootPathRequestFileId(model.fileName)
+      r     <- Ok(s.asJson)
     yield r
+
+    action.onError(s => IO.blocking(s.printStackTrace))
   }
   end rootPathFile
 
@@ -46,3 +47,5 @@ class AppRoutes(using FileFinder, AppConfig):
   val routes               = Router("/" -> compatRoutes).orNotFound
 
 end AppRoutes
+
+class AppRoutesImpl(using FileFinder, FileService, AppConfig) extends AppRoutes(summon, summon, summon)

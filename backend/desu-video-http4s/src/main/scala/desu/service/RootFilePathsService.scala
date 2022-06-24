@@ -15,9 +15,7 @@ import desu.models.*
 import doobie.*
 import doobie.implicits.given
 
-class FileFinder(using AppConfig, Transactor[IO]) {
-  private val appConfig = summon[AppConfig]
-  private val xa        = summon[Transactor[IO]]
+trait FileFinder(appConfig: AppConfig, xa: Transactor[IO]):
 
   def rootPathFiles: IO[RootPathFiles] =
     def fileList(path: Path) = Files.list(path).map(_.toFile.getName).collect(Collectors.toList[String])
@@ -30,4 +28,6 @@ class FileFinder(using AppConfig, Transactor[IO]) {
       RootPathFiles(files = files)
   end rootPathFiles
 
-}
+end FileFinder
+
+class FileFinderImpl(using AppConfig, Transactor[IO]) extends FileFinder(summon, summon)

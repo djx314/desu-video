@@ -2,7 +2,7 @@ package desu.config
 
 import desu.models.*
 
-class DesuConfigModel:
+trait DesuConfigModel:
   import zio.config.magnolia.descriptor
   import zio.config.typesafe.*
   import zio.{IO as _, *}
@@ -17,13 +17,13 @@ class DesuConfigModel:
   val configIO: IO[DesuConfig] = IO.fromFuture(IO.delay(configZIORUN))
 end DesuConfigModel
 
-class AppConfig(using DesuConfig):
+class DesuConfigModelImpl extends DesuConfigModel
+
+trait AppConfig(config: DesuConfig):
   import cats.effect.IO
   import org.http4s.Uri.Path.Segment
   import org.http4s.dsl.io.*
   import java.nio.file.{Path as JPath, Paths}
-
-  private val config = summon[DesuConfig]
 
   val FilePageRoot: Path = Root / Segment("api") / Segment("desu")
 
@@ -31,15 +31,14 @@ class AppConfig(using DesuConfig):
   val rootPath: IO[JPath]  = IO(rootPathImpl)
 end AppConfig
 
-class DoobieDB(using DesuConfig):
+class AppConfigImpl(using DesuConfig) extends AppConfig(summon)
 
+trait DoobieDB(config: DesuConfig):
   import doobie.*
   import doobie.implicits.given
   import doobie.hikari.*
   import cats.implicits.given
   import cats.effect.*
-
-  private val config = summon[DesuConfig]
 
   private val dsConfigIO = IO(config.mysqlDesuQuillDB.dataSource)
 
@@ -56,3 +55,5 @@ class DoobieDB(using DesuConfig):
   yield xa
 
 end DoobieDB
+
+class DoobieDBImpl(using DesuConfig) extends DoobieDB(summon)
