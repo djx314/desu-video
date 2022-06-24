@@ -42,13 +42,8 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
     def fromOpt(opt: OptionT[ConnectionIO, dirMapping]) = opt.foldF(notExistsAction(modelToImport))(Applicative[ConnectionIO].pure)
 
     val action =
-      for
-        dirOpt     <- dirMappingOption
-        dirMapping <- fromOpt(OptionT.fromOption(dirOpt))
-      yield DirId(
-        id = dirMapping.id,
-        fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head
-      )
+      for dirMapping <- fromOpt(OptionT(dirMappingOption))
+      yield DirId(id = dirMapping.id, fileName = io.circe.parser.decode[List[String]](dirMapping.filePath).getOrElse(List.empty).head)
 
     action.transact(xa)
   end rootPathRequestFileId
