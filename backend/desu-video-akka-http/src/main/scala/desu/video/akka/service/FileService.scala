@@ -27,7 +27,7 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
     val fileNameJson = List(fileName).toJson
 
     inline def dirMappingOpt = quote {
-      query[dirMapping].filter(_.filePath == lift(fileNameJson)).take(1)
+      query[dirMapping].filter(s => s.filePath == lift(fileNameJson) && s.parentId < 0).take(1)
     }
     val dirMappingOptZio = run(dirMappingOpt).map(_.headOption).provideLayer(dataSourceLayer)
     def dirMappingOptF   = Runtime.default.unsafeRunToFuture(dirMappingOptZio)

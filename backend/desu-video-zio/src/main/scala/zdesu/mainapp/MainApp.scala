@@ -9,7 +9,7 @@ object MainApp extends ZIOAppDefault {
   override def run: URIO[ZIOAppArgs with Scope, ExitCode] =
     Server
       .start(8080, Fusion.http)
-      .provideLayer(ProjectEnv.live)
+      .provideLayer(ProjectEnv.layer)
       .catchAllDefect(e => ZIO.logErrorCause("启动 http 服务发生错误", Cause.fail(e)))
       .exitCode
 

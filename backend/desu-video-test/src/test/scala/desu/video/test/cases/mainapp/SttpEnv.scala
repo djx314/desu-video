@@ -21,12 +21,8 @@ import scala.language.implicitConversions
 opaque type Filling[T, Ploy] = T
 
 object Filling:
-
-  transparent inline def value[T, Ploy](inline v: Filling[T, Ploy]): T = v
-
-  inline given [T, U]: Conversion[T, Filling[T, U]] with
-    override inline def apply(in: T): Filling[T, U] = in
-
+  inline def value[T, Ploy](inline v: Filling[T, Ploy]): T = v
+  inline given [T, U]: Conversion[T, Filling[T, U]]        = identity
 end Filling
 
 object FillingImpl:
@@ -35,14 +31,14 @@ end FillingImpl
 
 private class SttpEnvImpl:
 
-  private val exceptionHandler = ExceptionHandler.pure[RIO[ZEnv, *]](ctx =>
+  private val exceptionHandler = ExceptionHandler.pure[Task](ctx =>
     Some(ValuedEndpointOutput(stringBody.and(statusCode), (s"failed due to ${ctx.e.getMessage}", StatusCode.InternalServerError)))
   )
 
-  private val customiseOptions: CustomiseInterceptors[RIO[ZEnv, *], ZioHttpServerOptions[ZEnv]] =
+  private val customiseOptions: CustomiseInterceptors[Task, ZioHttpServerOptions[Any]] =
     ZioHttpServerOptions.customiseInterceptors.exceptionHandler(exceptionHandler)
 
-  private val m: MonadError[RIO[ZEnv, *]] = new RIOMonadError[ZEnv]
+  private val m: MonadError[Task] = new RIOMonadError[Any]
 
   val stubInterpreter = TapirStubInterpreter(customiseOptions, SttpBackendStub(m))
 

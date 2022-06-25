@@ -34,5 +34,5 @@ object ContextJdbcDatabase:
 end ContextJdbcDatabase
 
 object CommonLayer:
-  val live = ZEnv.live ++ HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDatabase.layer
+  val live = HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDatabase.layer
 end CommonLayer

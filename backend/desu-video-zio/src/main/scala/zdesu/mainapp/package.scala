@@ -4,13 +4,13 @@ import zio._
 
 package object mainapp {
 
-  type ProjectEnv = Scope with ZEnv with DesuConfig with SlickDBAction
-
-  object ProjectEnv {
-    val live: RLayer[Scope, ProjectEnv] =
-      ZLayer.fromFunction(identity[Scope] _) >+> ZEnv.live ++ DesuConfigModel.layer ++ (SlickDBAction.dbLive >+> SlickDBAction.live)
-  }
+  type ProjectEnv = DesuConfig with SlickDBAction
 
   val zioDB: SlickDBAction.type = SlickDBAction
+
+  object ProjectEnv {
+    private val dbLayer                  = zioDB.dbLive >>> zioDB.live
+    val layer: RLayer[Scope, ProjectEnv] = dbLayer ++ DesuConfigModel.layer
+  }
 
 }

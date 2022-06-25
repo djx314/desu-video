@@ -21,13 +21,12 @@ object Dependencies {
     val mysql                 = "8.0.29"
     val slick                 = "3.4.0-M1"
     val sttp                  = "3.6.2"
-    val tapir                 = "1.0.0"
+    val tapir                 = "1.0.1"
     val zioLogging            = "2.0.0-RC10"
     val jintellitype          = "1.4.0"
-    val quill_old             = "4.0.0-RC1"
-    val quill                 = "3.17.0-Beta30-RC5"
-    val distage               = "1.0.8"
-    val zio                   = "1.0.9"
+    val quill                 = "4.0.0-RC1"
+    val distage               = "1.1.0-M4"
+    val zio                   = "1.0.15"
     val zio2                  = "2.0.0-RC6"
     val zioMagic              = "0.3.11"
     val zioHttp               = "2.0.0-RC9"
@@ -138,8 +137,8 @@ object Dependencies {
   val kindProjector = "org.typelevel" % "kind-projector" % versions.kindProjector cross CrossVersion.full
 
   val quill = List(
-    "io.getquill"          %% "quill-codegen-jdbc" % versions.quill_old,
-    "io.getquill"          %% "quill-jasync-mysql" % versions.quill_old,
+    "io.getquill"          %% "quill-codegen-jdbc" % versions.quill,
+    "io.getquill"          %% "quill-jasync-mysql" % versions.quill,
     "io.github.kitlangton" %% "zio-magic"          % versions.zioMagic
   )
   def scalaReflect(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion

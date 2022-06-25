@@ -3,6 +3,7 @@ package desu.video.test.cases.model
 import com.github.plokhotnyuk.jsoniter_scala.core.*
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.*
 import desu.video.test.model.*
+import zio.*
 
 trait JsonCodec:
 

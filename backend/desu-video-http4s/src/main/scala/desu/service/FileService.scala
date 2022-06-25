@@ -28,7 +28,9 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
     val fileNameJson = List(fileName).asJson.noSpaces
 
     val dirMappingOptionImpl =
-      sql"select id, file_path, parent_id from dir_mapping where file_path = $fileNameJson limit 1".query[dirMapping].option
+      sql"select id, file_path, parent_id from dir_mapping where file_path = $fileNameJson and parent_id < 0 limit 1"
+        .query[dirMapping]
+        .option
 
     val dirMappingOption: OptionT[ConnectionIO, dirMapping] = OptionT(dirMappingOptionImpl)
 

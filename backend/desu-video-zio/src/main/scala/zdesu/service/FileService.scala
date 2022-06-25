@@ -16,7 +16,7 @@ case class FileService(slickDBAction: SlickDBAction) {
 
     val fileNameJson = List(fileName).asJson
 
-    def dirMappingDBIO = DirMapping.filter(_.filePath === fileNameJson).take(1).to[List].result.headOption
+    def dirMappingDBIO = DirMapping.filter(s => s.filePath === fileNameJson && s.parentId < 0).take(1).to[List].result.headOption
 
     def modelToImport = DirMappingRow(id = -1, filePath = fileNameJson, parentId = -1)
     val notExistsZio  = DirMapping returning DirMapping.map(_.id) into ((model, id) => model.copy(id = id))

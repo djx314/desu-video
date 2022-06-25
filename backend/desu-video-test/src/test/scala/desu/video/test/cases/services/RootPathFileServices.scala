@@ -35,31 +35,51 @@ object RootPathFileServices:
 
 end RootPathFileServices
 
+opaque type FilePathParentId = Int
+
+object FilePathParentId:
+  inline def apply(inline i: Int): FilePathParentId                   = i
+  extension (inline p: FilePathParentId) inline def isParent: Boolean = p < 0
+end FilePathParentId
+
+class DBFileNameUtil {
+  def takeFileName(name: String): Task[NonEmptyChunk[String]] = for
+    fileNameList  <- ZIO.attempt(readFromString[List[String]](name))
+    fileNameList1 <- ZIO.attempt(NonEmptyChunk.fromIterable(fileNameList.head, fileNameList.tail))
+  yield fileNameList1
+  end takeFileName
+}
+
+object DBFileNameUtil {
+  val live                                                                   = ZLayer.succeed(new DBFileNameUtil)
+  def takeFileName(name: String): RIO[DBFileNameUtil, NonEmptyChunk[String]] = ZIO.serviceWithZIO[DBFileNameUtil](_.takeFileName(name))
+}
+
 case class ResolveFileNameService(dataSource: DataSource):
 
   import ctx.*
 
-  def dirInfoFromId(dirId: Long): Task[List[DirId]] =
-    inline def fileNameQuery = quote {
-      query[dirMapping].filter(_.id == lift(dirId))
-    }
-    val fileNameZio = ctx.run(fileNameQuery)
+  private inline def fileNameQuery(dirId: Long) = quote {
+    query[dirMapping].filter(_.id == lift(dirId))
+  }
 
-    def modelToDirId(dirMapping: dirMapping) =
-      def decodeResult = Try(readFromString[List[String]](dirMapping.filePath))
+  def dirInfoFromId(dirId: Long): Task[List[(DirId, FilePathParentId)]] =
+    val fileNameZio = ctx.run(fileNameQuery(dirId))
+
+    def convertModelImpl(dirMapping: dirMapping) =
       for
-        a1   <- ZIO.fromTry(decodeResult).mapError(s => new IllegalArgumentException(s))
-        name <- ZIO.attempt(a1.head)
-      yield DirId(id = dirMapping.id, fileName = name)
-    end modelToDirId
+        fileNameList <- DBFileNameUtil.takeFileName(dirMapping.filePath)
+        fileName     <- ZIO.attempt(fileNameList.head)
+      yield DirId(id = dirMapping.id, fileName = fileName) -> FilePathParentId(dirMapping.parentId)
+
+    val convertModel = convertModelImpl.andThen(_.mapError(Option.apply))
 
     val action = for
-      dirMappings <- fileNameZio
-      list = dirMappings.map(modelToDirId)
-      coll <- ZIO.collectAll(list)
-    yield coll
+      list   <- fileNameZio
+      target <- ZIO.collect(list)(convertModel)
+    yield target
 
-    action.provideEnvironment(ZEnvironment(dataSource))
+    action.provide(DBFileNameUtil.live ++ ZLayer.succeed(dataSource))
   end dirInfoFromId
 
 end ResolveFileNameService
@@ -68,7 +88,7 @@ object ResolveFileNameService:
 
   val layer: URLayer[DataSource, ResolveFileNameService] = ZLayer.fromFunction(ResolveFileNameService.apply)
 
-  def dirInfoFromId(dirId: Long): RIO[ResolveFileNameService, List[DirId]] =
+  def dirInfoFromId(dirId: Long): RIO[ResolveFileNameService, List[(DirId, FilePathParentId)]] =
     ZIO.serviceWithZIO[ResolveFileNameService](_.dirInfoFromId(dirId))
 
 end ResolveFileNameService

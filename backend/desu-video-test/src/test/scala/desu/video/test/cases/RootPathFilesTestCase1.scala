@@ -42,17 +42,26 @@ object RootPathFilesTestCase1 extends ZIOSpecDefault:
     },
     test("should return a json when sending a root file name.") {
 
-      def assertDirId(model: DirId) =
-        val queryAction       = ResolveFileNameService.dirInfoFromId(model.id)
-        val dirIdDecodeResult = List(DirId(id = model.id, fileName = model.fileName))
-        assertZIO(queryAction)(Assertion.equalTo(dirIdDecodeResult))
+      def assertDirId(model: DirId, fileName: String) =
+        for modelWithParentList <- ResolveFileNameService.dirInfoFromId(model.id)
+        yield
+          val gloAssert = assert(modelWithParentList.size)(Assertion.equalTo(1))
+
+          val asserts = for (m <- modelWithParentList) yield
+            val assert1 = assert(m._1)(Assertion.equalTo(model))
+            val assert2 = assert(m._2.isParent)(Assertion.equalTo(true))
+            assert1 && assert2
+
+          val allAsserts = gloAssert :: asserts
+
+          TestResult.all(allAsserts: _*)
       end assertDirId
 
       def singleFileNameResult(name: String) = for
         response <- simpleToRequest(TestEndpoint.rootPathFileEndpoint)(using RootFileNameRequest(name))
         DecodeResult.Value(responseValue) = response.body
         model       <- ZIO.fromEither(responseValue)
-        modelAssert <- assertDirId(model)
+        modelAssert <- assertDirId(model, name)
       yield
         val mediaTypeAssert = assert(response.contentType)(Assertion.equalTo(jsonMediaOptString))
         modelAssert && mediaTypeAssert
