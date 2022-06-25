@@ -9,7 +9,7 @@ object CustomSettings {
   val scalaVersion_3   = "3.1.2"
 
   val scalaConfig  = Seq(scalaVersion := scalaVersion_213, scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations"))
-  val scala3Config = Seq(scalaVersion := scalaVersion_3, scalacOptions ++= Seq("-feature", "-deprecation", "-rewrite"))
+  val scala3Config = Seq(scalaVersion := scalaVersion_3, scalacOptions ++= Seq("-feature", "-deprecation"))
 
   val fmtConfig = org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile := true
 

@@ -34,5 +34,13 @@ object ContextJdbcDatabase:
 end ContextJdbcDatabase
 
 object CommonLayer:
-  val live = HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDatabase.layer
+  val live: TaskLayer[ProjectEnv] = HttpClientZioBackend.layer() ++ DesuConfigModel.layer ++ ContextUri.layer1 ++ ContextJdbcDatabase.layer
 end CommonLayer
+
+type ProjectEnv = DataSource & SttpClient & DesuConfig & ContextUri
+
+type DIO   = [Err, Data] =>> ZIO[ProjectEnv, Err, Data]
+type DTask = [Data] =>> RIO[ProjectEnv, Data]
+type DRIO  = [R, Data] =>> RIO[ProjectEnv & R, Data]
+
+extension [R, E, A](obj: ZIO[R, E, A]) inline def provideD: ProvideSomePartiallyApplied[ProjectEnv, R, E, A] = obj.provideSome[ProjectEnv]
