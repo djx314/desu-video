@@ -12,21 +12,20 @@ import desu.video.akka.routes.HttpServerRoutingMinimal
 import org.scalatest.concurrent.ScalaFutures
 import desu.video.common.model.DesuResult
 import desu.video.common.quill.model.MysqlContext
-import zio.*
 import io.getquill.*
 import desu.video.common.quill.model.desuVideo.dirMapping
 
 import java.nio.file.Files
 
-class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRouteTest with ScalaFutures {
+class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRouteTest with ScalaFutures:
   given LoggingAdapter = Logging.getLogger(system, "akka-http-test")
 
   given ActorSystem[Nothing] = ActorSystem.wrap(system)
 
-  val testWire = TestWire()
+  val testWire = new TestWire
   import testWire.given
-  val appConfig    = implicitly[AppConfig]
-  val mysqlContext = implicitly[MysqlContext]
+  val appConfig    = summon[AppConfig]
+  val mysqlContext = summon[MysqlContext]
 
   import mysqlContext.{*, given}
 
@@ -42,4 +41,4 @@ class FullTestKitExampleSpec extends AnyWordSpec with Matchers with ScalatestRou
 
   }
 
-}
+end FullTestKitExampleSpec

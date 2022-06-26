@@ -23,4 +23,4 @@ libraryDependencies ++= Dependencies.jsoniter
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
-scalacOptions ++= Seq("-Ykind-projector")
+

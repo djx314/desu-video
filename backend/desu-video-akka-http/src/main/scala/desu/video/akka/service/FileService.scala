@@ -29,27 +29,23 @@ class FileService(appConfig: AppConfig, mysqlContext: MysqlContext)(using system
     inline def dirMappingOpt = quote {
       query[dirMapping].filter(s => s.filePath == lift(fileNameJson) && s.parentId < 0).take(1)
     }
-    val dirMappingOptZio = run(dirMappingOpt).map(_.headOption).provideLayer(dataSourceLayer)
-    def dirMappingOptF   = Runtime.default.unsafeRunToFuture(dirMappingOptZio)
+    val dirMappingOptZio = for (s <- run(dirMappingOpt)) yield s.headOption
 
     def modelToImport = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
     inline def insertQuery = quote {
       query[dirMapping].insertValue(lift(modelToImport)).returning(_.id)
     }
-    val notExistsZio = run(insertQuery).map(id => modelToImport.copy(id = id)).provideLayer(dataSourceLayer)
+    val notExistsZio = for (id <- run(insertQuery)) yield modelToImport.copy(id = id)
 
-    def fromOpt(opt: Option[dirMapping]) = opt match {
-      case Some(dirMapping) => Future.successful(dirMapping)
-      case None             => Runtime.default.unsafeRunToFuture(notExistsZio)
-    }
+    val dirMappingOptAction = dirMappingOptZio.someOrElseZIO(notExistsZio)
+    val dirMappingOptZIO    = transaction(dirMappingOptAction).provideLayer(dataSourceLayer)
+    val dirMappingOptF      = Runtime.default.unsafeRunToFuture(dirMappingOptZIO)
 
-    for {
-      dirOpt     <- dirMappingOptF
-      dirMapping <- fromOpt(dirOpt)
-    } yield DirId(
-      id = dirMapping.id,
-      fileName = JsonDecoder[List[String]].decodeJson(dirMapping.filePath).getOrElse(List.empty).head
-    )
+    for (dirMapping <- dirMappingOptF)
+      yield DirId(
+        id = dirMapping.id,
+        fileName = fileName
+      )
   }
 
 }

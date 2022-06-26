@@ -8,3 +8,6 @@ name := "desu-video-finch"
 libraryDependencies ++= Dependencies.finch
 
 run / fork := true
+
+addCompilerPlugin(Dependencies.kindProjector)
+

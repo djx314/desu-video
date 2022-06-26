@@ -7,3 +7,5 @@ name       := "desu-video-common2"
 moduleName := "desu-video-common2"
 
 libraryDependencies ++= Dependencies.slick
+
+addCompilerPlugin(Dependencies.kindProjector)

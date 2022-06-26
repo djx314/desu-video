@@ -16,3 +16,5 @@ libraryDependencies ++= Dependencies.scalaCollectionCompat
 libraryDependencies += "org.julienrf" %% "play-json-derived-codecs" % "10.0.2"
 libraryDependencies += "com.softwaremill.sttp.tapir" %% "tapir-json-tethys" % Dependencies.versions.tapir
 libraryDependencies ++= Dependencies.tethysJson
+
+addCompilerPlugin(Dependencies.kindProjector)

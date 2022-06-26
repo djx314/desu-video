@@ -34,17 +34,14 @@ trait FileService(appConfig: AppConfig, xa: Transactor[IO]):
 
     val dirMappingOption: OptionT[ConnectionIO, dirMapping] = OptionT(dirMappingOptionImpl)
 
-    val notExistsAction: ConnectionIO[dirMapping] =
-      val m = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
-
-      import m.*
-      val iAction =
-        sql"insert into dir_mapping (file_path, parent_id) values ($filePath, $parentId)".update.withUniqueGeneratedKeys[Int]("id")
-
-      for id <- iAction yield m.copy(id = id)
+    def notExistsAction: ConnectionIO[dirMapping] =
+      val preModel = dirMapping(id = -1, filePath = fileNameJson, parentId = -1)
+      val iAction = sql"insert into dir_mapping (file_path, parent_id) values (${preModel.filePath}, ${preModel.parentId})".update
+        .withUniqueGeneratedKeys[Int]("id")
+      for id <- iAction yield preModel.copy(id = id)
     end notExistsAction
 
-    val executeDBInsert = dirMappingOption.getOrElseF(notExistsAction)
+    val executeDBInsert: ConnectionIO[dirMapping] = dirMappingOption.getOrElseF(notExistsAction)
 
     val action =
       for dirMapping <- executeDBInsert

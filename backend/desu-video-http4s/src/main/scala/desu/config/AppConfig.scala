@@ -1,20 +1,23 @@
 package desu.config
 
+import desu.models
 import desu.models.*
 
 trait DesuConfigModel:
   import zio.config.magnolia.descriptor
-  import zio.config.typesafe.*
-  import zio.{IO as _, *}
-  import cats.effect.IO
-  import scala.concurrent.Future
+  import zio.config.typesafe.TypesafeConfig
+  import zio.{ZIO, given}
+  import cats.effect.*
+  import cats.*
+  import zio.interop.catz.*
+  import zio.interop.catz.implicits.given
+  import zio.interop.cus.*
 
-  private def desuConfigAutomatic              = descriptor[DesuConfig]
-  private def layer                            = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
-  private def desuConfigZIO                    = ZIO.service[DesuConfig].provide(layer)
-  private def configZIORUN: Future[DesuConfig] = Runtime.default.unsafeRunToFuture(desuConfigZIO)
+  private val desuConfigAutomatic = descriptor[DesuConfig]
+  private val layer               = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
+  private val desuConfigZIO       = ZIO.service[DesuConfig].provide(layer)
 
-  val configIO: IO[DesuConfig] = IO.fromFuture(IO.delay(configZIORUN))
+  val configIO: IO[DesuConfig] = desuConfigZIO.toEffect
 end DesuConfigModel
 
 class DesuConfigModelImpl extends DesuConfigModel
@@ -22,7 +25,7 @@ class DesuConfigModelImpl extends DesuConfigModel
 trait AppConfig(config: DesuConfig):
   import cats.effect.IO
   import org.http4s.Uri.Path.Segment
-  import org.http4s.dsl.io.*
+  import org.http4s.dsl.io.{Path, Root}
   import java.nio.file.{Path as JPath, Paths}
 
   val FilePageRoot: Path = Root / Segment("api") / Segment("desu")

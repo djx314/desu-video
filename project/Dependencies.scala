@@ -42,6 +42,7 @@ object Dependencies {
     val monix                 = "3.4.1"
     val pureconfig            = "0.17.1"
     val doobie                = "1.0.0-RC2"
+    val zioInteropCats = "3.3.0-RC7"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -171,7 +172,8 @@ object Dependencies {
     "dev.zio" %% "zio-test-sbt"        % versions.zio2 % "test",
     "dev.zio" %% "zio-config"          % versions.zioConfig,
     "dev.zio" %% "zio-config-magnolia" % versions.zioConfig,
-    "dev.zio" %% "zio-config-typesafe" % versions.zioConfig
+    "dev.zio" %% "zio-config-typesafe" % versions.zioConfig,
+    "dev.zio" %% "zio-interop-cats" % versions.zioInteropCats,
   )
 
   val doobie = List("org.tpolecat" %% "doobie-core" % versions.doobie,  "org.tpolecat" %% "doobie-hikari" % versions.doobie)
