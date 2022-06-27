@@ -2,6 +2,7 @@ package desu.config
 
 import desu.models
 import desu.models.*
+import language.experimental.fewerBraces
 
 trait DesuConfigModel:
   import zio.config.magnolia.descriptor
@@ -42,20 +43,21 @@ trait DoobieDB(config: DesuConfig):
   import doobie.hikari.*
   import cats.implicits.given
   import cats.effect.*
+  import cats.effect.cps.*
 
-  private val dsConfigIO = IO(config.mysqlDesuQuillDB.dataSource)
-
-  val transactor: Resource[IO, HikariTransactor[IO]] = for
-    dsConfig <- Resource.eval(dsConfigIO)
-    ce       <- ExecutionContexts.fixedThreadPool[IO](32) // our connect EC
-    xa <- HikariTransactor.newHikariTransactor[IO](
-      driverClassName = dsConfig.driverClassName, // driver classname
-      url = dsConfig.jdbcUrl,                     // connect URL
-      user = dsConfig.username,                   // username
-      pass = dsConfig.password,                   // password
-      ce                                          // await connection here
-    )
-  yield xa
+  val transactor: Resource[IO, HikariTransactor[IO]] = async[Resource[IO, *]] {
+    val dsConfig = config.mysqlDesuQuillDB.dataSource
+    val ce       = ExecutionContexts.fixedThreadPool[IO](32).await
+    HikariTransactor
+      .newHikariTransactor[IO](
+        driverClassName = dsConfig.driverClassName, // driver classname
+        url = dsConfig.jdbcUrl,                     // connect URL
+        user = dsConfig.username,                   // username
+        pass = dsConfig.password,                   // password
+        ce                                          // await connection here
+      )
+      .await
+  }
 
 end DoobieDB
 

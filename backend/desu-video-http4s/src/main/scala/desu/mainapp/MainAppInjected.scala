@@ -12,10 +12,11 @@ import desu.models.DesuConfig
 import zio.{IO as _, *}
 import cats.effect.cps.*
 import cats.effect.implicits.given
+import language.experimental.fewerBraces
 
 object MainAppInjected:
 
-  object ProEnv1 extends ProjectEnvInjected1
+  object ProEnv1 extends InjectedModule1
   import ProEnv1.{env as env1, Env as Env1}
 
   val appRoutes: Resource[IO, AppRoutes] = async[Resource[IO, *]] {
@@ -27,7 +28,7 @@ object MainAppInjected:
 
 end MainAppInjected
 
-trait ProjectEnvInjected1:
+trait InjectedModule1:
 
   type Env = DesuConfig & AppConfig & Transactor[IO]
 
@@ -40,6 +41,6 @@ trait ProjectEnvInjected1:
     ZEnvironment(implicitly[DesuConfig], implicitly[Transactor[IO]], implicitly[AppConfig])
   }
 
-end ProjectEnvInjected1
+end InjectedModule1
 
 given [ModelTag: Tag, S <: ModelTag](using ZEnvironment[S]): ModelTag = summon[ZEnvironment[S]].get
