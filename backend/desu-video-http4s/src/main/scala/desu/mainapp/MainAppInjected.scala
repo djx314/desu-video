@@ -10,18 +10,20 @@ import cats.effect.*
 import cats.*
 import desu.models.DesuConfig
 import zio.{IO as _, *}
+import cats.effect.cps.*
+import cats.effect.implicits.given
 
 object MainAppInjected:
 
   object ProEnv1 extends ProjectEnvInjected1
-  import ProEnv1.{env => env1, Env => Env1}
+  import ProEnv1.{env as env1, Env as Env1}
 
-  val appRoutes: Resource[IO, AppRoutes] = for
-    given ZEnvironment[Env1] <- env1
-    given FileService        <- Resource.pure(new FileServiceImpl)
-    given FileFinder         <- Resource.pure(new FileFinderImpl)
-    route                    <- Resource.pure(new AppRoutesImpl)
-  yield route
+  val appRoutes: Resource[IO, AppRoutes] = async[Resource[IO, *]] {
+    given ZEnvironment[Env1] = env1.await
+    given FileService        = new FileServiceImpl
+    given FileFinder         = new FileFinderImpl
+    new AppRoutesImpl
+  }
 
 end MainAppInjected
 
@@ -29,13 +31,14 @@ trait ProjectEnvInjected1:
 
   type Env = DesuConfig & AppConfig & Transactor[IO]
 
-  def env: Resource[IO, ZEnvironment[Env]] = for
-    configModel          <- Resource.pure(new DesuConfigModelImpl)
-    given DesuConfig     <- Resource.eval(configModel.configIO)
-    given AppConfig      <- Resource.pure(new AppConfigImpl)
-    doobieDB             <- Resource.pure(new DoobieDBImpl)
-    given Transactor[IO] <- doobieDB.transactor
-  yield ZEnvironment(implicitly[DesuConfig], implicitly[Transactor[IO]], implicitly[AppConfig])
+  val env: Resource[IO, ZEnvironment[Env]] = async[Resource[IO, *]] {
+    val configModel      = new DesuConfigModelImpl
+    given DesuConfig     = Resource.eval(configModel.configIO).await
+    given AppConfig      = new AppConfigImpl
+    val doobieDB         = new DoobieDBImpl
+    given Transactor[IO] = doobieDB.transactor.await
+    ZEnvironment(implicitly[DesuConfig], implicitly[Transactor[IO]], implicitly[AppConfig])
+  }
 
 end ProjectEnvInjected1
 

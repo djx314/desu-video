@@ -43,6 +43,7 @@ object Dependencies {
     val pureconfig            = "0.17.1"
     val doobie                = "1.0.0-RC2"
     val zioInteropCats = "3.3.0-RC7"
+    val catsCPS = "0.3.0"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -94,6 +95,8 @@ object Dependencies {
   )
 
   val pureconfig = List("com.github.pureconfig" %% "pureconfig" % versions.pureconfig)
+
+  val catsCPS = List("org.typelevel" %% "cats-effect-cps" % versions.catsCPS)
 
   val scalatest = List(
     "org.scalactic" %% "scalactic" % versions.scalatest,
