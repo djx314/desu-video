@@ -1,8 +1,11 @@
 package desu.endpoint
 
 import desu.config.AppConfig
+import desu.models.DesuResult
 
 object DesuEndpoint:
+
+  summon[io.circe.Encoder[DesuResult[String]]]
 
   /*implicit class appendOutPout[A, I, E, O, -R](endpo: Endpoint[A, I, E, ResultSet[O], R]) {
     def append: Endpoint[A, I, E, (O, StatusCode), R] =

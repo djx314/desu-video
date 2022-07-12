@@ -18,7 +18,7 @@ import doobie.implicits.given
 
 import io.circe.syntax.*
 import desu.video.common.quill.model.desuVideo.*
-import language.experimental.fewerBraces
+// import language.experimental.fewerBraces
 import cats.effect.cps.*
 
 trait FileService(appConfig: AppConfig, xa: Transactor[IO]):

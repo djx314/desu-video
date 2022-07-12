@@ -2,7 +2,7 @@ package desu.config
 
 import desu.models
 import desu.models.*
-import language.experimental.fewerBraces
+// import language.experimental.fewerBraces
 
 trait DesuConfigModel:
   import zio.config.magnolia.descriptor

@@ -12,7 +12,7 @@ import desu.models.DesuConfig
 import zio.{IO as _, *}
 import cats.effect.cps.*
 import cats.effect.implicits.given
-import language.experimental.fewerBraces
+// import language.experimental.fewerBraces
 
 object MainAppInjected:
 
@@ -41,6 +41,16 @@ trait InjectedModule1:
     ZEnvironment(implicitly[DesuConfig], implicitly[Transactor[IO]], implicitly[AppConfig])
   }
 
+  val env1: Resource[IO, ZEnvironment[Env]] =
+    val configModel = new DesuConfigModelImpl
+
+    for
+      given DesuConfig <- Resource.eval(configModel.configIO)
+      given AppConfig = new AppConfigImpl
+      doobieDB        = new DoobieDBImpl
+      given Transactor[IO] <- doobieDB.transactor
+    yield ZEnvironment(implicitly[DesuConfig], implicitly[Transactor[IO]], implicitly[AppConfig])
+
 end InjectedModule1
 
-given [ModelTag: Tag, S <: ModelTag](using ZEnvironment[S]): ModelTag = summon[ZEnvironment[S]].get
+given [ModelTag: Tag](using ZEnvironment[ModelTag]): ModelTag = summon[ZEnvironment[ModelTag]].get
