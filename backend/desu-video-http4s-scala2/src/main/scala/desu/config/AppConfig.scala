@@ -21,19 +21,21 @@ class DesuConfigBuilder {
   private val layer               = TypesafeConfig.fromResourcePath(desuConfigAutomatic)
   private val desuConfigZIO       = ZIO.service[DesuConfig].provide(layer)
 
-  def getModel[F[_]: Async]: F[DesuConfig] =
+  def getEffect[F[_]: Async]: F[DesuConfig] =
     Async[F].fromFuture(Sync[F].delay(Unsafe.unsafe(implicit unsafe => Runtime.default.unsafe.runToFuture(desuConfigZIO))))
+
+  def getResource[F[_]: Async]: Resource[F, DesuConfig] = Resource.eval(getEffect)
 }
 
 object DesuConfigBuilder {
   def build: DesuConfigBuilder = new DesuConfigBuilder
 }
 
-class AppConfigBuilder(implicit config: DesuConfig) {
+class AppConfigBuilder(config: DesuConfig) {
   import org.http4s.dsl.io.{Path, Root}
   import org.http4s.Uri.Path.Segment
 
-  def getModel[F[_]: Sync]: F[AppConfig] = {
+  def getEffect[F[_]: Sync]: F[AppConfig] = {
     val FilePageRoot: Path = Root / Segment("api") / Segment("desu")
 
     def rootPathImpl = Paths.get(config.desu.video.file.rootPath)
@@ -41,19 +43,21 @@ class AppConfigBuilder(implicit config: DesuConfig) {
 
     for (rootPath <- rootPathIO) yield new AppConfig(rootPath = rootPath, FilePageRoot = FilePageRoot)
   }
+
+  def getResource[F[_]: Async]: Resource[F, AppConfig] = Resource.eval(getEffect)
 }
 
 class AppConfig(val rootPath: JPath, val FilePageRoot: org.http4s.dsl.io.Path)
 
 object AppConfig {
-  def build(implicit config: DesuConfig): AppConfigBuilder = new AppConfigBuilder
+  def build(implicit config: DesuConfig): AppConfigBuilder = new AppConfigBuilder(implicitly)
 }
 
-class DoobieDB(implicit config: DesuConfig) {
+class DoobieDB(config: DesuConfig) {
   import doobie._
   import doobie.implicits._
 
-  def transactor[F[_]: Async]: Resource[F, HikariTransactor[F]] = {
+  def transactorResource[F[_]: Async]: Resource[F, Transactor[F]] = {
     val dsConfig = config.mysqlDesuQuillDB.dataSource
     def fromExecContext(ce: ExecutionContext) = HikariTransactor.newHikariTransactor[F](
       driverClassName = dsConfig.driverClassName, // driver classname
@@ -70,5 +74,5 @@ class DoobieDB(implicit config: DesuConfig) {
 }
 
 object DoobieDB {
-  def build(implicit config: DesuConfig): DoobieDB = new DoobieDB
+  def build(implicit config: DesuConfig): DoobieDB = new DoobieDB(implicitly)
 }

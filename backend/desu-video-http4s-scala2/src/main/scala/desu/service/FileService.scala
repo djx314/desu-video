@@ -2,12 +2,8 @@ package desu.service
 
 import desu.config.AppConfig
 
-import java.nio.file.{Files, Path}
-import java.util.stream.Collectors
-
 import scala.jdk.CollectionConverters._
 import cats._
-import cats.syntax.all._
 import cats.effect._
 import cats.data._
 
@@ -18,7 +14,6 @@ import doobie.implicits._
 
 import io.circe.syntax._
 import desu.video.common.quill.model.desuVideo._
-import cats.effect.cps._
 
 class FileService(appConfig: AppConfig, xa: Transactor[IO]) {
 
@@ -51,4 +46,6 @@ class FileService(appConfig: AppConfig, xa: Transactor[IO]) {
 
 }
 
-class FileServiceImpl(implicit appConfig: AppConfig, tx: Transactor[IO]) extends FileService(implicitly, implicitly)
+object FileService {
+  def build(implicit appConfig: AppConfig, tx: Transactor[IO]): FileService = new FileService(implicitly, implicitly)
+}

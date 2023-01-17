@@ -4,7 +4,6 @@ import cats.effect._
 import org.http4s._
 import org.http4s.dsl.io._
 import cats.syntax.all._
-import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits._
 import org.http4s.server.Router
 import desu.models.DesuResult
@@ -46,5 +45,7 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
 
 }
 
-class AppRoutesImpl(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig)
-    extends AppRoutes(implicitly, implicitly, implicitly)
+object AppRoutes {
+  def build(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig): AppRoutes =
+    new AppRoutes(implicitly, implicitly, implicitly)
+}

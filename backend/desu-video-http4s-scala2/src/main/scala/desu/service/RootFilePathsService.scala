@@ -28,4 +28,6 @@ class FileFinder(appConfig: AppConfig, xa: Transactor[IO]) {
 
 }
 
-class FileFinderImpl(implicit appConfig: AppConfig, tx: Transactor[IO]) extends FileFinder(implicitly, implicitly)
+object FileFinder {
+  def build(implicit appConfig: AppConfig, tx: Transactor[IO]): FileFinder = new FileFinder(implicitly, implicitly)
+}
