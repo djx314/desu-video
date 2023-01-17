@@ -11,7 +11,6 @@ object Dependencies {
     val akkaHttpCirce         = "1.40.0-RC2"
     val slf4j                 = "1.8.0-beta4"
     val typeSafeConfig        = "1.4.1"
-    val http4s                = "0.23.12"
     val catsEffect            = "3.3.12"
     val catsEffect2           = "2.5.4"
     val circe                 = "0.14.2"
@@ -27,7 +26,7 @@ object Dependencies {
     val quill                 = "4.0.0-RC1"
     val distage               = "1.1.0-M4"
     val zio                   = "1.0.15"
-    val zio2                  = "2.0.0-RC6"
+    val zio2                  = "2.0.5"
     val zioMagic              = "0.3.11"
     val zioHttp               = "2.0.0-RC9"
     val finch                 = "0.33.0"
@@ -35,15 +34,15 @@ object Dependencies {
     val scalaJava8Compat      = "1.0.2"
     val circeYaml             = "0.2.1"
     val hikariCP              = "5.0.1"
-    val zioConfig             = "3.0.0-RC9"
+    val zioConfig             = "3.0.7"
     val zioJson               = "0.3.0-RC8"
     val jsoniter              = "2.13.31"
     val tethys                = "0.26.0"
     val monix                 = "3.4.1"
     val pureconfig            = "0.17.1"
     val doobie                = "1.0.0-RC2"
-    val zioInteropCats = "3.3.0-RC7"
-    val catsCPS = "0.3.0"
+    val zioInteropCats        = "23.0.0.1"
+    val catsCPS               = "0.3.0"
   }
 
   val config = List("com.typesafe" % "config" % versions.typeSafeConfig)
@@ -70,13 +69,6 @@ object Dependencies {
     "com.tethys-json" %% "tethys-core"       % versions.tethys,
     "com.tethys-json" %% "tethys-jackson"    % versions.tethys,
     "com.tethys-json" %% "tethys-derivation" % versions.tethys
-  )
-
-  val http4s = List(
-    "org.http4s" %% "http4s-dsl"          % versions.http4s,
-    "org.http4s" %% "http4s-ember-server" % versions.http4s,
-    "org.http4s" %% "http4s-ember-client" % versions.http4s,
-    "org.http4s" %% "http4s-circe"        % versions.http4s
   )
 
   val cats  = List("org.typelevel" %% "cats-effect" % versions.catsEffect)
@@ -176,10 +168,10 @@ object Dependencies {
     "dev.zio" %% "zio-config"          % versions.zioConfig,
     "dev.zio" %% "zio-config-magnolia" % versions.zioConfig,
     "dev.zio" %% "zio-config-typesafe" % versions.zioConfig,
-    "dev.zio" %% "zio-interop-cats" % versions.zioInteropCats,
+    "dev.zio" %% "zio-interop-cats"    % versions.zioInteropCats
   )
 
-  val doobie = List("org.tpolecat" %% "doobie-core" % versions.doobie,  "org.tpolecat" %% "doobie-hikari" % versions.doobie)
+  val doobie = List("org.tpolecat" %% "doobie-core" % versions.doobie, "org.tpolecat" %% "doobie-hikari" % versions.doobie)
 
   val zioHttp = Seq("io.d11" %% "zhttp" % versions.zioHttp, "io.d11" %% "zhttp-test" % versions.zioHttp % Test)
 

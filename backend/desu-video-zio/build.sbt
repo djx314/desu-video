@@ -1,7 +1,9 @@
 import org.scalax.sbt.Dependencies
 
-org.scalax.sbt.CustomSettings.scalaConfig
+org.scalax.sbt.CustomSettings.scala213Config
 org.scalax.sbt.CustomSettings.fmtConfig
+
+scalaVersion := scalaV.v213
 
 name := "desu-video-zio"
 

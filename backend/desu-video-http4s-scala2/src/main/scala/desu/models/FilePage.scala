@@ -1,14 +1,17 @@
 package desu.models
 
-import io.circe.Codec
+import io.circe.generic.JsonCodec
 
-case class RootPathFiles(files: List[String]) derives Codec.AsObject
+@JsonCodec
+case class RootPathFiles(files: List[String])
 
-case class DirId(id: Long, fileName: String) derives Codec.AsObject
+@JsonCodec
+case class DirId(id: Long, fileName: String)
 
 case class FileNotConfirmException(message: String) extends Exception(message)
 
-case class RootFileNameRequest(fileName: String) derives Codec.AsObject
+@JsonCodec
+case class RootFileNameRequest(fileName: String)
 
 case class DesuConfig(desu: VideoConfig, mysqlDesuQuillDB: MysqlDesuQuillDB)
 case class VideoConfig(video: FileConfig)
