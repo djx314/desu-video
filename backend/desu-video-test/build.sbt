@@ -7,7 +7,7 @@ name       := "desu-video-test"
 moduleName := "desu-video-test"
 
 libraryDependencies ++= Dependencies.scalatest
-libraryDependencies ++= Dependencies.simpleLogger
+libraryDependencies ++= libScalax.`slf4j-simple`.value
 libraryDependencies += Dependencies.hikariCP
 libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.macwire
@@ -17,7 +17,7 @@ libraryDependencies ++= Dependencies.zio2
 libraryDependencies ++= Dependencies.tapir
 libraryDependencies ++= Dependencies.zioHttp
 libraryDependencies ++= Dependencies.quill_scala3
-libraryDependencies ++= Dependencies.scalaCollectionCompat
+libraryDependencies ++= libScalax.`scala-collection-compat`.value
 libraryDependencies +="com.softwaremill.sttp.tapir"   %% "tapir-jsoniter-scala"        % Dependencies.versions.tapir
 libraryDependencies ++= Dependencies.jsoniter
 

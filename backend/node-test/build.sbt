@@ -5,8 +5,8 @@ scalaVersion := scalaV.v213
 
 name := "node-test"
 
-libraryDependencies ++= org.scalax.sbt.Dependencies.config
-libraryDependencies ++= org.scalax.sbt.Dependencies.simpleLogger
+libraryDependencies ++= libScalax.`typesafe-config`.value
+libraryDependencies ++= libScalax.`slf4j-simple`.value
 libraryDependencies ++= libScalax.`http4s-Release`.value
 libraryDependencies ++= org.scalax.sbt.Dependencies.cats
 libraryDependencies ++= org.scalax.sbt.Dependencies.tapir

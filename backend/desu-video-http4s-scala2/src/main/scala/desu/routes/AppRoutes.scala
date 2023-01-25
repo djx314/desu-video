@@ -40,12 +40,12 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
     action.onError(s => IO.blocking(s.printStackTrace))
   }
 
-  private val compatRoutes = rootPathFiles <+> rootPathFile
-  val routes               = Router("/" -> compatRoutes).orNotFound
+  private val compatRoutes   = rootPathFiles <+> rootPathFile
+  val routes: HttpRoutes[IO] = Router("/" -> compatRoutes)
 
 }
 
 object AppRoutes {
-  def build(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig): AppRoutes =
-    new AppRoutes(implicitly, implicitly, implicitly)
+  def build(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig): HttpRoutes[IO] =
+    new AppRoutes(implicitly, implicitly, implicitly).routes
 }

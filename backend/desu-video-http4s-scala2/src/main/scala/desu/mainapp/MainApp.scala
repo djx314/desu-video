@@ -1,12 +1,8 @@
 package desu.mainapp
 
-import desu.routes.AppRoutes
-
 import com.comcast.ip4s._
-import cats.effect.{ExitCode, IO, IOApp}
+import cats.effect._
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.implicits._
-import scala.concurrent.duration._
 
 object MainApp extends IOApp {
 
@@ -14,7 +10,7 @@ object MainApp extends IOApp {
 
   val serverResource = for {
     routesApp <- MainAppInjected.appRoutes
-    server    <- serverBuilding.withHttpApp(routesApp.routes).build
+    server    <- serverBuilding.withHttpApp(routesApp.orNotFound).build
   } yield server
 
   override def run(args: List[String]): IO[ExitCode] = serverResource.useForever.as(ExitCode.Success)

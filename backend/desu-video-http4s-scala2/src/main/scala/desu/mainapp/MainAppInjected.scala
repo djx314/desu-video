@@ -3,15 +3,15 @@ package desu.mainapp
 import desu.config._
 import desu.routes.AppRoutes
 import desu.service._
-import doobie._
 import cats.implicits._
 import cats.effect._
 import cats._
 import cats.effect.implicits._
+import org.http4s._
 
 object MainAppInjected {
 
-  val appRoutes: Resource[IO, AppRoutes] = DesuConfigBuilder.build
+  val appRoutes: Resource[IO, HttpRoutes[IO]] = DesuConfigBuilder.build
     .getResource[IO]
     .flatMap(implicit desuConfig =>
       AppConfig.build

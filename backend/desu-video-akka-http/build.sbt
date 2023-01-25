@@ -14,6 +14,6 @@ libraryDependencies ++= Dependencies.akkaHttp
   .map(_ exclude ("org.scala-lang.modules", "scala-collection-compat_2.13"))
 libraryDependencies ++= Dependencies.macwire
 libraryDependencies ++= Dependencies.scalatest
-libraryDependencies ++= Dependencies.simpleLogger
+libraryDependencies ++= libScalax.`slf4j-simple`.value
 libraryDependencies ++= Dependencies.zioJson
 libraryDependencies += Dependencies.hikariCP

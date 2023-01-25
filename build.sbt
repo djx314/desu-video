@@ -7,23 +7,27 @@ name := "desu-video"
 
 val rootPath          = file(".").getCanonicalFile
 val backendPath       = rootPath / "backend"
+val frontendPath      = rootPath / "frontend"
 val commonPath        = backendPath / "desu-video-common"
 val commonPath3       = backendPath / "desu-video-common3"
 val commonPath2       = backendPath / "desu-video-common2"
 val commonCodegenPath = backendPath / "desu-video-codegen"
 
-val root     = project in rootPath
-val common   = project in commonPath
-val common3  = (project in commonPath3).dependsOn(common)
-val common2  = (project in commonPath2).dependsOn(common)
-val codegen  = (project in commonCodegenPath).dependsOn(common)
-val http4s   = (project in backendPath / "desu-video-http4s-scala2").dependsOn(common)
-val akkaHttp = (project in backendPath / "desu-video-akka-http").dependsOn(common3)
-val zio      = (project in backendPath / "desu-video-zio").dependsOn(common2)
-val test     = (project in backendPath / "desu-video-test").dependsOn(common3)
-val nodeTest = project in backendPath / "node-test"
-val gd       = project in backendPath / "grim-dawn"
-val finch    = project in backendPath / "desu-video-finch"
+val root        = project in rootPath
+val common      = project in commonPath
+val common3     = (project in commonPath3).dependsOn(common)
+val common2     = (project in commonPath2).dependsOn(common)
+val codegen     = (project in commonCodegenPath).dependsOn(common)
+val http4s      = (project in backendPath / "desu-video-http4s-scala2").dependsOn(common)
+val akkaHttp    = (project in backendPath / "desu-video-akka-http").dependsOn(common3)
+val zio         = (project in backendPath / "desu-video-zio").dependsOn(common2)
+val test        = (project in backendPath / "desu-video-test").dependsOn(common3)
+val nodeTest    = project in backendPath / "node-test"
+val gd          = project in backendPath / "grim-dawn"
+val finch       = project in backendPath / "desu-video-finch"
+val frontend    = crossProject(JSPlatform, JVMPlatform) in frontendPath
+val frontendJS  = frontend.js
+val frontendJVM = frontend.jvm
 
 val grun = inputKey[Unit]("grun")
 grun := (gd / Compile / run).evaluated
@@ -57,3 +61,5 @@ quillCodegen := (codegen / Compile / runMain)
 
 ThisBuild / djxScalafmtFile := rootPath / ".scalafmt_desu-video.conf"
 ThisBuild / djxBuildSbtFile := rootPath / "project" / "build.properties"
+
+enablePlugins(ScalaJSPlugin)

@@ -7,15 +7,17 @@ scalaVersion := scalaV.v213
 
 name := "desu-video-http4s"
 
-libraryDependencies ++= Dependencies.config
-libraryDependencies ++= Dependencies.simpleLogger
+libraryDependencies ++= libScalax.`typesafe-config`.value
+libraryDependencies ++= libScalax.`slf4j-simple`.value
 libraryDependencies ++= libScalax.`http4s-Release`.value
 libraryDependencies ++= Dependencies.cats
 libraryDependencies ++= Dependencies.macwire
-libraryDependencies ++= Dependencies.circe
+libraryDependencies ++= libScalax.circe.value
 libraryDependencies ++= Dependencies.zio2
 libraryDependencies ++= Dependencies.doobie
 libraryDependencies ++= Dependencies.macwire
-libraryDependencies ++=Dependencies.catsCPS
+libraryDependencies ++= Dependencies.catsCPS
 
 addCompilerPlugin(Dependencies.kindProjector)
+
+Compile / compile := ((Compile / compile) dependsOn (Compile / scalafmtSbt)).value
