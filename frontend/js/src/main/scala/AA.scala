@@ -5,6 +5,7 @@ import org.scalajs.dom._
 import html._
 import org.lrng.binding.html
 
+@JSExportTopLevel(name = "AA")
 object AA {
   case class Contact(name: Var[String], email: Var[String])
 
@@ -12,8 +13,8 @@ object AA {
   def bindingButton(contact: Contact): Binding[Button] = {
     <button
       onclick={ event: Event =>
-      contact.name.value = "Modified Name"
-    }
+        contact.name.value = "Modified Name"
+      }
     >
      Modify the name
     </button>
@@ -32,11 +33,11 @@ object AA {
   def bindingTable(contacts: BindingSeq[Contact]): Binding[Table] = {
     <table>
       <tbody>
-        ${
-      for (contact <- contacts) yield {
-        bindingTr(contact).bind
-      }
-    }
+        {
+          for (contact <- contacts) yield {
+            bindingTr(contact).bind
+          }
+        }
       </tbody>
     </table>
   }

@@ -41,7 +41,7 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
   }
 
   private val compatRoutes   = rootPathFiles <+> rootPathFile
-  val routes: HttpRoutes[IO] = Router("/" -> compatRoutes)
+  val routes: HttpRoutes[IO] = compatRoutes
 
 }
 

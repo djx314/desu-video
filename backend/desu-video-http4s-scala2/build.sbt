@@ -21,3 +21,10 @@ libraryDependencies ++= Dependencies.catsCPS
 addCompilerPlugin(Dependencies.kindProjector)
 
 Compile / compile := ((Compile / compile) dependsOn (Compile / scalafmtSbt)).value
+
+enablePlugins(SbtWeb)
+Assets / pipelineStages := Seq(scalaJSPipeline)
+Compile / compile       := ((Compile / compile) dependsOn scalaJSPipeline).value
+
+name    := "http4s"
+version := "0.0.1"

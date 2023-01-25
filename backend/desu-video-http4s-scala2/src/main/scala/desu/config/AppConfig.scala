@@ -36,7 +36,7 @@ class AppConfigBuilder(config: DesuConfig) {
   import org.http4s.Uri.Path.Segment
 
   def getEffect[F[_]: Sync]: F[AppConfig] = {
-    val FilePageRoot: Path = Root / Segment("api") / Segment("desu")
+    val FilePageRoot: Path = Root / Segment("desu")
 
     def rootPathImpl = Paths.get(config.desu.video.file.rootPath)
     val rootPathIO   = Sync[F].delay(rootPathImpl)

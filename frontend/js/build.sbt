@@ -6,4 +6,7 @@ libraryDependencies ++= libScalax.`binding.scala`.value
 
 scalacOptions += "-Ymacro-annotations"
 
-enablePlugins(ScalaJSPlugin)
+enablePlugins(ScalaJSPlugin, ScalaJSWeb)
+
+name    := "frontend"
+version := "0.0.1"
