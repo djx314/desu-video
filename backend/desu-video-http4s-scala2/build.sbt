@@ -28,3 +28,9 @@ Compile / compile       := ((Compile / compile) dependsOn scalaJSPipeline).value
 
 name    := "http4s"
 version := "0.0.1"
+
+val bb = inputKey[Unit]("hh")
+bb := {
+  reStart / mainClass := Option("desu.mainapp.AbcAppRun")
+  (Compile / reStart).inputTaskValue.evaluated
+}
