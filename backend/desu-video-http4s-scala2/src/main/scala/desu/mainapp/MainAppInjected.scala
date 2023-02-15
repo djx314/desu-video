@@ -11,18 +11,24 @@ import org.http4s._
 
 object MainAppInjected {
 
+  val aa: javax.sound.sampled.spi.FormatConversionProvider = null
+
   val appRoutes: Resource[IO, HttpRoutes[IO]] = DesuConfigBuilder.build
     .getResource[IO]
     .flatMap(implicit desuConfig =>
       AppConfig.build
         .getResource[IO]
         .flatMap(implicit appConf =>
-          DoobieDB.build.transactorResource[IO].map { implicit xa =>
-            implicit val fileService: FileService = FileService.build
-            implicit val fileFinder: FileFinder   = FileFinder.build
+          DoobieDB.build
+            .transactorResource[IO]
+            .flatMap(implicit xa =>
+              AbcAppRun.resource[IO].map { implicit mp3Context =>
+                implicit val fileService: FileService = FileService.build
+                implicit val fileFinder: FileFinder   = FileFinder.build
 
-            AppRoutes.build
-          }
+                AppRoutes.build
+              }
+            )
         )
     )
 

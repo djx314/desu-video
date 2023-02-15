@@ -1,23 +1,18 @@
 package desu.mainapp
 
-import com.comcast.ip4s._
-import cats.effect._
-import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.Router
-import org.http4s.server.staticcontent._
+import cats.effect.{IO => _, _}
+import cats.effect.implicits._
 import cats._
 import cats.implicits._
-import fs2.io.net.Network
-import org.http4s._
+import fs2._
 
-import java.io.ByteArrayInputStream
-import java.nio.file.{Files, Paths}
-import javax.sound.sampled.{AudioFileFormat, AudioFormat, AudioInputStream, AudioSystem, DataLine, TargetDataLine}
 import scala.util.Try
 
+import javax.sound.sampled.{AudioFileFormat, AudioFormat, AudioInputStream, AudioSystem, DataLine, Line, TargetDataLine}
+
 class AudioFormatForApp {
-  def getFormat = {
-    val sampleRate: Float = 48000 * 2
+  private def getFormatImpl = {
+    val sampleRate: Float = 48000
     // 8,16
     val sampleSizeInBits = 16
     // 1,2
@@ -26,49 +21,74 @@ class AudioFormatForApp {
     val signed = true
     // true,false
     val bigEndian = false
+    val frameSize = 20
+    val frameRate = 48000
     // end getAudioFormat
     new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian)
+    /*new AudioFormat(
+      AudioFormat.Encoding.PCM_SIGNED,
+      sampleRate,
+      sampleSizeInBits,
+      channels,
+      frameSize,
+      frameRate,
+      bigEndian
+    )*/
   }
 
-  val format: Resource[IO, AudioFormat] = Resource.eval(IO.blocking(getFormat))
+  def format[F[_]: Sync]: Resource[F, AudioFormat] = Resource.eval(Sync[F].blocking(getFormatImpl))
 }
 
 object AudioFormatForApp {
   def build: AudioFormatForApp = new AudioFormatForApp
 }
 
-class AudioResource(val format: AudioFormat, val line: TargetDataLine) {
-  val action = IO.blocking {
-    val intLong: Int       = 8000000
-    val array: Array[Byte] = new Array(intLong)
-    line.read(array, 0, array.length)
-    val input = new AudioInputStream(new ByteArrayInputStream(array), format, intLong)
-    AudioSystem.write(input, AudioFileFormat.Type.WAVE, Paths.get("f:", s"bb${math.random()}.mp3").toFile)
+class AudioResource(line: TargetDataLine) {
+
+  def resource[F[_]: Sync] = {
+    def r = new AudioInputStream(line)
+    Resource.fromAutoCloseable(Sync[F].blocking(r))
   }
+
+}
+object AudioResource {
+  def build(implicit line: TargetDataLine): AudioResource = new AudioResource(line = implicitly)
+}
+
+class AAb(input: AudioInputStream) {
+  def action[F[_]: Async]: Stream[F, Byte] = {
+
+    fs2.io.readOutputStream(100)(out => Sync[F].blocking(AudioSystem.write(input, AudioFileFormat.Type.WAVE, out)))
+  }
+
+}
+
+object AAb {
+  def build(implicit input: AudioInputStream): AAb = new AAb(implicitly)
 }
 
 class AudioResourceImpl(format: AudioFormat) {
 
-  def startAction(t: TargetDataLine): Try[Boolean] = Try {
+  private def startAction(t: TargetDataLine): Try[Boolean] = Try {
     t.open(format)
     t.start()
     true
   }
 
-  def startActionResources(t: TargetDataLine): IO[Boolean] = for {
-    tryAction <- IO.blocking(startAction(t))
-    a         <- IO.fromTry(tryAction)
+  private def startActionResources[F[_]: Sync](t: TargetDataLine): F[Boolean] = for {
+    tryAction <- Sync[F].blocking(startAction(t))
+    a         <- ApplicativeError[F, Throwable].fromTry(tryAction)
   } yield a
 
-  def withDataLine(dataLine: DataLine.Info): Resource[IO, TargetDataLine] = {
-    val createAction = IO.blocking(AudioSystem.getLine(dataLine).asInstanceOf[TargetDataLine])
+  private def withDataLine[F[_]: Sync](dataLine: Line.Info): Resource[F, TargetDataLine] = {
+    val createAction = Sync[F].blocking(AudioSystem.getLine(dataLine).asInstanceOf[TargetDataLine])
     Resource.fromAutoCloseable(createAction)
   }
 
-  val audioResource: Resource[IO, TargetDataLine] = {
-    val dataLineInfo: IO[DataLine.Info] = IO.blocking(new DataLine.Info(classOf[TargetDataLine], format))
+  def audioResource[F[_]: Sync]: Resource[F, TargetDataLine] = {
+    val dataLineInfo: F[Line.Info] = Sync[F].blocking(new DataLine.Info(classOf[TargetDataLine], format))
 
-    val targetDataLineResourceImpl: Resource[IO, TargetDataLine] = for {
+    val targetDataLineResourceImpl: Resource[F, TargetDataLine] = for {
       eachData <- Resource.eval(dataLineInfo)
       r2       <- withDataLine(eachData)
     } yield r2
@@ -84,20 +104,13 @@ class AudioResourceImpl(format: AudioFormat) {
   }
 }
 
-object AudioResource {
-  def build(implicit format: AudioFormat, line: TargetDataLine): AudioResource = new AudioResource(format = implicitly, line = implicitly)
-}
-
 object AudioResourceImpl {
   def build(implicit v: AudioFormat): AudioResourceImpl = new AudioResourceImpl(format = implicitly)
 }
 
-object AbcAppRun extends IOApp {
-  val resource =
-    AudioFormatForApp.build.format.flatMap(implicit t => AudioResourceImpl.build.audioResource.map(implicit v => AudioResource.build))
-
-  val action = resource.use(_.action)
-
-  override def run(args: List[String]): IO[ExitCode] = (action >> action >> action).as(ExitCode.Success)
-
+object AbcAppRun {
+  def resource[F[_]: Sync]: Resource[F, AAb] =
+    AudioFormatForApp.build.format.flatMap(implicit t =>
+      AudioResourceImpl.build.audioResource.flatMap(implicit v => AudioResource.build.resource.map(implicit input => AAb.build))
+    )
 }
