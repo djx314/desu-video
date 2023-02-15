@@ -18,6 +18,12 @@ libraryDependencies ++= Dependencies.doobie
 libraryDependencies ++= Dependencies.macwire
 libraryDependencies ++= Dependencies.catsCPS
 
+resolvers += "jitpack" at "https://jitpack.io"
+resolvers += "rescarta" at "https://software.rescarta.org/nexus/content/repositories/thirdparty/"
+libraryDependencies += "org.tritonus"         % "tritonus-share"     % "0.3.6"
+libraryDependencies += "org.tritonus"         % "tritonus-remaining" % "0.3.6"
+libraryDependencies += ("com.github.umjammer" % "mp3spi"             % "1.9.8").exclude("org.tritonus", "*")
+
 addCompilerPlugin(Dependencies.kindProjector)
 
 Compile / compile := ((Compile / compile) dependsOn (Compile / scalafmtSbt)).value

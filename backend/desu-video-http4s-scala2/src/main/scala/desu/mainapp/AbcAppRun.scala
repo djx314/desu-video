@@ -25,15 +25,6 @@ class AudioFormatForApp {
     val frameRate = 48000
     // end getAudioFormat
     new AudioFormat(sampleRate, sampleSizeInBits, channels, signed, bigEndian)
-    /*new AudioFormat(
-      AudioFormat.Encoding.PCM_SIGNED,
-      sampleRate,
-      sampleSizeInBits,
-      channels,
-      frameSize,
-      frameRate,
-      bigEndian
-    )*/
   }
 
   def format[F[_]: Sync]: Resource[F, AudioFormat] = Resource.eval(Sync[F].blocking(getFormatImpl))
@@ -45,7 +36,7 @@ object AudioFormatForApp {
 
 class AudioResource(line: TargetDataLine) {
 
-  def resource[F[_]: Sync] = {
+  def resource[F[_]: Sync]: Resource[F, AudioInputStream] = {
     def r = new AudioInputStream(line)
     Resource.fromAutoCloseable(Sync[F].blocking(r))
   }
@@ -57,10 +48,8 @@ object AudioResource {
 
 class AAb(input: AudioInputStream) {
   def action[F[_]: Async]: Stream[F, Byte] = {
-
-    fs2.io.readOutputStream(100)(out => Sync[F].blocking(AudioSystem.write(input, AudioFileFormat.Type.WAVE, out)))
+    io.readOutputStream(100)(out => Sync[F].blocking(AudioSystem.write(input, AudioFileFormat.Type.WAVE, out)))
   }
-
 }
 
 object AAb {
@@ -85,23 +74,21 @@ class AudioResourceImpl(format: AudioFormat) {
     Resource.fromAutoCloseable(createAction)
   }
 
-  def audioResource[F[_]: Sync]: Resource[F, TargetDataLine] = {
-    val dataLineInfo: F[Line.Info] = Sync[F].blocking(new DataLine.Info(classOf[TargetDataLine], format))
+  private def dataLineInfo[F[_]: Sync]: F[Line.Info] = Sync[F].blocking(new DataLine.Info(classOf[TargetDataLine], format))
 
-    val targetDataLineResourceImpl: Resource[F, TargetDataLine] = for {
-      eachData <- Resource.eval(dataLineInfo)
-      r2       <- withDataLine(eachData)
-    } yield r2
+  private def targetDataLineResourceImpl[F[_]: Sync]: Resource[F, TargetDataLine] = for {
+    eachData <- Resource.eval(dataLineInfo)
+    r2       <- withDataLine(eachData)
+  } yield r2
 
-    for {
-      t <- targetDataLineResourceImpl
-      u <- Resource.eval(startActionResources(t))
-    } yield {
-      u: Boolean
-      t
-    }
-
+  def audioResource[F[_]: Sync]: Resource[F, TargetDataLine] = for {
+    t <- targetDataLineResourceImpl
+    u <- Resource.eval(startActionResources(t))
+  } yield {
+    u: Boolean
+    t
   }
+
 }
 
 object AudioResourceImpl {
