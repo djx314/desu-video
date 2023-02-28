@@ -15,8 +15,9 @@ object GDModule extends ModuleDef {
   make[GDSystemUtils]
   make[ImageUtils]
   make[AppConfig]
-  make[ImageMatcherEnv].from { appConfig: AppConfig =>
-    appConfig.imgMatch
+  make[ImageMatcherEnv].from {
+    appConfig: AppConfig =>
+      appConfig.imgMatch
   }
   make[ActorSystem[WebAppListener.GoHomeKey]].fromResource {
     val actorManaged =

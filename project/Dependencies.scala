@@ -13,7 +13,6 @@ object Dependencies {
     val catsEffect2      = "2.5.4"
     val kindProjector    = "0.13.2"
     val scalatest        = "3.2.12"
-    val macwire          = "2.5.7"
     val mysql            = "8.0.29"
     val slick            = "3.4.0-M1"
     val sttp             = "3.6.2"
@@ -65,12 +64,6 @@ object Dependencies {
 
   val cats  = List("org.typelevel" %% "cats-effect" % versions.catsEffect)
   val cats2 = List("org.typelevel" %% "cats-effect" % versions.catsEffect2)
-
-  val macwire = List(
-    "com.softwaremill.macwire" %% "macros" % versions.macwire % "provided",
-    "com.softwaremill.macwire" %% "util"   % versions.macwire,
-    "com.softwaremill.macwire" %% "proxy"  % versions.macwire
-  )
 
   val pureconfig = List("com.github.pureconfig" %% "pureconfig" % versions.pureconfig)
 

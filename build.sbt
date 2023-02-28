@@ -1,31 +1,35 @@
 org.scalax.sbt.CustomSettings.scala213Config
-org.scalax.sbt.CustomSettings.fmtConfig
 
 scalaVersion := scalaV.v213
 
+scalafmtOnCompile := true
+
 name := "desu-video"
 
-val rootPath          = file(".").getCanonicalFile
-val backendPath       = rootPath / "backend"
-val frontendPath      = rootPath / "frontend"
-val commonPath        = backendPath / "desu-video-common"
-val commonPath3       = backendPath / "desu-video-common3"
-val commonPath2       = backendPath / "desu-video-common2"
-val commonCodegenPath = backendPath / "desu-video-codegen"
+val `root/file`     = file(".").getCanonicalFile
+val `backend/file`  = `root/file` / "backend"
+val `frontend/file` = `root/file` / "frontend"
 
-val root             = project in rootPath
-val common           = project in commonPath
-val common3          = (project in commonPath3).dependsOn(common)
-val common2          = (project in commonPath2).dependsOn(common)
-val codegen          = (project in commonCodegenPath).dependsOn(common)
-lazy val http4s      = (project in backendPath / "desu-video-http4s-scala2").dependsOn(common).settings(scalaJSProjects := Seq(frontendJS))
-val akkaHttp         = (project in backendPath / "desu-video-akka-http").dependsOn(common3)
-val zio              = (project in backendPath / "desu-video-zio").dependsOn(common2)
-val test             = (project in backendPath / "desu-video-test").dependsOn(common3)
-val nodeTest         = project in backendPath / "node-test"
-val gd               = project in backendPath / "grim-dawn"
-val finch            = project in backendPath / "desu-video-finch"
-lazy val frontend    = crossProject(JSPlatform, JVMPlatform) in frontendPath
+val `common/file` = `backend/file` / "desu-video-common"
+val common        = project in `common/file`
+
+val `common3/file` = `backend/file` / "desu-video-common3"
+val common3        = (project in `common3/file`).dependsOn(common)
+
+val `common2/file` = `backend/file` / "desu-video-common2"
+val common2        = (project in `common2/file`).dependsOn(common)
+
+val `codegen/file` = `backend/file` / "desu-video-codegen"
+val codegen        = (project in `codegen/file`).dependsOn(common)
+
+lazy val http4s   = (project in `backend/file` / "desu-video-http4s-scala2").dependsOn(common).settings(scalaJSProjects := Seq(frontendJS))
+val akkaHttp      = (project in `backend/file` / "desu-video-akka-http").dependsOn(common3)
+val zio           = (project in `backend/file` / "desu-video-zio").dependsOn(common2)
+val test          = (project in `backend/file` / "desu-video-test").dependsOn(common3)
+val nodeTest      = project in `backend/file` / "node-test"
+val gd            = project in `backend/file` / "grim-dawn"
+val finch         = project in `backend/file` / "desu-video-finch"
+lazy val frontend = crossProject(JSPlatform, JVMPlatform) in `frontend/file`
 lazy val frontendJS  = frontend.js
 lazy val frontendJVM = frontend.jvm
 
@@ -50,18 +54,13 @@ krun := (akkaHttp / Compile / run).evaluated
 val slickCodegen = inputKey[Unit]("slickCodegen")
 slickCodegen := (codegen / Compile / runMain)
   .partialInput(s" desu.video.common.slick.codegen.MysqlDesuVideoCodegen")
-  .partialInput(s" ${commonPath2.getAbsolutePath}")
+  .partialInput(s" ${`common2/file`.getAbsolutePath}")
   .evaluated
 
 val quillCodegen = inputKey[Unit]("quillCodegen")
 quillCodegen := (codegen / Compile / runMain)
   .partialInput(s" desu.video.common.quill.codegen.MysqlDesuQuillVideoCodegen")
-  .partialInput(s" ${commonPath3.getAbsolutePath}")
+  .partialInput(s" ${`common3/file`.getAbsolutePath}")
   .evaluated
-
-
-enablePlugins(ScalaJSPlugin)
-
-
 
 Global / onChangedBuildSource := ReloadOnSourceChanges

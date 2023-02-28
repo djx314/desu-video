@@ -1,7 +1,10 @@
 import org.scalax.sbt.Dependencies
 
 org.scalax.sbt.CustomSettings.scala3Config
-org.scalax.sbt.CustomSettings.fmtConfig
+
+scalaVersion := scalaV.v3
+
+scalafmtOnCompile := true
 
 name       := "desu-video-common3"
 moduleName := "desu-video-common3"

@@ -1,14 +1,12 @@
 package desu.config
 
-import desu.models
 import desu.models._
-
 import cats.effect._
 import cats._
+import cats.effect.kernel.Resource
 import cats.implicits._
-import java.nio.file.{Path => JPath, Paths}
 
-import doobie.hikari._
+import java.nio.file.{Path => JPath, Paths => JPaths}
 
 import scala.concurrent.ExecutionContext
 
@@ -35,16 +33,16 @@ class AppConfigBuilder(config: DesuConfig) {
   import org.http4s.dsl.io.{Path, Root}
   import org.http4s.Uri.Path.Segment
 
-  def getEffect[F[_]: Sync]: F[AppConfig] = {
-    val FilePageRoot: Path = Root / Segment("desu")
+  val FilePageRoot: Path = Root / Segment("desu")
 
-    def rootPathImpl = Paths.get(config.desu.video.file.rootPath)
+  def getEffect[F[_]: Sync]: F[AppConfig] = {
+    def rootPathImpl = JPaths.get(config.desu.video.file.rootPath)
     val rootPathIO   = Sync[F].delay(rootPathImpl)
 
     for (rootPath <- rootPathIO) yield new AppConfig(rootPath = rootPath, FilePageRoot = FilePageRoot)
   }
 
-  def getResource[F[_]: Async]: Resource[F, AppConfig] = Resource.eval(getEffect)
+  def getResource[F[_]: Sync]: Resource[F, AppConfig] = Resource.eval(getEffect)
 }
 
 class AppConfig(val rootPath: JPath, val FilePageRoot: org.http4s.dsl.io.Path)
@@ -55,22 +53,24 @@ object AppConfig {
 
 class DoobieDB(config: DesuConfig) {
   import doobie._
+  import doobie.hikari._
   import doobie.implicits._
 
-  def transactorResource[F[_]: Async]: Resource[F, Transactor[F]] = {
-    val dsConfig = config.mysqlDesuQuillDB.dataSource
-    def fromExecContext(ce: ExecutionContext) = HikariTransactor.newHikariTransactor[F](
+  private val dsConfig: DesuDataSource = config.mysqlDesuQuillDB.dataSource
+
+  private def fromExecContext[F[_]: Async](ce: ExecutionContext): Resource[F, HikariTransactor[F]] =
+    HikariTransactor.newHikariTransactor[F](
       driverClassName = dsConfig.driverClassName, // driver classname
       url = dsConfig.jdbcUrl,                     // connect URL
       user = dsConfig.username,                   // username
       pass = dsConfig.password,                   // password
       ce                                          // await connection here
     )
-    for {
-      ce <- ExecutionContexts.fixedThreadPool[F](32)
-      xa <- fromExecContext(ce)
-    } yield xa
-  }
+
+  def transactorResource[F[_]: Async]: Resource[F, Transactor[F]] = for {
+    ce <- ExecutionContexts.fixedThreadPool[F](32)
+    xa <- fromExecContext(ce)
+  } yield xa
 }
 
 object DoobieDB {

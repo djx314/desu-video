@@ -2,7 +2,7 @@ addSbtPlugin("org.scalameta"         % "sbt-scalafmt"     % "2.4.6")
 addSbtPlugin("io.spray"              % "sbt-revolver"     % "0.9.1")
 addSbtPlugin("io.github.davidmweber" % "flyway-sbt"       % "7.4.0")
 addSbtPlugin("com.typesafe.play"     % "sbt-twirl"        % "1.6.0-RC1")
-addSbtPlugin("net.scalax.djx314"            % "sbt-depts-djx314" % "0.0.1-M334")
+addSbtPlugin("net.scalax.djx314"     % "sbt-depts-djx314" % "0.0.1-M334")
 
 addSbtPlugin("org.portable-scala"                % "sbt-scalajs-crossproject" % "1.2.0")
 addSbtPlugin("org.scala-js"                      % "sbt-scalajs"              % "1.12.0")

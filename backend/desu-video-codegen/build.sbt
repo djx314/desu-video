@@ -1,9 +1,9 @@
 import org.scalax.sbt.Dependencies
 
 org.scalax.sbt.CustomSettings.scala213Config
-org.scalax.sbt.CustomSettings.fmtConfig
 
-scalaVersion := scalaV.v213
+scalaVersion      := scalaV.v213
+scalafmtOnCompile := true
 
 name       := "desu-video-codegen"
 moduleName := "desu-video-codegen"
@@ -20,5 +20,3 @@ libraryDependencies ++= Dependencies.slick
 
 libraryDependencies ++= Dependencies.quill map (_ exclude ("org.scala-lang.modules", s"scala-java8-compat_${CrossVersion.binaryScalaVersion(scalaVersion.value)}"))
 libraryDependencies += Dependencies.scalaReflect(scalaVersion.value)
-
-

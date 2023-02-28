@@ -1,15 +1,15 @@
 import org.scalax.sbt.Dependencies
 
 org.scalax.sbt.CustomSettings.scala213Config
-org.scalax.sbt.CustomSettings.fmtConfig
+
 enablePlugins(SbtTwirl)
 
-scalaVersion := scalaV.v213
-
-name := "grim-dawn"
+scalaVersion      := scalaV.v213
+scalafmtOnCompile := true
+name              := "grim-dawn"
 
 libraryDependencies ++= Dependencies.akkaHttp
-libraryDependencies ++= Dependencies.macwire
+libraryDependencies ++= libScalax.macwire.value
 libraryDependencies ++= Dependencies.scalatest
 libraryDependencies ++= libScalax.`slf4j-simple`.value
 libraryDependencies += Dependencies.jintellitype

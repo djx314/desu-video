@@ -1,7 +1,7 @@
 org.scalax.sbt.CustomSettings.scala213Config
-org.scalax.sbt.CustomSettings.fmtConfig
 
-scalaVersion := scalaV.v213
+scalaVersion      := scalaV.v213
+scalafmtOnCompile := true
 
 name := "node-test"
 
