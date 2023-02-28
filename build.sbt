@@ -59,11 +59,9 @@ quillCodegen := (codegen / Compile / runMain)
   .partialInput(s" ${commonPath3.getAbsolutePath}")
   .evaluated
 
-ThisBuild / djxScalafmtFile := rootPath / ".scalafmt_desu-video.conf"
-ThisBuild / djxBuildSbtFile := rootPath / "project" / "build.properties"
 
 enablePlugins(ScalaJSPlugin)
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
 
-resolvers += "umjammer" at "https://maven.pkg.github.com/umjammer/mp3spi"
+
+Global / onChangedBuildSource := ReloadOnSourceChanges
