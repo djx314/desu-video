@@ -1,12 +1,10 @@
-scalaVersion := "2.13.8"
+scalaVersion := scalaV.v213
 
-Compile / compile := ((Compile / compile) dependsOn (Compile / scalafmtSbt)).value
+org.scalax.sbt.CustomSettings.scala213Config
 
 libraryDependencies ++= libScalax.`binding.scala`.value
 
 scalacOptions += "-Ymacro-annotations"
-
-enablePlugins(ScalaJSPlugin, ScalaJSWeb)
 
 name    := "frontend"
 version := "0.0.1"

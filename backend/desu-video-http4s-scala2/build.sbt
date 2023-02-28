@@ -26,8 +26,5 @@ libraryDependencies += "org.tritonus"         % "tritonus-share"     % "0.3.6"
 libraryDependencies += "org.tritonus"         % "tritonus-remaining" % "0.3.6"
 libraryDependencies += ("com.github.umjammer" % "mp3spi"             % "1.9.8").exclude("org.tritonus", "*")
 
-Assets / pipelineStages := Seq(scalaJSPipeline)
-Compile / compile       := ((Compile / compile) dependsOn scalaJSPipeline).value
-
 name    := "http4s"
 version := "0.0.1"

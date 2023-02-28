@@ -19,7 +19,6 @@ libraryDependencies ++= Dependencies.scalafx
 libraryDependencies += Dependencies.distage
 libraryDependencies ++= Dependencies.cats2
 libraryDependencies += Dependencies.zio
-
-addCompilerPlugin(Dependencies.kindProjector)
+libraryDependencies ++= libScalax.`kind-projector`.value
 
 run / fork := true

@@ -22,16 +22,19 @@ val common2        = (project in `common2/file`).dependsOn(common)
 val `codegen/file` = `backend/file` / "desu-video-codegen"
 val codegen        = (project in `codegen/file`).dependsOn(common)
 
-lazy val http4s   = (project in `backend/file` / "desu-video-http4s-scala2").dependsOn(common).settings(scalaJSProjects := Seq(frontendJS))
-val akkaHttp      = (project in `backend/file` / "desu-video-akka-http").dependsOn(common3)
-val zio           = (project in `backend/file` / "desu-video-zio").dependsOn(common2)
-val test          = (project in `backend/file` / "desu-video-test").dependsOn(common3)
-val nodeTest      = project in `backend/file` / "node-test"
-val gd            = project in `backend/file` / "grim-dawn"
-val finch         = project in `backend/file` / "desu-video-finch"
-lazy val frontend = crossProject(JSPlatform, JVMPlatform) in `frontend/file`
+lazy val http4s = (project in `backend/file` / "desu-video-http4s-scala2").dependsOn(common)
+val akkaHttp    = (project in `backend/file` / "desu-video-akka-http").dependsOn(common3)
+val zio         = (project in `backend/file` / "desu-video-zio").dependsOn(common2)
+val test        = (project in `backend/file` / "desu-video-test").dependsOn(common3)
+val nodeTest    = project in `backend/file` / "node-test"
+val gd          = project in `backend/file` / "grim-dawn"
+val finch       = project in `backend/file` / "desu-video-finch"
+
+lazy val frontend    = crossProject(JSPlatform, JVMPlatform) in `frontend/file`
 lazy val frontendJS  = frontend.js
 lazy val frontendJVM = frontend.jvm
+
+http4s / scalaJSProjects := Seq(frontendJS)
 
 val grun = inputKey[Unit]("grun")
 grun := (gd / Compile / run).evaluated

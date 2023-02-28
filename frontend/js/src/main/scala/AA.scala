@@ -7,6 +7,7 @@ import org.lrng.binding.html
 
 @JSExportTopLevel(name = "AA")
 object AA {
+
   case class Contact(name: Var[String], email: Var[String])
 
   @html
@@ -43,8 +44,8 @@ object AA {
   }
 
   @JSExport
-  def main(): Unit = {
+  def main(node: Node): Unit = {
     val data = Vars(Contact(Var("Yang Bo"), Var("yang.bo@rea-group.com")))
-    html.render(document.body, bindingTable(data))
+    html.render(node, bindingTable(data))
   }
 }
