@@ -17,8 +17,10 @@ libraryDependencies ++= libScalax.circe.value
 libraryDependencies ++= libScalax.zio2.value
 libraryDependencies ++= libScalax.`zio-config`.value
 libraryDependencies ++= libScalax.doobie.value
-libraryDependencies ++= Dependencies.catsCPS
+libraryDependencies ++= libScalax.`cats-effect-cps`.value
 libraryDependencies ++= libScalax.`kind-projector`.value
+libraryDependencies ++= libScalax.scalatest.value
+libraryDependencies ++= libScalax.`http4s-twirl`.value
 
 resolvers += "jitpack" at "https://jitpack.io"
 resolvers += "rescarta" at "https://software.rescarta.org/nexus/content/repositories/thirdparty/"
@@ -28,3 +30,5 @@ libraryDependencies += ("com.github.umjammer" % "mp3spi"             % "1.9.8").
 
 name    := "http4s"
 version := "0.0.1"
+
+enablePlugins(SbtTwirl)

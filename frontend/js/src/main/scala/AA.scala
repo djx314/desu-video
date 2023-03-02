@@ -13,9 +13,10 @@ object AA {
   @html
   def bindingButton(contact: Contact): Binding[Button] = {
     <button
-      onclick={ event: Event =>
+      onclick={
+      event: Event =>
         contact.name.value = "Modified Name"
-      }
+    }
     >
      Modify the name
     </button>
@@ -24,9 +25,9 @@ object AA {
   @html
   def bindingTr(contact: Contact): Binding[TableRow] = {
     <tr>
-      <td>{ contact.name.bind }</td>
-      <td>{ contact.email.bind }</td>
-      <td>{ bindingButton(contact).bind }</td>
+      <td>{contact.name.bind}</td>
+      <td>{contact.email.bind}</td>
+      <td>{bindingButton(contact).bind}</td>
     </tr>
   }
 
@@ -35,10 +36,10 @@ object AA {
     <table>
       <tbody>
         {
-          for (contact <- contacts) yield {
-            bindingTr(contact).bind
-          }
-        }
+      for (contact <- contacts) yield {
+        bindingTr(contact).bind
+      }
+    }
       </tbody>
     </table>
   }

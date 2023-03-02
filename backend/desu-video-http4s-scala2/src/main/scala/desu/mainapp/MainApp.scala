@@ -19,7 +19,7 @@ object MainApp extends IOApp {
 
   val serverResource = for {
     routesApp <- MainAppInjected.appRoutes
-    server    <- serverBuilding[IO].withHttpApp((assetsRoutes[IO] <+> webjars[IO] <+> Router("api" -> routesApp)).orNotFound).build
+    server    <- serverBuilding[IO].withHttpApp((assetsRoutes[IO] <+> webjars[IO] <+> routesApp).orNotFound).build
   } yield server
 
   override def run(args: List[String]): IO[ExitCode] = serverResource.useForever.as(ExitCode.Success)

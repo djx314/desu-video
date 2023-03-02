@@ -1,13 +1,14 @@
 package desu.mainapp
 
 import desu.config._
-import desu.routes.AppRoutes
+import desu.routes.{AppRoutes, StaticPageRoutes}
 import desu.service._
 import cats.implicits._
 import cats.effect._
 import cats._
 import cats.effect.implicits._
 import org.http4s._
+import org.http4s.server.Router
 
 object MainAppInjected {
 
@@ -26,7 +27,7 @@ object MainAppInjected {
                 implicit val fileService: FileService = FileService.build
                 implicit val fileFinder: FileFinder   = FileFinder.build
 
-                AppRoutes.build
+                Router(appConf.FilePageRoot -> AppRoutes.build) <+> Router(appConf.PageRoot -> StaticPageRoutes.build)
               }
             )
         )

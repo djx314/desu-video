@@ -8,3 +8,5 @@ scalacOptions += "-Ymacro-annotations"
 
 name    := "frontend"
 version := "0.0.1"
+
+scalafmtOnCompile := true

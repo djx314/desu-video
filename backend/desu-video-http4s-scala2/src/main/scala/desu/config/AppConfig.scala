@@ -33,19 +33,20 @@ class AppConfigBuilder(config: DesuConfig) {
   import org.http4s.dsl.io.{Path, Root}
   import org.http4s.Uri.Path.Segment
 
-  val FilePageRoot: Path = Root / Segment("desu")
+  val FilePageRoot: String = "desu"
+  val PageRoot: String     = "desu"
 
   def getEffect[F[_]: Sync]: F[AppConfig] = {
     def rootPathImpl = JPaths.get(config.desu.video.file.rootPath)
     val rootPathIO   = Sync[F].delay(rootPathImpl)
 
-    for (rootPath <- rootPathIO) yield new AppConfig(rootPath = rootPath, FilePageRoot = FilePageRoot)
+    for (rootPath <- rootPathIO) yield new AppConfig(rootPath = rootPath, FilePageRoot = FilePageRoot, PageRoot = PageRoot)
   }
 
   def getResource[F[_]: Sync]: Resource[F, AppConfig] = Resource.eval(getEffect)
 }
 
-class AppConfig(val rootPath: JPath, val FilePageRoot: org.http4s.dsl.io.Path)
+class AppConfig(val rootPath: JPath, val FilePageRoot: String, val PageRoot: String)
 
 object AppConfig {
   def build(implicit config: DesuConfig): AppConfigBuilder = new AppConfigBuilder(implicitly)

@@ -16,13 +16,13 @@ import desu.models._
 import doobie._
 import org.http4s.headers._
 
-class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: AppConfig, mp3Context: AAb) {
+import java.util.UUID
 
-  private val DRoot = appConfig.FilePageRoot
+class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: AppConfig, mp3Context: AAb) {
 
   private implicit def jsonOfEncoder: EntityDecoder[IO, RootFileNameRequest] = jsonOf
 
-  val rootPathFiles = HttpRoutes.of[IO] { case GET -> DRoot / "rootPathFiles" =>
+  val rootPathFiles = HttpRoutes.of[IO] { case GET -> Root / "rootPathFiles" =>
     val action = for {
       s    <- fileFinder.rootPathFiles
       data <- IO(DesuResult.data(isSucceed = true, s))
@@ -32,7 +32,7 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
     action.onError(s => IO.blocking(s.printStackTrace))
   }
 
-  val rootPathFile = HttpRoutes.of[IO] { case req @ POST -> DRoot / "rootPathFile" =>
+  val rootPathFile = HttpRoutes.of[IO] { case req @ POST -> Root / "rootPathFile" =>
     val action = for {
       model <- req.as[RootFileNameRequest]
       s     <- fileService.rootPathRequestFileId(model.fileName)
@@ -42,7 +42,7 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
     action.onError(s => IO.blocking(s.printStackTrace))
   }
 
-  val htmlPage = HttpRoutes.of[IO] { case req @ GET -> DRoot / "aaaa.html" =>
+  val htmlPage = HttpRoutes.of[IO] { case req @ GET -> Root / "aaaa.html" =>
     Ok(
       """
         |<!DOCTYPE html>
@@ -66,7 +66,7 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
     )
   }
 
-  val newPathFile = HttpRoutes.of[IO] { case req @ GET -> DRoot / "uu.wav" =>
+  val newPathFile = HttpRoutes.of[IO] { case req @ GET -> Root / "uu.wav" =>
     Ok(mp3Context.action[IO], Headers(`Content-Type`(MediaType.audio.wav)))
   }
 
