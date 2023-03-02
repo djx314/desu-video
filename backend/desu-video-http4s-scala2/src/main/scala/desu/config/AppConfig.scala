@@ -5,9 +5,11 @@ import cats.effect._
 import cats._
 import cats.effect.kernel.Resource
 import cats.implicits._
+import org.http4s.HttpRoutes
+import org.http4s.server.Router
+import org.http4s.server.staticcontent.{resourceServiceBuilder, webjarServiceBuilder}
 
 import java.nio.file.{Path => JPath, Paths => JPaths}
-
 import scala.concurrent.ExecutionContext
 
 class DesuConfigBuilder {
@@ -30,23 +32,29 @@ object DesuConfigBuilder {
 }
 
 class AppConfigBuilder(config: DesuConfig) {
-  import org.http4s.dsl.io.{Path, Root}
-  import org.http4s.Uri.Path.Segment
-
-  val FilePageRoot: String = "desu"
-  val PageRoot: String     = "desu"
+  val APIRoot: String     = "desu"
+  val APPRoot: String     = "desu"
+  val webjarsRoot: String = "webjars"
+  val assertsRoot: String = "app"
 
   def getEffect[F[_]: Sync]: F[AppConfig] = {
     def rootPathImpl = JPaths.get(config.desu.video.file.rootPath)
     val rootPathIO   = Sync[F].delay(rootPathImpl)
 
-    for (rootPath <- rootPathIO) yield new AppConfig(rootPath = rootPath, FilePageRoot = FilePageRoot, PageRoot = PageRoot)
+    for (rootPath <- rootPathIO)
+      yield new AppConfig(
+        rootPath = rootPath,
+        APIRoot = APIRoot,
+        APPRoot = APPRoot,
+        WebjarsRoot = webjarsRoot,
+        AssertsRoot = assertsRoot
+      )
   }
 
   def getResource[F[_]: Sync]: Resource[F, AppConfig] = Resource.eval(getEffect)
 }
 
-class AppConfig(val rootPath: JPath, val FilePageRoot: String, val PageRoot: String)
+class AppConfig(val rootPath: JPath, val APIRoot: String, val APPRoot: String, val WebjarsRoot: String, val AssertsRoot: String)
 
 object AppConfig {
   def build(implicit config: DesuConfig): AppConfigBuilder = new AppConfigBuilder(implicitly)
@@ -76,4 +84,15 @@ class DoobieDB(config: DesuConfig) {
 
 object DoobieDB {
   def build(implicit config: DesuConfig): DoobieDB = new DoobieDB(implicitly)
+}
+
+class AssertsHandle(appConfig: AppConfig) {
+  private def webjars[F[_]: Async]: HttpRoutes[F]      = Router(appConfig.WebjarsRoot -> webjarServiceBuilder[F].toRoutes)
+  private def assetsRoutes[F[_]: Async]: HttpRoutes[F] = Router(appConfig.AssertsRoot -> resourceServiceBuilder[F]("/assets").toRoutes)
+
+  def staticRoutes[F[_]: Async]: HttpRoutes[F] = webjars <+> assetsRoutes
+}
+
+object AssertsHandle {
+  def build(implicit appConfig: AppConfig): AssertsHandle = new AssertsHandle(implicitly)
 }

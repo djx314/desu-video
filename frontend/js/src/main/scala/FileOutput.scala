@@ -4,6 +4,7 @@ import org.lrng.binding.html
 import org.scalajs.dom._
 import org.scalajs.dom.html._
 
+import scala.collection.mutable.ListBuffer
 import scala.scalajs.js.annotation._
 
 @JSExportTopLevel(name = "FileOutput")

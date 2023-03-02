@@ -27,7 +27,10 @@ object MainAppInjected {
                 implicit val fileService: FileService = FileService.build
                 implicit val fileFinder: FileFinder   = FileFinder.build
 
-                Router(appConf.FilePageRoot -> AppRoutes.build) <+> Router(appConf.PageRoot -> StaticPageRoutes.build)
+                val router1: HttpRoutes[IO] = Router(implicitly[AppConfig].APIRoot -> AppRoutes.build)
+                val router2: HttpRoutes[IO] = Router(implicitly[AppConfig].APPRoot -> StaticPageRoutes.build.routes)
+                val router3: HttpRoutes[IO] = Router(implicitly[AppConfig].APPRoot -> AssertsHandle.build.staticRoutes)
+                router1 <+> router2 <+> router3
               }
             )
         )
