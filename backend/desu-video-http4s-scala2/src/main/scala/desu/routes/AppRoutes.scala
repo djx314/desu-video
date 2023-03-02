@@ -16,8 +16,6 @@ import desu.models._
 import doobie._
 import org.http4s.headers._
 
-import java.util.UUID
-
 class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: AppConfig, mp3Context: AAb) {
 
   private implicit def jsonOfEncoder: EntityDecoder[IO, RootFileNameRequest] = jsonOf
@@ -70,12 +68,11 @@ class AppRoutes(fileFinder: FileFinder, fileService: FileService, appConfig: App
     Ok(mp3Context.action[IO], Headers(`Content-Type`(MediaType.audio.wav)))
   }
 
-  private val compatRoutes   = rootPathFiles <+> rootPathFile <+> htmlPage <+> newPathFile
-  val routes: HttpRoutes[IO] = compatRoutes
+  def routes: HttpRoutes[IO] = rootPathFiles <+> rootPathFile <+> htmlPage <+> newPathFile
 
 }
 
 object AppRoutes {
-  def build(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig, mp3Context: AAb): HttpRoutes[IO] =
-    new AppRoutes(implicitly, implicitly, implicitly, implicitly).routes
+  def build(implicit fileFinder: FileFinder, fileSerice: FileService, appConfig: AppConfig, mp3Context: AAb): AppRoutes =
+    new AppRoutes(implicitly, implicitly, implicitly, implicitly)
 }

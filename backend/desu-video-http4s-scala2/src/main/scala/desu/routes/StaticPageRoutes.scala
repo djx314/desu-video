@@ -26,7 +26,7 @@ class StaticPageRoutes(appConfig: AppConfig) {
     Ok(desu.views.html.fileList(webjarPrefix)(parameter))
   }
 
-  val routes: HttpRoutes[IO] = `filePath.html` <+> `page-collection.html`
+  def routes: HttpRoutes[IO] = `filePath.html` <+> `page-collection.html`
 
 }
 
