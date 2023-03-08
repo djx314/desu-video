@@ -10,6 +10,8 @@ import scala.scalajs.js.annotation._
 @JSExportTopLevel(name = "FileOutput")
 object FileOutput {
 
+  val valueS = for (i <- 1 to 20) yield Contact(name = Var(s"$i+200"))
+
   case class Contact(name: Var[String])
 
   @html
@@ -23,6 +25,7 @@ object FileOutput {
   def bindButton(contact: Vars[Contact]): Binding[Button] = <button onclick={
     event: Event =>
       contact.value.clear()
+      contact.value.appendAll(valueS)
   }>清空</button>
 
   @html

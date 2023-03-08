@@ -1,7 +1,7 @@
 package desu.mainapp
 
 import desu.config._
-import desu.routes.{AppRoutes, StaticPageRoutes}
+import desu.routes.{AppRoutes, IndexPageRoute, StaticPageRoutes}
 import desu.service._
 import cats.implicits._
 import cats.effect._
@@ -11,8 +11,6 @@ import org.http4s._
 import org.http4s.server.Router
 
 object MainAppInjected {
-
-  val aa: javax.sound.sampled.spi.FormatConversionProvider = null
 
   val appRoutes: Resource[IO, HttpRoutes[IO]] = DesuConfigBuilder.build
     .getResource[IO]
@@ -31,7 +29,8 @@ object MainAppInjected {
                 val router1: HttpRoutes[IO]     = Router(implicitly[AppConfig].APPRoot -> router1Impl)
                 val router2: HttpRoutes[IO]     = Router(implicitly[AppConfig].APPRoot -> StaticPageRoutes.build.routes)
                 val router3: HttpRoutes[IO]     = Router(implicitly[AppConfig].APPRoot -> AssertsHandle.build.staticRoutes)
-                router1 <+> router2 <+> router3
+                val rootRouter: HttpRoutes[IO]  = IndexPageRoute.build.routes
+                router1 <+> router2 <+> router3 <+> rootRouter
               }
             )
         )

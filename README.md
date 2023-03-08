@@ -20,3 +20,7 @@ desu-video-test 负责 3 个不同实现的 http 接口测试，3 个实现的�
 
 ### 其他
 flyway, slick codegen, quill codegen
+
+首页
+
+<http://127.0.0.1:8080/desu/app/index.html>

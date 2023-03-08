@@ -16,9 +16,9 @@ class StaticPageRoutes(appConfig: AppConfig) {
 
   val webjarPrefix = s"/${appConfig.APPRoot}/${appConfig.WebjarsRoot}"
 
-  val `page-collection.html` = HttpRoutes.of[IO] { case GET -> Root =>
+  val `AA.html` = HttpRoutes.of[IO] { case GET -> Root / "AA.html" =>
     val parameter = UUID.randomUUID().toString
-    Ok(desu.views.html.pageCollection(webjarPrefix)(parameter))
+    Ok(desu.views.html.AA(webjarPrefix)(parameter))
   }
 
   val `filePath.html` = HttpRoutes.of[IO] { case GET -> Root / "filePath.html" =>
@@ -26,7 +26,7 @@ class StaticPageRoutes(appConfig: AppConfig) {
     Ok(desu.views.html.fileList(webjarPrefix)(parameter))
   }
 
-  def routes: HttpRoutes[IO] = `filePath.html` <+> `page-collection.html`
+  def routes: HttpRoutes[IO] = `filePath.html` <+> `AA.html`
 
 }
 
