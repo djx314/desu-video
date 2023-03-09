@@ -23,4 +23,4 @@ flyway, slick codegen, quill codegen
 
 首页
 
-<http://127.0.0.1:8080/desu/app/index.html>
+<http://127.0.0.1:8080/>

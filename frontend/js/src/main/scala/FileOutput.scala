@@ -14,7 +14,7 @@ object FileOutput {
   case class Contact(name: Var[String])
 
   def bindingList(contact: BindingSeq[Contact]): Binding[org.scalajs.dom.Node] = html"""<div>${for (eachContact <- contact) yield {
-      html"""<div>{eachContact.name.value}</div>"""
+      html"""<div>${eachContact.name.value}</div>"""
     }}</div>"""
 
   def bindButton(contact: Vars[Contact]): Binding[org.scalajs.dom.Node] = html"""<button onclick=${(event: org.scalajs.dom.Event) =>
