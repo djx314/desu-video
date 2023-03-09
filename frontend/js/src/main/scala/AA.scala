@@ -6,6 +6,7 @@ import Binding.{BindingSeq, Constants, Var, Vars}
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import org.scalajs.dom.{document, Event}
 import org.scalajs.dom.html.*
+import org.scalajs.dom.Node
 
 /*@JSExportTopLevel(name = "AA")
 object AA {
@@ -44,9 +45,14 @@ case class Contact(name: Var[String], email: Var[String])
 @JSExportTopLevel(name = "AA")
 object AA {
 
+  var count: Int = 1
+
   def bindingButton(contact: Contact) = {
     html"""<button
-      onclick=${(event: Event) => contact.name.value = "Modified Name"}
+      onclick=${(event: Event) =>
+        contact.name.value = "Modified Name" + count.toString
+        count = count + 1
+      }
     >
      Modify the name
     </button>"""
@@ -63,8 +69,11 @@ object AA {
   def bindingTable(contacts: BindingSeq[Contact]) = {
     html"""<table>
       <tbody>
-        ${for (contact <- contacts) yield {
-        bindingTr(contact).bind
+        ${for {
+        contact <- contacts
+        u       <- bindingTr(contact)
+      } yield {
+        u
       }}
       </tbody>
     </table>"""
@@ -72,7 +81,7 @@ object AA {
 
   @JSExport
   def main(): Unit = {
-    val data = Vars(Contact(Var("Yang Bo"), Var("yang.bo@rea-group.com")))
+    val data = Vars(Contact(Var("Yang Bo"), Var("yang.bo@rea-group.com")), Contact(Var("djx314"), Var("909134790@qq.com")))
     render(document.body, bindingTable(data))
   }
 
