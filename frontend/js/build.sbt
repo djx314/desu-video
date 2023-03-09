@@ -1,6 +1,6 @@
-scalaVersion := scalaV.v213
+scalaVersion := scalaV.v3
 
-org.scalax.sbt.CustomSettings.scala213Config
+org.scalax.sbt.CustomSettings.scala3Config
 
 libraryDependencies ++= libScalax.`binding.scala`.value
 

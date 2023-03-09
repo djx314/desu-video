@@ -11,7 +11,6 @@ object CustomSettings {
   val crossConfig  = crossScalaVersions := Seq(scalaV.v213, scalaV.v3)
 
   val scala213Config: Seq[Setting[_]] = commonConfig ++: Seq(scalacOptions ++= Seq("-feature", "-deprecation", "-Ymacro-annotations"))
-  val scala3Config: Seq[Setting[_]] =
-    commonConfig ++: Seq(scalaVersion := scalaV.v3, scalacOptions ++= Seq("-feature", "-deprecation", "-Ykind-projector"))
+  val scala3Config: Seq[Setting[_]]   = commonConfig ++: Seq(scalacOptions ++= Seq("-feature", "-deprecation", "-Ykind-projector"))
 
 }
