@@ -39,10 +39,10 @@ object AA {
   }
 }*/
 
+case class Contact(name: Var[String], email: Var[String])
+
 @JSExportTopLevel(name = "AA")
 object AA {
-
-  case class Contact(name: Var[String], email: Var[String])
 
   def bindingButton(contact: Contact): Binding[Button] = {
     html"""<button
