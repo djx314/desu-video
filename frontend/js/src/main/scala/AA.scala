@@ -71,9 +71,8 @@ object AA {
       <tbody>
         ${for {
         contact <- contacts
-        u       <- bindingTr(contact)
       } yield {
-        u
+        bindingTr(contact).bind
       }}
       </tbody>
     </table>"""
